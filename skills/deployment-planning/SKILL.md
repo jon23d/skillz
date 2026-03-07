@@ -1,6 +1,6 @@
 ---
 name: deployment-planning
-description: Use when designing deployment workflows, writing CI/CD pipeline configuration, or advising on release strategy — covering build artefacts, environment promotion, rollback, and pipeline structure.
+description: Use when designing deployment workflows, writing CI/CD pipeline configuration, or advising on release strategy — covering build artifacts, environment promotion, rollback, and pipeline structure.
 ---
 
 # Deployment Planning
@@ -45,7 +45,7 @@ Never deploy using `:latest`. Use the SHA as the deployment reference.
 
 - **Development** — continuous deployment, no approval gate, used for integration testing
 - **Staging** — mirrors production configuration as closely as possible; deployed automatically after CI passes on the main branch; smoke tests run before the production gate opens
-- **Production** — deployed after staging smoke tests pass and a human approves (or after a configurable time window for teams that opt into automated promotion)
+- **Production** — deployed after staging smoke tests pass and a human approves; automated promotion is acceptable only if staging smoke tests and post-deploy health verification are both enforced — the gate is the verification, not the human click
 
 ## Deployment strategies
 
@@ -88,6 +88,6 @@ After every production deployment:
 - [ ] Deployment strategy documented and justified
 - [ ] Rollback executable in under 5 minutes
 - [ ] Health verification runs after every production deployment
-- [ ] Production requires manual approval or a passed staging smoke test gate
+- [ ] Production requires staging smoke tests to pass before promotion; manual approval or automated promotion both require this gate
 - [ ] Pipeline fails fast: lint/test before build, build before deploy
 - [ ] Failure notifications configured

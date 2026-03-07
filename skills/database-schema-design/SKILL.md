@@ -20,7 +20,7 @@ The schema is the foundation. A poor schema creates problems no amount of applic
 
 ## Primary keys
 
-Use `cuid` or `uuid` for primary keys — never auto-incrementing integers for externally exposed resources. Sequential IDs leak record counts and are trivially enumerable.
+Use `cuid` or `uuid` for primary keys — never auto-incrementing integers. Sequential IDs leak record counts, are trivially enumerable, and are hard to migrate away from once data is in production. "Internal-only" is not a reliable exemption — databases gain external surfaces through APIs, webhooks, exports, and logs over time.
 
 ## Normalisation
 
@@ -36,7 +36,7 @@ Use `cuid` or `uuid` for primary keys — never auto-incrementing integers for e
   - Restrict delete: deleting a parent with children should be an error
   - Set null: child can exist without the parent
 - Document non-obvious cascade choices with a comment
-- Many-to-many joins use an explicit join table with its own `id`, `created_at`, and any relationship-specific metadata
+- Many-to-many joins use an explicit join table with its own `id`, `created_at`, and any relationship-specific metadata. Use a composite `UNIQUE` constraint to enforce the business rule, but keep `id` as the primary key — some ORMs require a single-column PK, and a surrogate `id` allows other tables to reference individual join rows.
 
 ## Constraints
 
