@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "@opencode-ai/plugin": "latest",
+    "jira.js": "^3.0.0"
+  }
+}
