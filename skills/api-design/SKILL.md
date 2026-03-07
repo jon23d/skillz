@@ -55,11 +55,13 @@ Consistent error shape across every endpoint:
 
 - `code` is a machine-readable enum (never a number)
 - `message` is safe to display; never include internal details
-- `fields` is present only for validation errors
+- `fields` is present only for validation errors — use `fields`, not `details` or `errors`, for consistency across all endpoints
 
 ## Request validation
 
 Validate and reject bad input at the boundary — before any business logic runs. Use a schema library (zod, joi, JSON Schema, Pydantic, etc.). Return `400` with field-level errors immediately.
+
+Use `400` for all input validation failures including field format errors (invalid email, missing required field, wrong type). Reserve `422` for cases where input is structurally valid but violates a business rule (e.g. a date range where end is before start).
 
 Never pass unvalidated input to a database query or downstream service.
 
