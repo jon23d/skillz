@@ -176,6 +176,10 @@ Testing approaches by skill type:
 - **Pattern**: recognition and counter-example scenarios — success = agent knows when and when not to apply
 - **Reference**: retrieval and application scenarios — success = agent finds and correctly uses the right information
 
+## Using code while testing skills
+
+If the agent needs to write code to test a skill, use `test/<skill-name>/` within the current working directory. For example, when testing the `pull-requests` skill, write test code to `test/pull-requests/`. Clean up the directory after testing is complete.
+
 ## Bulletproofing discipline-enforcing skills
 
 Skills that enforce rules need to actively resist rationalization. Agents will find loopholes under pressure.
@@ -217,7 +221,7 @@ GREEN — write minimal skill:
 - [ ] Keywords present for discoverability
 - [ ] No diagrams; no markdown tables; use bullets and prose
 - [ ] One strong example (not multi-language)
-- [ ] Run scenarios with skill — verify compliance
+- [ ] Run scenarios with skill *by copying the skill in your prompt to the agent* — verify compliance
 
 REFACTOR — close loopholes:
 - [ ] New rationalizations? Add explicit counters
