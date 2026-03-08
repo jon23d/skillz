@@ -155,6 +155,36 @@ module.exports = { extends: ['@myorg/eslint-config'] }
 - Vite: add `vite-tsconfig-paths` plugin
 - Webpack: add `tsconfig-paths-webpack-plugin`
 
+## Environment variables — one root `.env`, no per-package `.env` files
+
+All environment variables for every package live in a single root `.env`. Do not create `.env` files inside individual packages.
+
+```bash
+# root .env — single source of truth for the entire repo
+DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+NODE_ENV=development
+JWT_SECRET=change-me-min-32-chars-xxxxxxxxxxx
+PORT=3000
+STRIPE_SECRET_KEY=sk_test_...
+```
+
+**Why one file:** per-package `.env` files cause drift (the same variable defined differently in two places), make onboarding harder (developers must populate N files instead of one), and create "works in isolation but not together" failures when variables are missing in a package that needs them.
+
+**Each app still validates only its own variables.** A shared root `.env` doesn't mean every package reads every variable — per-package `env.ts` schemas (see zod-env skill) each declare exactly the subset they need. The root file is just where the values live.
+
+**`dotenv` resolves relative to `process.cwd()`**, which is the monorepo root when commands run from there (as they always should). No path overrides needed.
+
+**Always commit `.env.example` at the root. Never commit `.env`.** When adding a variable to any package's schema, add the example entry to the root `.env.example` in the same commit.
+
+```bash
+# root .env.example — committed, documents every variable across all packages
+DATABASE_URL=postgresql://user:pass@localhost:5432/mydb
+NODE_ENV=development
+JWT_SECRET=change-me-min-32-chars-xxxxxxxxxxx
+PORT=3000
+STRIPE_SECRET_KEY=sk_test_your_key_here
+```
+
 ## Versioning with Changesets
 
 Use [Changesets](https://github.com/changesets/changesets) for version management. Do not bump versions manually.
@@ -216,3 +246,5 @@ feat(utils): add formatCurrency helper, use in dashboard billing view
 - [ ] Bundler alias plugins configured if using `tsconfig` path aliases
 - [ ] Version changes managed with Changesets, not manual edits
 - [ ] Cross-package changes committed atomically
+- [ ] All env vars defined in root `.env`; no per-package `.env` files
+- [ ] Root `.env.example` updated whenever any package adds a variable
