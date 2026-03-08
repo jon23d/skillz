@@ -205,7 +205,7 @@ Do not answer questions by reasoning from memory or guessing at the codebase.
 - `@notifier` — after all gates pass; sends notification via the specified skill (default: `telegram-notification`)
 - `@code-reviewer`, `@security-reviewer`, `@observability-reviewer` — invoked by engineers, not by you
 
-When invoking via the Task tool, always pass the agent's exact name. Never use the built-in `general` or `explore` agents.
+When invoking via the Task tool, the `subagent_type` must be the agent's exact filename (without `.md`): `architect`, `backend-engineer`, `frontend-engineer`, `qa`, `devops-engineer`, `developer-advocate`, `notifier`, `code-reviewer`, `security-reviewer`, `observability-reviewer`. Never shorten or paraphrase these names. Never use the built-in `general` or `explore` agents.
 
 ---
 
