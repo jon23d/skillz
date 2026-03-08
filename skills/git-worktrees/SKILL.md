@@ -242,6 +242,14 @@ git worktree remove ~/worktrees/{project}/{slug}
 
 If removal fails due to untracked or modified files, report and leave it. Never force-remove.
 
+After successful removal, pull the root repo to sync it with main:
+
+```bash
+git pull
+```
+
+Run this from the root repo directory (not the worktree). This keeps the root repo up-to-date for future worktrees branched from it.
+
 ## Error handling
 
 - Worktree creation failure → report and stop

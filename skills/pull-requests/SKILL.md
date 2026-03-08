@@ -65,6 +65,11 @@ Always use this template. Fill every section — do not leave sections empty or 
 <!-- Bullet list of notable changes. Be specific. -->
 - 
 
+## How to Test
+<!-- Starting from main running locally, numbered steps a reviewer must follow to test this PR.
+     If no setup is needed beyond checking out the branch, write exactly:
+     "No setup needed — check out the branch and run the app." -->
+
 ## Screenshots
 <!-- Frontend changes: embed screenshots using absolute raw URLs to images committed on this branch.
      Example: ![Login form](https://raw.githubusercontent.com/OWNER/REPO/BRANCH/agent-logs/YYYY-MM-DD-slug/login-form.png)
@@ -73,6 +78,24 @@ Always use this template. Fill every section — do not leave sections empty or 
 ## Closes
 Closes #ISSUE_NUMBER
 ```
+
+## Writing the How to Test section
+
+Before writing this section, scan the diff for signals that require reviewer action:
+
+- **New or changed env vars** — `.env.example`, config files, new `process.env` references
+- **Database changes** — new migration files, schema changes, seed data files
+- **New dependencies** — `package.json`, `requirements.txt`, `go.mod`, etc. that require an install step
+- **New scripts** — entries added to `package.json scripts`, Makefile targets, shell scripts
+- **Infrastructure changes** — Docker, Kubernetes, or other config that needs applying
+- **External service setup** — new API keys, webhooks, third-party config
+- **Feature flags** — any flag references that need enabling in a local config or dashboard
+- **Test data / seed files** — scripts the reviewer must run to get usable data in the DB
+- **Port or URL changes** — if the service now runs on a different port or a new endpoint is the entry point
+
+Write one numbered step per action. Start from: *reviewer has `main` checked out and running locally.*
+
+This section is always required. If none of the above apply, write: "No setup needed — check out the branch and run the app."
 
 For GitHub, `Closes #42` in the body will automatically close the linked issue when the PR is merged. Use the issue number, not the full URL.
 

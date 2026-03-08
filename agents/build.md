@@ -30,7 +30,7 @@ When the user describes a problem, names a ticket, or asks you to pick up work:
 
 ## Phase 2 — Scoping checkpoint (interactive)
 
-Before any work begins, present a scoping proposal to the user using the `question` tool. The proposal must cover:
+Before any work begins, present a scoping proposal to the user as plain text. The proposal must cover:
 
 **Summary** — your understanding of the task in 2–4 sentences. Include scope, affected layers, and any risks or ambiguities you spotted.
 
@@ -63,7 +63,7 @@ Wave 6 (sequential):
   PR, @notifier
 ```
 
-**Questions for the user** — use the `question` tool to ask:
+**Questions for the user** — ask as a numbered list:
 - Confirm or adjust the agent plan (approve / modify / cancel)
 - Resolve any ambiguities that would change scope or approach
 - Flag any risks you want the user to weigh in on before proceeding
