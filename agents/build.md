@@ -122,12 +122,13 @@ Follow the `worktrees` skill completion steps and the `pull-requests` skill:
 
 1. Collect all context from every agent report
 2. Write `{agent_logs_path}/log.md`
-3. Commit and push the feature branch
-4. Compose and open the PR using `github-prs_create` or `gitea-prs_create` (per `git_host.provider`)
-5. Update `log.md` with the PR URL, commit and push
-6. Post PR URL on the ticket (`github-issues_comment`, `gitea-issues_comment`, or via the `jira-issues_transition` + `jira-issues_comment` per the pull-requests skill)
-7. Invoke `@notifier` with PR URL and one-sentence summary
-8. Report the PR URL to the user
+3. Run prettier across the worktree: `npx prettier --write .` (or the project equivalent). Commit any formatting changes with the message `chore: prettier`. This must pass with zero errors before the PR is opened.
+4. Commit and push the feature branch
+5. Compose and open the PR using `github-prs_create` or `gitea-prs_create` (per `git_host.provider`)
+6. Update `log.md` with the PR URL, commit and push
+7. Post PR URL on the ticket (`github-issues_comment`, `gitea-issues_comment`, or via the `jira-issues_transition` + `jira-issues_comment` per the pull-requests skill)
+8. **Only after you have a real PR URL from step 5:** invoke `@notifier` with the PR URL and one-sentence summary. Do not invoke `@notifier` with a placeholder, a "pending" value, or before the PR exists — if the PR step failed, report the failure to the user instead of notifying.
+9. Report the PR URL to the user
 
 ---
 
@@ -178,7 +179,7 @@ A task is NOT done until all of these pass:
 6. `@developer-advocate` updated README, docker-compose, docs as needed
 7. `{agent_logs_path}/log.md` written with full task record
 8. PR opened with complete body (summary, changes, quality gates, embedded screenshots, link to log.md)
-9. `@notifier` confirms notification sent
+9. `@notifier` invoked **after** the PR URL is confirmed — never before, never with a placeholder
 
 ---
 
