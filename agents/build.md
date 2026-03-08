@@ -128,7 +128,8 @@ Follow the `worktrees` skill completion steps and the `pull-requests` skill:
 6. Update `log.md` with the PR URL, commit and push
 7. Post PR URL on the ticket (`github-issues_comment`, `gitea-issues_comment`, or via the `jira-issues_transition` + `jira-issues_comment` per the pull-requests skill)
 8. **Only after you have a real PR URL from step 5:** invoke `@notifier` with the PR URL and one-sentence summary. Do not invoke `@notifier` with a placeholder, a "pending" value, or before the PR exists — if the PR step failed, report the failure to the user instead of notifying.
-9. Report the PR URL to the user
+9. **Follow the `pipeline-watch` skill:** watch CI checks until all pass. Do not report the task complete until CI is green (or a timeout/infra failure that requires user action). Report CI status alongside the PR URL.
+10. Report the PR URL and CI result to the user
 
 ---
 
@@ -180,6 +181,7 @@ A task is NOT done until all of these pass:
 7. `{agent_logs_path}/log.md` written with full task record
 8. PR opened with complete body (summary, changes, quality gates, embedded screenshots, link to log.md)
 9. `@notifier` invoked **after** the PR URL is confirmed — never before, never with a placeholder
+10. CI pipeline checks are green (per `pipeline-watch` skill) — not just pre-PR local checks
 
 ---
 

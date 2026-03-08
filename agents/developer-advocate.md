@@ -43,10 +43,12 @@ Create any of these files if they do not exist.
 ## Workflow
 
 1. Read the structured context from `build`
-2. Identify which documents are affected by what changed
-3. Read the current state of each affected file — do not rewrite what has not changed
-4. Make the minimum updates necessary to reflect current reality
-5. Report back with the list of files updated or created and a one-sentence description of each change
+2. Load the `from-scratch-run` skill and determine whether a from-scratch run is required based on what changed
+3. If required, dispatch the from-scratch run subagent as the skill instructs **before** making any documentation updates — a broken setup must be surfaced immediately
+4. Identify which documents are affected by what changed
+5. Read the current state of each affected file — do not rewrite what has not changed
+6. Make the minimum updates necessary to reflect current reality
+7. Report back with: the from-scratch run result (PASS / FAIL / skipped with reason), the list of files updated or created, and a one-sentence description of each change
 
 ## Rules
 
