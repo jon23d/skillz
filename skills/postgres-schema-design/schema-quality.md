@@ -16,13 +16,6 @@ Always use UUIDs. Never use `SERIAL` or `BIGSERIAL` for new tables.
 id String @id @default(uuid())
 ```
 
-**SQLAlchemy:**
-```python
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
-id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-```
-
 **Raw SQL:**
 ```sql
 id UUID PRIMARY KEY DEFAULT gen_random_uuid()
@@ -120,14 +113,6 @@ Use for value bounds and business rules that can be expressed as a condition:
 ```sql
 CONSTRAINT chk_plans_positive_price CHECK (monthly_price >= 0),
 CONSTRAINT chk_subscriptions_period  CHECK (current_period_end > current_period_start)
-```
-
-**SQLAlchemy:**
-```python
-from sqlalchemy import CheckConstraint
-__table_args__ = (
-    CheckConstraint("monthly_price >= 0", name="chk_plans_positive_price"),
-)
 ```
 
 ---

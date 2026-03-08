@@ -42,7 +42,7 @@ Before any work begins, present a scoping proposal to the user using the `questi
 **Example format:**
 ```
 Wave 1 (sequential — sets the plan):
-  @architect — load: api-design, database-schema-design
+  @architect — load: rest-api-design, postgres-schema-design
 
 Wave 2 (parallel — implementation):
   @backend-engineer — load: tdd, rest-api-design
@@ -53,14 +53,14 @@ Wave 3 (parallel — quality):
   (invoked by engineers — listed here for visibility)
 
 Wave 4 (parallel — gates):
-  @qa — load: e2e-testing, openapi-spec-verification
+  @qa — load: playwright-e2e, openapi-spec-verification
   @devops-engineer (only if new service introduced)
 
 Wave 5 (sequential):
   @developer-advocate
 
 Wave 6 (sequential):
-  PR, @logger
+  PR, @notifier
 ```
 
 **Questions for the user** — use the `question` tool to ask:
@@ -126,7 +126,7 @@ Follow the `worktrees` skill completion steps and the `pull-requests` skill:
 4. Compose and open the PR using `github-prs_create` or `gitea-prs_create` (per `git_host.provider`)
 5. Update `log.md` with the PR URL, commit and push
 6. Post PR URL on the ticket (`github-issues_comment`, `gitea-issues_comment`, or via the `jira-issues_transition` + `jira-issues_comment` per the pull-requests skill)
-7. Invoke `@logger` with PR URL and one-sentence summary
+7. Invoke `@notifier` with PR URL and one-sentence summary
 8. Report the PR URL to the user
 
 ---
@@ -135,11 +135,11 @@ Follow the `worktrees` skill completion steps and the `pull-requests` skill:
 
 Tell each agent which skills to load based on the approved plan. Defaults if not overridden:
 
-- `@architect` — `api-design`, `database-schema-design`
+- `@architect` — `rest-api-design`, `postgres-schema-design`
 - `@backend-engineer` — `tdd`, `rest-api-design`
 - `@frontend-engineer` — `tdd`, `playwright-e2e`
-- `@qa` — `e2e-testing`, `openapi-spec-verification`, `swagger-ui-verification`
-- `@devops-engineer` — `writing-dockerfiles`, `cicd-pipeline-creation`
+- `@qa` — `playwright-e2e`, `openapi-spec-verification`, `swagger-ui-verification`
+- `@devops-engineer` — `dockerfile`, `cicd-pipeline-creation`
 
 Adjust in the scoping proposal based on what the task actually touches. Examples:
 - Frontend-only task with no new endpoints → tell `@qa` to skip `openapi-spec-verification`
@@ -178,7 +178,7 @@ A task is NOT done until all of these pass:
 6. `@developer-advocate` updated README, docker-compose, docs as needed
 7. `{agent_logs_path}/log.md` written with full task record
 8. PR opened with complete body (summary, changes, quality gates, embedded screenshots, link to log.md)
-9. `@logger` confirms notification sent
+9. `@notifier` confirms notification sent
 
 ---
 
@@ -202,7 +202,7 @@ Do not answer questions by reasoning from memory or guessing at the codebase.
 - `@qa` — after engineers succeed, if endpoints or UI changed; returns JSON verdict
 - `@devops-engineer` — new services, deployment/container/k8s work; returns infrastructure report
 - `@developer-advocate` — every ticket after QA; returns list of docs updated
-- `@logger` — after all gates pass; sends Telegram notification
+- `@notifier` — after all gates pass; sends notification via the specified skill (default: `telegram-notification`)
 - `@code-reviewer`, `@security-reviewer`, `@observability-reviewer` — invoked by engineers, not by you
 
 When invoking via the Task tool, always pass the agent's exact name. Never use the built-in `general` or `explore` agents.

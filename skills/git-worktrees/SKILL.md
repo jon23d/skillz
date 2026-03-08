@@ -81,7 +81,7 @@ Every subagent invocation must include:
 
 > "Your working directory is `{worktree_path}`. All file reads, writes, edits, and bash commands must operate relative to this path. Do not operate on files outside this directory."
 
-This applies to all subagents: `@backend-engineer`, `@frontend-engineer`, `@devops-engineer`, `@qa`, `@developer-advocate`, `@code-reviewer`, `@security-reviewer`, `@observability-reviewer`, `@logger`.
+This applies to all subagents: `@backend-engineer`, `@frontend-engineer`, `@devops-engineer`, `@qa`, `@developer-advocate`, `@code-reviewer`, `@security-reviewer`, `@observability-reviewer`, `@notifier`.
 
 When invoking `@frontend-engineer`, also pass the agent-logs path:
 
@@ -224,9 +224,9 @@ git push origin feature/{slug}
 - Gitea/GitHub: `gitea-issues_comment` / `github-issues_comment` — post `🔀 PR opened: {pr_url}`
 - Jira: handled by the pull-requests skill
 
-### 8. Invoke logger
+### 8. Invoke notifier
 
-Pass to `@logger`: the PR URL and a one-sentence summary of what was done.
+Pass to `@notifier`: the PR URL and a one-sentence summary of what was done.
 
 ### 9. Leave the worktree in place
 

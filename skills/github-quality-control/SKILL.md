@@ -29,8 +29,10 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - '**.py'                       # or '**.js', '**.ts', etc.
-      - 'requirements.txt'            # adjust for your project
+      - '**.ts'
+      - '**.tsx'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
       - '.github/workflows/quality.yml'
 
 permissions:
@@ -49,19 +51,22 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python             # or setup-node, setup-go, etc.
-        uses: actions/setup-python@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
+          node-version: '22'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pnpm install --frozen-lockfile
 
       - name: Run tests
-        run: pytest --junitxml=results/test-results.xml
+        run: pnpm test --reporter=junit --outputFile=results/test-results.xml
 
       - name: Run linting
-        run: ruff check .
+        run: pnpm lint
 
       - name: Upload failed logs
         if: failure()
@@ -74,7 +79,7 @@ jobs:
 ## Required elements (must include - NO EXCEPTIONS)
 
 1. **`branches: [main, develop]`** — not `'**'`, not `branches-ignore`
-2. **`paths:` filter** — only code files (e.g., `['**.py', 'requirements.txt']`)
+2. **`paths:` filter** — only code files (`'**.ts'`, `'**.tsx'`, `'pnpm-lock.yaml'`)
 3. **`permissions:` block with ALL of these:**
    ```yaml
    permissions:
@@ -84,11 +89,12 @@ jobs:
    ```
 4. **`concurrency:` block with `cancel-in-progress: true`** — prevents duplicate runs
 5. **Single job named `quality`** — NOT multiple jobs (test/lint should run sequentially in one job)
-6. **Explicit runtime version** — `python-version: '3.11'` with NO conditionals
-7. **Explicit `pytest` command** — NO `|| true`, NO shell conditionals
-8. **Explicit `ruff check .` command** — NO `|| true`, NO shell conditionals
-9. **Artifact upload on failure** — `if: failure()` with `upload-artifact`
-10. **`path: '.github/workflows/quality.yml'`** — triggers when workflow itself changes
+6. **Explicit Node.js version** — `node-version: '22'` with NO conditionals
+7. **`pnpm install --frozen-lockfile`** — never `install` without lockfile enforcement
+8. **Explicit `pnpm test` command** — NO `|| true`, NO shell conditionals
+9. **Explicit `pnpm lint` command** — NO `|| true`, NO shell conditionals
+10. **Artifact upload on failure** — `if: failure()` with `upload-artifact`
+11. **`path: '.github/workflows/quality.yml'`** — triggers when workflow itself changes
 
 ## Forbidden patterns (NEVER do these - NO EXCEPTIONS)
 
@@ -99,7 +105,7 @@ jobs:
 - **Missing `checks: write` or `pull-requests: write`** in permissions — PR checks won't report
 - **Missing `cancel-in-progress: true`** — wastes CI minutes on duplicate runs
 - **Missing `.github/workflows/quality.yml` in `paths:`** — workflow changes won't retrigger
-- **Shell conditionals for test/lint** — don't detect runtime; specify one: `pytest` or `ruff check .`
+- **Shell conditionals for test/lint** — don't detect runtime; specify one: `pnpm test` or `pnpm lint`
 
 ## What each element does
 
@@ -118,9 +124,9 @@ jobs:
 | `branches: '**'` | `branches: [main, develop]` |
 | `branches-ignore: [main]` | `branches: [main]` with `paths-ignore` for docs |
 | No permissions block | `permissions: {contents: read, checks: write}` |
-| `setup-python` without version | `with: {python-version: '3.11'}` |
+| `setup-node` without version | `with: {node-version: '22'}` |
 | No artifact on failure | `if: failure()` + `upload-artifact` |
-| `npm test || true` | Just `npm test` (let pytest fail naturally) |
+| `pnpm test \|\| true` | Just `pnpm test` (let it fail naturally) |
 
 ## Red flags — stop and reassess
 

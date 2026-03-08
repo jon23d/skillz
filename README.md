@@ -172,7 +172,7 @@ The default agent. Handles the full feature development lifecycle:
    - Wave 3: `@code-reviewer`, `@security-reviewer`, `@observability-reviewer` (invoked by engineers)
    - Wave 4: `@qa` + `@devops-engineer` in parallel
    - Wave 5: `@developer-advocate`
-   - Wave 6: PR, `@logger`
+   - Wave 6: PR, `@notifier`
 
 The build agent has no bash access and does not write code. It scopes, delegates, enforces quality gates, and reports.
 

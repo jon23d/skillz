@@ -7,8 +7,7 @@ description: Use when writing, reviewing, or editing a Dockerfile or docker-comp
 
 Every Dockerfile decision affects security, build speed, and image size. Apply these rules without exception.
 
-**If the project is Node.js** (contains `package.json`, uses npm/yarn/pnpm, or is Express/Next.js/NestJS): read `node.md` before writing any code.
-**If the project is Python** (contains `requirements.txt`, `pyproject.toml`, or is FastAPI/Django/Flask): read `python.md` before writing any code.
+**This project is Node.js / TypeScript.** Read `node.md` before writing any code.
 
 ## Base image — pin to a specific version tag
 
@@ -17,11 +16,9 @@ Never use `latest`. Pin to a specific version tag. Prefer minimal variants.
 ```dockerfile
 # Bad
 FROM node:latest
-FROM python:latest
 
 # Good
 FROM node:22.3-slim
-FROM python:3.12-slim
 ```
 
 Use `-slim` or `-alpine` variants unless you have a specific reason not to. Alpine is smallest but can cause compatibility issues with native binaries — use `-slim` when unsure.
@@ -149,7 +146,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ## Checklist
 
 - [ ] Base image pinned to specific version tag, slim/alpine variant used
-- [ ] Language-specific rules applied (read `node.md` or `python.md` if applicable)
+- [ ] Node.js-specific rules applied (read `node.md`)
 - [ ] Dependency files copied and installed before source code
 - [ ] Multi-stage build used; final stage contains only runtime artifacts
 - [ ] No secrets in `ENV`, `ARG`, or `RUN` commands

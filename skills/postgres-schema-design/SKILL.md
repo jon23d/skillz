@@ -1,6 +1,6 @@
 ---
 name: postgres-schema-design
-description: Use when designing or modifying a PostgreSQL database schema, adding tables or columns, creating indexes, or making any structural database change in a project that uses Prisma (JS/TS) or Alembic (Python).
+description: Use when designing or modifying a PostgreSQL database schema, adding tables or columns, creating indexes, or making any structural database change. This project uses Prisma.
 ---
 
 # Postgres Schema Design
@@ -9,14 +9,11 @@ description: Use when designing or modifying a PostgreSQL database schema, addin
 
 **All schema changes go through migrations. Never apply raw DDL directly to the database.**
 
-The migration tool is the source of truth for schema state. Editing `schema.prisma` or a SQLAlchemy model without generating a migration, or running `CREATE TABLE` by hand, breaks that truth.
+The migration tool is the source of truth for schema state. Editing `schema.prisma` without generating a migration, or running `CREATE TABLE` by hand, breaks that truth.
 
-## Step 1: Identify the migration framework
+## Step 1: Confirm Prisma is set up
 
-Before writing anything, confirm which tool the project uses:
-- **Prisma** — look for `prisma/schema.prisma`
-- **Alembic** — look for `alembic/` directory and `alembic.ini`
-- If neither exists, ask before proceeding.
+Look for `prisma/schema.prisma`. If it does not exist, ask before proceeding.
 
 ## Step 2: Make the change correctly by framework
 
@@ -29,15 +26,6 @@ See [framework-workflows.md](framework-workflows.md) for full step-by-step workf
 4. Commit both `schema.prisma` and the migration folder together
 
 Never hand-write the `.sql` migration file. Never create raw numbered `.sql` files outside `prisma/migrations/`.
-
-**Alembic (Python) — short form:**
-1. Edit the SQLAlchemy model(s) in `app/models/`
-2. Run `alembic revision --autogenerate -m "<descriptive-name>"` to generate the migration
-3. Review and adjust the generated file in `alembic/versions/`
-4. Run `alembic upgrade head` to apply
-5. Commit model changes and the migration file together
-
-Prefer autogenerate over hand-writing. If autogenerate produces wrong output for Postgres-specific types (e.g. `JSONB`, `UUID`), fix the generated file — don't skip generation entirely.
 
 ## Step 3: Schema quality checklist
 

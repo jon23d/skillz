@@ -1,5 +1,5 @@
 ---
-name: pull-request
+name: pull-requests
 description: Use when opening, updating, or listing pull requests. Use when asked to "open a PR", "create a pull request", "submit for review", or "raise a PR". Apply when work on a feature branch is complete and ready for review.
 ---
 
