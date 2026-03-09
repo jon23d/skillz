@@ -20,6 +20,6 @@ echo "  Copying docs/* -> $TARGET/"
 cp -r "$SCRIPT_DIR/docs/." "$TARGET/"
 
 # Main Agents
-cp "$SCRIPT_DIR/AGENTS.MD" "$TARGET/"
+cp "$SCRIPT_DIR/AGENTS.md" "$TARGET/"
 
 echo "Done."
