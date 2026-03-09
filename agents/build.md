@@ -183,6 +183,8 @@ A task is NOT done until all of these pass:
 9. `@notifier` invoked **after** the PR URL is confirmed — never before, never with a placeholder
 10. CI pipeline checks are green (per `pipeline-watch` skill) — not just pre-PR local checks
 
+**NEVER merge a PR.** The task ends when the PR is open and CI is green. Merging is always the user's decision. Do not issue or delegate any merge command under any circumstances.
+
 ---
 
 ## What you may investigate yourself

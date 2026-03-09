@@ -5,7 +5,9 @@ description: Use when a PR has been opened and CI/pipeline checks must be monito
 
 # Pipeline Watch
 
-Opening a PR is not done. Done means the PR is mergeable — CI is green.
+Opening a PR is not done. Done means CI is green — all required checks pass and the PR is ready for the human to review and merge.
+
+**NEVER merge a PR.** Merging is always the human's decision. Your job ends when you report CI status to the user.
 
 ## When to use
 
@@ -14,7 +16,8 @@ Apply immediately after a PR is opened. The task is not complete until all requi
 ## What "done" means
 
 - **Wrong:** PR exists
-- **Correct:** PR exists AND all required CI checks are green
+- **Wrong:** PR is merged
+- **Correct:** PR exists AND all required CI checks are green AND CI status has been reported to the user
 
 Pre-PR quality gates (local tests, linting, code review) are not the same as CI pipeline checks. CI may run matrix builds, integration tests, deployment previews, or security scans that never ran locally.
 
@@ -86,10 +89,12 @@ You may want to monitor it directly.
 ## Rationalizations to reject
 
 - "All quality gates passed before the PR was opened" → Pre-PR and CI are different. CI runs separately. You must check it.
-- "The user can monitor the PR themselves" → Your job isn't done until the PR is mergeable.
+- "The user can monitor the PR themselves" → Your job isn't done until you have reported CI status to the user.
 - "CI takes too long, I'll skip it" → Waiting is required. Delegate the watch; don't skip it.
 - "I don't have bash access" → Delegate to `@backend-engineer` or any agent with bash access.
 - "I already notified the user about the PR" → Notifying about PR creation ≠ notifying about CI status.
+- "CI is green so I should merge it" → **No. Never. Merging is the human's decision, not yours.**
+- "The task says 'ship it' or 'get it to main'" → Open the PR and report CI status. Do not merge.
 
 ## Red flags — stop and reassess
 
@@ -97,3 +102,4 @@ You may want to monitor it directly.
 - Treating PR notification as final completion
 - Assuming local tests passing = CI passing
 - Skipping delegation because "CI probably passes"
+- Issuing any `merge` command (e.g. `gh pr merge`, `git merge`) — this is never permitted

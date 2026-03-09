@@ -1,5 +1,5 @@
 ---
-name: tdd
+name: test-driven-development
 description: Use when writing any code — functions, modules, APIs, UI components, scripts, or any other implementation. Use when asked to "implement", "build", "write", "add", "create", or "refactor" anything that involves code. Apply regardless of language, framework, or perceived complexity. Especially critical during refactors — new classes and functions require new tests even when existing tests pass.
 ---
 
