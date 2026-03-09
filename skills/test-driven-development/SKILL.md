@@ -1,6 +1,6 @@
 ---
 name: tdd
-description: Use when writing any code — functions, modules, APIs, UI components, scripts, or any other implementation. Use when asked to "implement", "build", "write", "add", or "create" anything that involves code. Apply regardless of language, framework, or perceived complexity.
+description: Use when writing any code — functions, modules, APIs, UI components, scripts, or any other implementation. Use when asked to "implement", "build", "write", "add", "create", or "refactor" anything that involves code. Apply regardless of language, framework, or perceived complexity. Especially critical during refactors — new classes and functions require new tests even when existing tests pass.
 ---
 
 # Test-Driven Development
@@ -80,6 +80,57 @@ Do not modify existing code unless absolutely necessary.
 Existing tests must still pass. New tests must now pass.
 
 The key difference: you're extending existing code, not replacing it. Run all tests to ensure you didn't break anything.
+
+## Refactoring — new structure means new tests
+
+Refactoring is the most common way untested code enters a codebase. The reasoning feels sound: "I'm just restructuring, existing tests cover the behavior, so if they pass I'm done." This is wrong.
+
+**The rule: if you create it, you test it.** A new class extracted from an existing function is new code. A new public method is a new contract. It doesn't matter that the logic existed before — the unit is new and needs its own tests.
+
+### What counts as "new" during a refactor
+
+- A new class or module, even if extracted from existing code
+- A new public function or method, even if its body was copied verbatim
+- A new interface or contract between components
+- New parameters, configuration, or options that didn't exist before
+- Error handling paths introduced by the new structure
+
+### The refactoring sequence
+
+**Step 1 — Run existing tests. They must pass.** This is your safety net. If they don't pass before you start, you can't trust them to catch regressions.
+
+**Step 2 — Perform the structural refactor.** Extract classes, move functions, reorganize modules.
+
+**Step 3 — Run existing tests again. They must still pass.** This confirms you haven't changed external behavior. But you are not done.
+
+**Step 4 — Identify every new public interface you created.** List each new class, each new public method, each new module export. These are your new units.
+
+**Step 5 — For each new unit, apply the standard TDD sequence.** Write a failing test that describes the unit's contract. Run it, confirm failure. Then confirm the implementation satisfies it. This is not optional — it's the same rule as writing any other new code.
+
+**Step 6 — Run all tests. Existing and new must pass.**
+
+"Existing tests pass" is Step 3. It is not Step 6. You are not done at Step 3.
+
+### Rationalizations specific to refactoring
+
+**"It's just moving code, the behavior hasn't changed."**
+The behavior may be the same but the contracts are new. A new class has its own construction, its own edge cases, its own failure modes. The old tests don't exercise these — they go through the old call path.
+
+**"Existing tests already cover this logic."**
+Existing tests cover the logic *through the old structure*. If someone later modifies the extracted class in isolation, those tests may not catch the regression. The new unit needs tests that exercise it directly.
+
+**"All existing tests pass, so the refactor is correct."**
+Passing existing tests is necessary but not sufficient. It proves you didn't break old behavior. It proves nothing about whether the new abstractions handle edge cases, validate inputs correctly, or will survive future changes.
+
+**"Adding tests for extracted code is just testing implementation details."**
+No. A new public class with its own constructor and methods is not an implementation detail — it's a new unit with a public contract. If it's important enough to extract, it's important enough to test.
+
+### Refactoring red flags
+
+- You created new classes or functions but wrote zero new test files or test cases
+- Your PR/changeset has more new production code than new test code
+- The test plan is "existing tests should pass" with no mention of new tests
+- You're about to mark a refactor complete and haven't written a single new test
 
 ## What a good test looks like
 
@@ -167,3 +218,12 @@ Writing a test forces you to clarify them. Start with the clearest case.
 - [ ] All tests run — existing pass, new tests fail
 - [ ] New feature implemented
 - [ ] All tests run — all pass
+
+**For refactoring:**
+- [ ] Existing tests pass before any changes (safety net confirmed)
+- [ ] Structural refactor performed
+- [ ] Existing tests still pass (behavior preserved)
+- [ ] Every new public class, method, and module export identified
+- [ ] New tests written for each new unit — failing test shown first
+- [ ] New tests pass
+- [ ] All tests run — existing and new all pass
