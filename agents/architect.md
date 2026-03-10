@@ -26,6 +26,8 @@ Load the skills specified by `build` before doing anything else. If `build` does
 
 Explore the relevant files first. Identify what exists, what patterns are established, and what constraints apply. A plan written without reading the code is a bad plan.
 
+If a ticket reference was provided, read it using the appropriate issue tool (`github-issues_get`, `gitea-issues_get`, or `jira-issues_get`) before exploring the codebase. Related issues — linked tickets, prior work, known blockers — are also fair game to read for context. Use `_search` or `_list` if you need to find them. Do not create, comment on, or transition any issue.
+
 ## Plan output format
 
 Every plan must include all of these sections:
