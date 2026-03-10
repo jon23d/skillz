@@ -9,6 +9,8 @@ description: Use when writing or reviewing TypeScript tests with vitest. Covers 
 
 Run `npx vitest run` from the project root. Always run the full suite. TypeScript errors are test failures.
 
+After tests pass, run the linter: `pnpm lint` (or `npm run lint` if the project does not use pnpm). Zero errors required. Lint errors are not warnings — they are failures. Do not report back or invoke reviewers until both the test suite and the linter are clean.
+
 ---
 
 ## When to use testcontainers vs factories
