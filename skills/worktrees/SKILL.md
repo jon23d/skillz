@@ -26,7 +26,7 @@ If this fails, run `git init` before proceeding.
 
 **Worktree path**: `~/worktrees/{project}/{slug}`
 **Branch name**: `feature/{slug}`
-**Agent-logs path**: `{worktree_path}/agent-logs/YYYY-MM-DD-{slug}/` (use today's date)
+**Agent-logs path**: `{worktree_path}/agent-logs/YYYY-MM-DD-{slug}/` (use today's date) — note: `agent-logs`, no leading dot. It is not a hidden directory.
 
 ## Step 1b — Rename the session
 
@@ -190,13 +190,18 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 
 ### 4. Commit and push
 
+Stage everything with `git add -A` — this must include `agent-logs/` (screenshots and log.md). Do not use selective `git add <file>` which would leave `agent-logs/` unstaged.
+
 ```bash
 git -C ~/worktrees/{project}/{slug} add -A
+git -C ~/worktrees/{project}/{slug} status  # confirm agent-logs/ appears under "Changes to be committed"
 git -C ~/worktrees/{project}/{slug} commit -m "{concise imperative summary}"
 git push origin feature/{slug}
 ```
 
-If working tree is clean, skip the commit and push directly. Do not open the PR until push succeeds.
+If `git status` shows `agent-logs/` is not staged, it means it was saved to the wrong path (check for `.agent-logs/` — the path must not have a leading dot). Stage it explicitly and commit before pushing.
+
+Do not open the PR until push succeeds.
 
 ### 5. Compose and open the PR
 

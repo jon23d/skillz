@@ -542,18 +542,22 @@ Common interaction states to capture:
    await page.goto('http://localhost:PORT/your-route')
    await page.waitForLoadState('networkidle')
 
+   // Replace AGENT_LOGS_PATH with the agent-logs path provided by build (e.g. /home/user/worktrees/myapp/42-add-auth/agent-logs/2026-03-10-42-add-auth)
+   // The path uses agent-logs/ with NO leading dot — it is not a hidden directory.
+   const AGENT_LOGS_PATH = process.env.AGENT_LOGS_PATH // passed in as env var or hardcoded from build's invocation
+
    // Default state
-   await page.screenshot({ path: 'agent-logs/.../home_default_desktop.png', fullPage: true })
+   await page.screenshot({ path: `${AGENT_LOGS_PATH}/home_default_desktop.png`, fullPage: true })
 
    // After clicking the trigger
    await page.click('button:has-text("Add Item")')
    await page.waitForSelector('label:has-text("Item name")')
-   await page.screenshot({ path: 'agent-logs/.../home_item-form-open_desktop.png', fullPage: true })
+   await page.screenshot({ path: `${AGENT_LOGS_PATH}/home_item-form-open_desktop.png`, fullPage: true })
 
    // After triggering validation
    await page.click('button:has-text("Save")')
    await page.waitForSelector('text=Item name is required')
-   await page.screenshot({ path: 'agent-logs/.../home_validation-error_desktop.png', fullPage: true })
+   await page.screenshot({ path: `${AGENT_LOGS_PATH}/home_validation-error_desktop.png`, fullPage: true })
 
    await browser.close()
    ```
