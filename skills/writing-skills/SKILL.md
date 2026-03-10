@@ -1,5 +1,5 @@
 ---
-name: Writing Skills
+name: writing-skills
 description: Use when creating a new skill, editing an existing skill, writing a SKILL.md, or verifying a skill works before deployment.
 ---
 
