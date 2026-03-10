@@ -33,7 +33,9 @@ Load `system-knowledge` to understand how to read and update the `docs/` domain 
 1. Load the `writing-tickets` and `system-knowledge` skills
 2. Read `agent-config.json` to determine `issue_tracker.provider`
 3. **Ground yourself in documented behaviour** — read the relevant `docs/<domain>.md` file(s) for the area this ticket touches. If `docs/` does not exist or is empty, follow the bootstrapping step in the `system-knowledge` skill before continuing.
-4. **Update the domain doc** — write the new or changed behaviour into the relevant `docs/<domain>.md` file before drafting the ticket. This forces precision and directly informs the acceptance criteria.
+4. **Draft the new behaviour in plain prose** — write out what the system will do after this ticket is implemented, in the same style as the `docs/` files. Do this as a mental model exercise to force precision: if you cannot describe it plainly, the acceptance criteria will be vague. This draft goes into the ticket body (see the `writing-tickets` skill for where), **not** into `docs/`. Do not write to or modify any `docs/` file — updating `docs/` is `@developer-advocate`'s job, done after implementation is complete and merged.
+   - For net-new features with no existing documented behaviour, this step still applies — draft what the new behaviour will be, even if there is nothing to compare it against.
+   - For tickets that change existing behaviour, note what the current behaviour is and what it will become.
 5. Draft the ticket following the `writing-tickets` skill format exactly
 6. If invoked by the user interactively, present the draft and ask for confirmation before posting
 7. Post the ticket using the appropriate tool:

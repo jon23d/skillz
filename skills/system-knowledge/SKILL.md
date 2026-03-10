@@ -40,10 +40,10 @@ Files live at `docs/<domain>.md`. Examples: `docs/auth.md`, `docs/checkout.md`, 
 1. List files in `docs/` to find relevant domains
 2. Read the domain file(s) that overlap with the ticket topic
 3. Identify the specific feature or rule the ticket changes
-4. Update the domain file to reflect the new behavior **before** finalizing the ticket — this forces precision and feeds directly into acceptance criteria
-5. Then write the ticket, grounded in the updated doc
+4. Draft the new behavior in plain prose — this forces precision and feeds directly into acceptance criteria. Put this draft in the ticket body. **Do not write to or modify any `docs/` file.** `docs/` reflects what the system does now. Writing future behavior into it before implementation pollutes the source of truth.
+5. Then write the ticket, grounded in that draft
 
-Updating the doc before posting is not optional. Writing the new behavior in plain prose first clarifies what the acceptance criteria should actually say.
+Writing out the new behavior in plain prose before drafting the ticket is not optional — it clarifies what the acceptance criteria should actually say. But `docs/` is updated after implementation is complete, by `@developer-advocate`.
 
 ## Bootstrapping: when docs/ doesn't exist or is insufficient
 
