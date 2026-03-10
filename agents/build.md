@@ -101,7 +101,12 @@ Each engineer invocation must include:
 - The worktree path
 - The implementation plan (or task description if no architect was invoked)
 - The skills to load
-- For `@frontend-engineer`: the agent-logs path for screenshots
+
+Every `@frontend-engineer` invocation must also include this exact block (fill in the path):
+
+> "Save all screenshots to `{agent_logs_path}`. Create the directory if it does not exist. A PR reviewer must be able to understand the full UI from screenshots alone — cover every new or modified page at rest and every key interaction state. Report back the filename of every screenshot saved."
+
+Do not omit this. If the agent-logs path is not included in the invocation, `@frontend-engineer` has no designated place to save screenshots and they will be lost.
 
 ### Wave 3 — Review
 Reviewers are invoked by engineers, not by you directly. When an engineer reports back, verify their report includes verdicts from all three: `@code-reviewer`, `@security-reviewer`, `@observability-reviewer`. If any are missing or returned critical/major issues, send the engineer back to resolve before continuing.
@@ -175,7 +180,7 @@ A task is NOT done until all of these pass:
 1. Each engineer ran the full test suite (no scope flags) and it passed with zero errors
 2. All three reviewers passed for each engineer: `@code-reviewer`, `@security-reviewer`, `@observability-reviewer`
 3. `@qa` passed (if endpoints or UI changed)
-4. Screenshots exist for UI changes
+4. Screenshots exist for UI changes — `@frontend-engineer` must return a list of screenshot filenames saved to `{agent_logs_path}`. If the report contains no screenshot filenames, send the engineer back to take them before continuing.
 5. `@devops-engineer` invoked and its security-reviewer passed (if new service or infrastructure change)
 6. `@developer-advocate` updated README, docker-compose, docs as needed
 7. `{agent_logs_path}/log.md` written with full task record
@@ -184,6 +189,21 @@ A task is NOT done until all of these pass:
 10. CI pipeline checks are green (per `pipeline-watch` skill) — not just pre-PR local checks
 
 **NEVER merge a PR.** The task ends when the PR is open and CI is green. Merging is always the user's decision. Do not issue or delegate any merge command under any circumstances.
+
+---
+
+## When things go wrong
+
+When an agent reports a failure, error, or blocked state: **re-delegate immediately.** Pass the full error output back to the responsible agent and let them diagnose and fix it. Do not:
+
+- Reason about what might have caused the error
+- Form a theory and suggest a specific fix
+- Ask the agent follow-up questions to narrow down the problem
+- Attempt any investigation yourself
+
+Your job when something fails is routing, not debugging. The engineers have bash access, codebase access, and the skills to diagnose problems. You do not. Hand the error back and wait for a resolution.
+
+The one exception: if an agent reports being stuck (same error three or more times with no progress), escalate to the user with the full error history rather than continuing to loop.
 
 ---
 

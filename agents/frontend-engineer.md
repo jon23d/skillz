@@ -45,7 +45,14 @@ The skills are the authoritative guide for how to implement, test, and structure
 5. Invoke `@code-reviewer` with the full contents of every modified or created file. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing.
 6. Invoke `@security-reviewer` with the same files. If it returns `"fail"`, resolve all issues and re-invoke both reviewers from step 5.
 7. Invoke `@observability-reviewer` with the same files. If it returns `"fail"`, resolve all issues and re-invoke all three reviewers from step 5.
-8. Take screenshots of all created or modified UI. Save to the agent-logs path provided by `build`; create it if it does not exist. Name descriptively (e.g. `login-form.png`, `error-empty-email.png`).
+8. Take screenshots of all created or modified UI using Playwright. The goal is that a PR reviewer should be able to understand the full UI without running the code — screenshots are the evidence. Start the dev server, then write a short Playwright script that navigates to each relevant page and state, calling `page.screenshot({ path: '...' })` for each. Do not rely on Playwright test failure artifacts — those only capture on failure and are not the screenshots required here. Save all screenshots to the agent-logs path provided by `build`; create the directory if it does not exist. Name files descriptively (e.g. `login-form.png`, `dashboard.png`, `error-empty-email.png`).
+
+   Cover every state a reviewer would need to see:
+   - Each new or modified page at rest (default/initial state)
+   - All key interaction states: error messages, validation feedback, loading states, empty states, success states
+   - Any meaningful UI difference introduced by the change (e.g. a button that appears only when authenticated, a conditional section, a modal)
+
+   If a state requires user interaction to reach (e.g. submitting a form with invalid data), use Playwright to drive the interaction before taking the screenshot. A reviewer should not need to run the app to understand what was built.
 9. Report back to `build`: files changed, tests added, reviewer verdicts and notes, screenshot filenames, any follow-up items.
 
 The reviewer chain (steps 5–7) is non-negotiable. Do not report back to `build` until all three reviewers return `"pass"` or `"pass_with_issues"` with no critical or major issues.
