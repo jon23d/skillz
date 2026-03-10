@@ -3,7 +3,7 @@ name: tdd
 description: Use when writing any code — functions, modules, APIs, UI components, scripts, or any other implementation. Use when asked to "implement", "build", "write", "add", "create", or "refactor" anything that involves code. Apply regardless of language, framework, or perceived complexity. Especially critical during refactors — new classes and functions require new tests even when existing tests pass.
 ---
 
-# Test-Driven Development
+# tdd
 
 Write the test first. Run it. Watch it fail. Then write the code.
 
@@ -32,7 +32,7 @@ PASS: test_converts_to_lowercase
 
 **Step 5 — Refactor if needed, keeping tests green.**
 
-Writing tests and implementation in the same step is not TDD. Showing tests passing without first showing them failing is not TDD.
+Writing tests and implementation in the same step is not tdd. Showing tests passing without first showing them failing is not tdd.
 
 ## Bug fixes — same principle, different starting point
 
@@ -105,7 +105,7 @@ Refactoring is the most common way untested code enters a codebase. The reasonin
 
 **Step 4 — Identify every new public interface you created.** List each new class, each new public method, each new module export. These are your new units.
 
-**Step 5 — For each new unit, apply the standard TDD sequence.** Write a failing test that describes the unit's contract. Run it, confirm failure. Then confirm the implementation satisfies it. This is not optional — it's the same rule as writing any other new code.
+**Step 5 — For each new unit, apply the standard tdd sequence.** Write a failing test that describes the unit's contract. Run it, confirm failure. Then confirm the implementation satisfies it. This is not optional — it's the same rule as writing any other new code.
 
 **Step 6 — Run all tests. Existing and new must pass.**
 
@@ -168,7 +168,7 @@ Tests written after prove what the code does. Tests written before prove what it
 Code without tests creates more delays, not fewer. Write one focused test, then the implementation.
 
 **"I'll just write both efficiently and run tests at the end."**
-That's not TDD. Writing both in one pass means the tests were written knowing the implementation. Run the failing test first — that's the whole point.
+That's not tdd. Writing both in one pass means the tests were written knowing the implementation. Run the failing test first — that's the whole point.
 
 **"This is a frontend component, testing is awkward."**
 Test the behavior before building the component. The component doesn't exist yet — that's the point. Write tests that assert what should render and what should happen on interaction, then build to make them pass:

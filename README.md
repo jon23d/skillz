@@ -24,7 +24,7 @@ skillz/
 │   ├── postgres-schema-design/
 │   ├── pull-requests/
 │   ├── rest-api-design/
-│   ├── test-driven-development/
+│   ├── tdd/
 │   ├── writing-dockerfiles/
 │   ├── writing-skills/
 │   └── writing-tickets/
@@ -145,7 +145,7 @@ Skills are `SKILL.md` files that agents load on demand using the built-in `skill
 |---|---|
 | `issue-tracker` | Reading, creating, updating, searching, or transitioning issues/tickets |
 | `pull-requests` | Opening PRs, writing PR bodies, linking to tickets, handling review feedback |
-| `test-driven-development` | Any coding task — write failing test first, then implement |
+| `tdd` | Any coding task — write failing test first, then implement |
 | `writing-dockerfiles` | Writing or editing Dockerfiles; see `node.md` and `python.md` adjuncts |
 | `playwright-e2e` | Writing or running Playwright end-to-end tests |
 | `rest-api-design` | Designing REST APIs; see `error-codes.md`, `naming-conventions.md`, `standard-formats.md` |

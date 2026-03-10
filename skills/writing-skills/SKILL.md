@@ -7,7 +7,7 @@ description: Use when creating a new skill, editing an existing skill, writing a
 
 A skill is a directory containing a `SKILL.md` file plus optional reference files and scripts. Skills give agents reusable domain-specific context, workflows, and tools.
 
-**Core insight:** Writing skills is Test-Driven Development applied to process documentation. Establish baseline behavior first (RED), write the skill (GREEN), then close loopholes (REFACTOR).
+**Core insight:** Writing skills is tdd applied to process documentation. Establish baseline behavior first (RED), write the skill (GREEN), then close loopholes (REFACTOR).
 
 ## When to create a skill
 
