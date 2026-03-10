@@ -36,7 +36,7 @@ The skills are the authoritative guide for how to implement, test, and structure
 ## Workflow
 
 1. Load required skills
-2. If a ticket reference was provided, read it using the appropriate issue tool (`github-issues_get`, `gitea-issues_get`, or `jira-issues_get`). Read related issues if they add useful context. Do not create, comment on, or transition any issue.
+2. If a ticket reference was provided, read `agent-config.json` to determine `issue_tracker.provider`. Use exclusively: `github-issues_get` for `github`, `gitea-issues_get` for `gitea`, `jira-issues_get` for `jira`. Do not try other providers. Read the ticket and any related issues for context. Do not create, comment on, or transition any issue.
 3. Explore the codebase — understand existing patterns before writing anything
 3. Implement using tdd (per the `tdd` skill) until all acceptance criteria are met
 4. Run the full test suite (per the `testing-best-practices` skill) — no scope flags, zero errors required

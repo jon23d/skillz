@@ -39,21 +39,21 @@ The skills are the authoritative guide for how to implement, test, and structure
 ## Workflow
 
 1. Load required skills
-2. If a ticket reference was provided, read it using the appropriate issue tool (`github-issues_get`, `gitea-issues_get`, or `jira-issues_get`). Read related issues if they add useful context. Do not create, comment on, or transition any issue.
+2. If a ticket reference was provided, read `agent-config.json` to determine `issue_tracker.provider`. Use exclusively: `github-issues_get` for `github`, `gitea-issues_get` for `gitea`, `jira-issues_get` for `jira`. Do not try other providers. Read the ticket and any related issues for context. Do not create, comment on, or transition any issue.
 3. Explore the codebase — understand existing patterns before writing anything
 4. Implement using tdd (per the `tdd` skill) until all acceptance criteria are met
 5. Run the full test suite (per the `testing-best-practices` skill) — no scope flags, zero errors required
 6. Invoke `@code-reviewer` with the full contents of every modified or created file. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing.
 7. Invoke `@security-reviewer` with the same files. If it returns `"fail"`, resolve all issues and re-invoke both reviewers from step 6.
 8. Invoke `@observability-reviewer` with the same files. If it returns `"fail"`, resolve all issues and re-invoke all three reviewers from step 6.
-9. Take screenshots of all created or modified UI using Playwright. The goal is that a PR reviewer should be able to understand the full UI without running the code — screenshots are the evidence. Start the dev server, then write a short Playwright script that navigates to each relevant page and state, calling `page.screenshot({ path: '...' })` for each. Do not rely on Playwright test failure artifacts — those only capture on failure and are not the screenshots required here. Save all screenshots to the agent-logs path provided by `build`; create the directory if it does not exist. Name files descriptively (e.g. `login-form.png`, `dashboard.png`, `error-empty-email.png`).
+9. Capture screenshots by adding `page.screenshot()` calls directly into the e2e tests that exercise the changed UI — do not write a separate screenshot script. The tests already have auth, navigation, and data setup done; use that. Add explicit `page.screenshot({ path: \`${AGENT_LOGS_PATH}/descriptive-name.png\` })` calls at each visual moment worth capturing, then run the tests to generate the images. **Before committing, remove every screenshot call you added** — they must not appear in the committed test files.
 
    Cover every state a reviewer would need to see:
    - Each new or modified page at rest (default/initial state)
    - All key interaction states: error messages, validation feedback, loading states, empty states, success states
    - Any meaningful UI difference introduced by the change (e.g. a button that appears only when authenticated, a conditional section, a modal)
 
-   If a state requires user interaction to reach (e.g. submitting a form with invalid data), use Playwright to drive the interaction before taking the screenshot. A reviewer should not need to run the app to understand what was built.
+   Name files descriptively (e.g. `login-form.png`, `dashboard.png`, `error-empty-email.png`). Create the agent-logs directory if it does not exist. A reviewer should not need to run the app to understand what was built.
 10. Report back to `build`: files changed, tests added, reviewer verdicts and notes, screenshot filenames, any follow-up items.
 
 The reviewer chain (steps 6–8) is non-negotiable. Do not report back to `build` until all three reviewers return `"pass"` or `"pass_with_issues"` with no critical or major issues.

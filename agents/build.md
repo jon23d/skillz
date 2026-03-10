@@ -25,7 +25,7 @@ When the user describes a problem, names a ticket, or asks you to pick up work:
 2. Read `agent-config.json` and resolve the providers:
    - `issue_tracker_provider` = `issue_tracker.provider` (e.g. `"github"`, `"gitea"`, `"jira"`)
    - `git_host_provider` = `git_host.provider` (e.g. `"github"`, `"gitea"`)
-   - If either is missing or the file cannot be read, **stop and tell the user** — do not guess or default to any provider
+   - If either is missing or the file cannot be read, **stop and use the `question` tool to ask the user** — do not guess or default to any provider
    - Carry these two values explicitly through every subsequent phase. Every tool call that touches issues or PRs must use the resolved provider, never the other.
 3. If a ticket reference was given, fetch it using the appropriate issue tool and read the full description
 4. **Do not start implementation. Do not invoke any engineer. Proceed to Phase 2.**
@@ -67,10 +67,10 @@ Wave 6 (sequential):
   PR, @notifier
 ```
 
-**Questions for the user** — ask as a numbered list:
-- Confirm or adjust the agent plan (approve / modify / cancel)
-- Resolve any ambiguities that would change scope or approach
-- Flag any risks you want the user to weigh in on before proceeding
+**Questions for the user** — use the `question` tool to present them. Ask for:
+- Confirmation or adjustment of the agent plan (approve / modify / cancel)
+- Resolution of any ambiguities that would change scope or approach
+- User input on any risks you want them to weigh in on before proceeding
 
 **Wait for explicit approval before proceeding to Phase 3.** Do not begin implementation speculatively.
 
@@ -223,7 +223,7 @@ When an agent reports a failure, error, or blocked state: **re-delegate immediat
 
 Your job when something fails is routing, not debugging. The engineers have bash access, codebase access, and the skills to diagnose problems. You do not. Hand the error back and wait for a resolution.
 
-The one exception: if an agent reports being stuck (same error three or more times with no progress), escalate to the user with the full error history rather than continuing to loop.
+The one exception: if an agent reports being stuck (same error three or more times with no progress), use the `question` tool to escalate to the user with the full error history rather than continuing to loop.
 
 ---
 
