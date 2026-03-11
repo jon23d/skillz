@@ -58,6 +58,8 @@ A ticket should be completable within a single sprint. If writing the acceptance
 
 **One giant ticket** — If a ticket takes more than one sprint, it's an epic. Break it down.
 
+**Implementation detail in disguise** — Acceptance criteria that mention database fields, API endpoints, component names, or architectural choices are implementation specs, not behavioural specs. If a criterion could only be written by someone who has already designed the solution, rewrite it from the user's point of view. The test: could a QA engineer verify this criterion without reading the code? If not, reframe it as observable behaviour.
+
 ## Example
 
 ---

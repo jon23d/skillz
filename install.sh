@@ -23,4 +23,8 @@ cp -r "$SCRIPT_DIR/docs/." "$TARGET/"
 echo "  Copying AGENTS.md -> $TARGET/"
 cp "$SCRIPT_DIR/AGENTS.md" "$TARGET/"
 
+# Install tool dependencies
+echo "  Installing tool dependencies..."
+npm install --prefix "$TARGET/tools" --silent
+
 echo "Done."
