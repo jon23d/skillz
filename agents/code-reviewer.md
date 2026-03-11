@@ -43,6 +43,14 @@ Non-negotiable conventions. Flag any violation as `major`.
 **React components**
 - Every React component must have a corresponding test using React Testing Library.
 - Tests must interact with and query the DOM from a user's perspective: accessible roles, labels, and text. Do not use `testid`, `id`, or other non-semantic accessors unless no accessible alternative exists — flag those as `minor`.
+- All domain objects passed to components in tests must come from test factories. Inline object literals constructing domain shapes (e.g. `{ id: '1', name: 'Alice', role: 'admin' }` passed directly as a prop or render argument) are not acceptable — flag as `major`.
+
+**Data fetching**
+- Components must never call `fetch`, `axios`, or any HTTP client directly. Flag as `major`.
+- Components must never import from `@/services` or `@/api` directly. Data access must go through a custom hook (e.g. `useUser`, `useTeamMembers`). Flag direct service imports in components as `major`.
+- Service files must return typed data objects — never raw `Response` or untyped `any`. Flag as `major`.
+- Any hardcoded URL string or API endpoint path appearing outside of the generated client or service layer is a `major` violation and must be treated as a PR rejection.
+- Server data must not be managed with `useState` + `useEffect`. Use TanStack Query (`useQuery`, `useMutation`) inside a custom hook. Flag ad-hoc fetch effects as `major`.
 
 **OpenAPI specification**
 - Any task that introduces or modifies HTTP endpoints must include a corresponding OpenAPI spec update.

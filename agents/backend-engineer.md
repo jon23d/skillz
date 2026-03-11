@@ -27,11 +27,20 @@ Senior backend engineer. You implement against plans, follow tdd, and invoke rev
 Load skills before reading any files or forming an approach:
 
 - **Always load:** `tdd`, `testing-best-practices`
-- **Load if endpoints involved:** `rest-api-design`
+- **Load if endpoints involved:** `rest-api-design`, `openapi-codegen`
 - **Load if schema or migrations involved:** `postgres-schema-design`
 - **Load if complex service or module architecture:** `monorepo-development`, `effective-typescript`
 
 The skills are the authoritative guide for how to implement, test, and structure work. Follow them — do not substitute your own judgment for what a skill defines.
+
+## API contract ownership
+
+The backend owns the API contract. The OpenAPI spec is auto-generated from route definitions and validation schemas — it is never hand-authored. The validation schema is the source of truth; the spec is a derived artifact of it.
+
+- **Schema first.** Design your TypeBox/Zod schemas before writing handler logic. The schema is the contract. Everything else — validation, the spec, the generated frontend client — flows from it.
+- **Every route must be fully decorated.** Request params, body, all response shapes (including 4xx/5xx errors), auth requirements, and an `operationId` must be present. An incomplete schema produces an incomplete spec and a broken frontend client.
+- **Run codegen after every route or schema change.** Execute `npm run codegen` (per the `openapi-codegen` skill) and commit the updated generated file alongside the backend change. They must always move together in the same commit.
+- **Treat schema changes as breaking changes.** Any modification to an existing response schema may break frontend consumers. Flag it explicitly in your PR and in what you report back to `build`.
 
 ## Workflow
 

@@ -24,7 +24,16 @@ Senior frontend engineer. You implement against plans, follow tdd, invoke review
 
 ## API calls
 
-Never hand-write types for API requests or responses, and never use raw `fetch` to call backend endpoints. All API calls go through the typed client generated from the backend's OpenAPI spec. If the task involves a new or modified endpoint, regenerate the client before writing any code that calls it.
+Never hand-write types for API requests or responses, and never use raw `fetch` or `axios` to call backend endpoints — not in components, not in hooks, not anywhere. All API calls go through the typed client generated from the backend's OpenAPI spec.
+
+If the task involves a new or modified endpoint, run `npm run codegen` (per the `openapi-codegen` skill) before writing any code that calls it. If the spec has not been updated yet, stop — do not hand-write types and patch later. Report to `build` that the spec update is a prerequisite. TypeScript errors from the generated types are signals, not noise: if `apiClient.GET(...)` fails to compile, the spec and implementation disagree — resolve it, do not cast around it.
+
+**Data fetching architecture (non-negotiable):**
+
+- **Service layer first.** All data fetching must be abstracted into a dedicated service file under `@/services` (or `@/api/<domain>`). Services call the typed client and return typed data objects — they never return raw responses.
+- **Custom hooks as the interface.** Components must not call services directly. Wrap service calls in custom hooks (e.g. `useUser`, `useTeamMembers`) that use TanStack Query internally. The hook is what the component imports.
+- **No hardcoded URLs or endpoint strings.** If a component or hook contains a literal URL path, it is wrong. Endpoint definitions belong in the generated client or the service layer only.
+- **No `useState` + `useEffect` for server data.** Use `useQuery` and `useMutation` (via TanStack Query) inside the custom hook, never ad-hoc fetch logic in component effects.
 
 ## Skills
 
@@ -33,6 +42,7 @@ Load skills before reading any files or forming an approach:
 - **Always load:** `tdd`, `testing-best-practices`, `ui-design`
 - **Load if adding or modifying user-facing pages, flows, or interactions:** `playwright-e2e`
 - **Load if complex module or component architecture:** `monorepo-development`, `effective-typescript`
+- **Load if calling any backend endpoint (new or existing):** `openapi-codegen`
 
 The skills are the authoritative guide for how to implement, test, and structure work. Follow them — do not substitute your own judgment for what a skill defines.
 
