@@ -45,6 +45,14 @@ Check for existing worktree:
 git worktree list
 ```
 
+If creating a new worktree, pull main first:
+
+```bash
+git pull origin main
+```
+
+(Replace `main` with the default branch if different — use the value from `git_host.default_branch` in `agent-config.json` if present.) This ensures the new branch forks from current, not stale, code.
+
 - **Worktree exists** → skip to [Passing paths to subagents](#passing-paths-to-subagents). Do not re-copy `.env` or reinstall unless the user says they may be stale.
 - **Branch exists, worktree missing**:
   ```bash

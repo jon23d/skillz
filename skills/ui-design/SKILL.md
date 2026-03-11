@@ -89,13 +89,61 @@ These rules apply regardless of whether you are using Mantine or Tailwind. They 
 
 ## Component design principles
 
-**One component, one responsibility.** A component should do one thing at one level of abstraction. If a component manages data fetching, layout, and user interaction simultaneously, break it apart.
+**One component, one responsibility.** A component should do one thing at one level of abstraction. If a component manages data fetching, layout, and user interaction simultaneously, break it apart. This is the single most important rule in this section.
 
-**Separate concerns between container and presentational components.** Data fetching, state management, and business logic live in container components or hooks. Presentational components receive data and callbacks via props and render UI. Presentational components are easy to test, easy to reuse, and easy to reason about.
+**A component file should not exceed 150 lines.** This is a hard signal, not a style preference. A file longer than 150 lines is almost always doing too much. When you approach this limit, decompose — do not keep adding to the file.
 
-**Props are the interface.** Design component props the way you design a function signature — with intention. Required props should be necessary. Optional props should have sensible defaults. Avoid prop bags (`options: {}`) that obscure what a component actually needs.
+### Decomposition rules
 
-**Prefer composition over configuration.** Rather than a single component with many boolean flags (`showHeader`, `compact`, `withBorder`), prefer composing smaller components together. Flags are a sign a component is doing too much.
+**Separate data from presentation.** A component that calls `useQuery` or `useMutation` should not also contain complex JSX. Extract the data-fetching logic into a custom hook, then render child components that receive the data as props.
+
+```tsx
+// Bad — data fetching and complex rendering in one component
+function UserDashboard() {
+  const { data: user } = useQuery({ queryKey: ['user'], queryFn: fetchUser })
+  const { data: projects } = useQuery({ queryKey: ['projects'], queryFn: fetchProjects })
+  const { data: activity } = useQuery({ queryKey: ['activity'], queryFn: fetchActivity })
+
+  return (
+    <div>
+      {/* 200 lines of JSX using user, projects, and activity */}
+    </div>
+  )
+}
+
+// Good — hook owns data, page composes focused children
+function useUserDashboard() {
+  const user = useQuery({ queryKey: ['user'], queryFn: fetchUser })
+  const projects = useQuery({ queryKey: ['projects'], queryFn: fetchProjects })
+  const activity = useQuery({ queryKey: ['activity'], queryFn: fetchActivity })
+  return { user, projects, activity }
+}
+
+function UserDashboard() {
+  const { user, projects, activity } = useUserDashboard()
+  return (
+    <Stack>
+      <UserHeader user={user.data} isLoading={user.isLoading} />
+      <ProjectList projects={projects.data} isLoading={projects.isLoading} />
+      <ActivityFeed items={activity.data} isLoading={activity.isLoading} />
+    </Stack>
+  )
+}
+```
+
+**Extract every visually distinct section as its own component.** If a section of JSX has its own heading, its own data, or its own interaction pattern, it is a separate component. Do not nest it inline.
+
+**More than three `useState` calls is a smell.** If a component manages more than three pieces of local state, either group related state with `useReducer`, extract a custom hook, or split the component.
+
+**JSX nesting deeper than three levels means you missed an extraction.** If your JSX is indented more than three levels deep inside a return statement (not counting fragments or simple wrappers), extract the inner section into a named component.
+
+### Props are the interface
+
+Design component props the way you design a function signature — with intention. Required props should be necessary. Optional props should have sensible defaults. Avoid prop bags (`options: {}`) that obscure what a component actually needs.
+
+### Prefer composition over configuration
+
+Rather than a single component with many boolean flags (`showHeader`, `compact`, `withBorder`), prefer composing smaller components together. Flags are a sign a component is doing too much.
 
 ```tsx
 // Avoid
@@ -109,7 +157,18 @@ These rules apply regardless of whether you are using Mantine or Tailwind. They 
 </DataTable>
 ```
 
-**Never put logic in JSX.** Extract conditionals and transformations into variables or functions before the return statement. JSX should read like a description of the UI, not a program.
+### Never put logic in JSX
+
+Extract conditionals and transformations into variables or functions before the return statement. JSX should read like a description of the UI, not a program.
+
+### Red flags — stop and decompose
+
+- The component file is approaching or exceeding 150 lines
+- The component has more than three `useState` calls
+- The component calls `useQuery` or `useMutation` and also contains significant JSX
+- The JSX return has more than three levels of nesting
+- The component handles multiple unrelated user interactions (e.g. form submission and table sorting and modal management)
+- You are adding a new feature to an existing component by inserting another block of JSX rather than composing a new child component
 
 ---
 
@@ -190,7 +249,7 @@ Local UI state (open/closed, form values, selected tab) lives in `useState` or `
 
 Shared UI state (current user, theme, notifications, permissions) lives in React context or a lightweight global store (Zustand). Use context for state that changes infrequently. Use Zustand for state that changes often or is accessed by many components.
 
-Server state lives in a data-fetching library — use React Query (`@tanstack/react-query`). Do not replicate server state into `useState`. React Query is the cache.
+Server state lives in `@tanstack/react-query`. Do not replicate server state into `useState`. The query cache is the source of truth for server data.
 
 Do not reach for Redux. It is not justified for new projects.
 
@@ -496,111 +555,66 @@ Before marking any frontend task as done, verify:
 
 After completing any UI changes, take screenshots of the affected routes and attach them to the task log. This is a required part of the definition of done for all frontend tasks.
 
-### Setup
+### Screenshots come from e2e tests, not separate scripts
 
-If `@playwright/test` is not already a dev dependency in the project, install it:
+Do not write a standalone Playwright script for screenshots. Instead, add `page.screenshot()` calls directly into the e2e tests that exercise the changed UI. The tests already handle auth, navigation, data setup, and interaction — use that work. This avoids duplicating setup and keeps screenshots in sync with what the tests actually exercise.
 
-```bash
-pnpm add -D @playwright/test
-pnpm exec playwright install chromium --with-deps
-```
+**Before committing, remove every `page.screenshot()` call you added.** They must not appear in the committed test files. The screenshots themselves are committed to `agent-logs/`; the calls that produced them are not.
 
-### Screenshots must capture the full interaction, not just the page load
-
-Before deciding what to screenshot, think through the complete user interaction your change introduced or affected. The default page state is only a baseline. The screenshots that actually demonstrate the feature are the ones taken during the interaction — after a button click, after a field reveals, after validation fires, after a success state appears.
+### What to capture
 
 Ask yourself: **what would a reviewer need to see to confirm this feature works?** Take screenshots of those states. There will often be several.
 
-Common interaction states to capture:
 - The default page state on arrival
 - A revealed input, panel, or section after a button click
 - An open modal, drawer, or dropdown
 - A validation error state after a failed submission
 - A success confirmation after a completed action
 - Intermediate steps in a multi-step flow
+- Mobile viewport (390×844) for states where responsive behaviour is relevant
 
-### Workflow
+Do not screenshot routes you did not touch. Do not take a single page-load screenshot and call it done if the feature only appears after interaction.
 
-1. **Start the dev server** if it is not already running:
+### Example — adding screenshot calls to an e2e test
 
-   ```bash
-   pnpm dev &
-   DEV_PID=$!
-   ```
+```ts
+// Inside an existing e2e test that exercises the "Add Item" flow:
+test('user can add an item', async ({ page }) => {
+  await page.goto('/items')
 
-   Wait for the server to be ready before proceeding. Poll the base URL until it responds or time out after 30 seconds.
+  // Screenshot: default state before interaction
+  await page.screenshot({ path: `${AGENT_LOGS_PATH}/items_default_desktop.png`, fullPage: true })
 
-2. **Think through the interaction** your change introduces. Identify every state a reviewer would need to see to confirm the feature works.
+  await page.click('button:has-text("Add Item")')
+  await page.waitForSelector('label:has-text("Item name")')
 
-3. **Take screenshots** using a Playwright script, scripting each interaction step before capturing:
+  // Screenshot: form revealed after click
+  await page.screenshot({ path: `${AGENT_LOGS_PATH}/items_form-open_desktop.png`, fullPage: true })
 
-   ```js
-   import { chromium } from '@playwright/test'
-   const browser = await chromium.launch()
-   const page = await browser.newPage()
-   await page.setViewportSize({ width: 1280, height: 800 })
-   await page.goto('http://localhost:PORT/your-route')
-   await page.waitForLoadState('networkidle')
+  await page.click('button:has-text("Save")')
+  await page.waitForSelector('text=Item name is required')
 
-   // Replace AGENT_LOGS_PATH with the agent-logs path provided by build (e.g. /home/user/worktrees/myapp/42-add-auth/agent-logs/2026-03-10-42-add-auth)
-   // The path uses agent-logs/ with NO leading dot — it is not a hidden directory.
-   const AGENT_LOGS_PATH = process.env.AGENT_LOGS_PATH // passed in as env var or hardcoded from build's invocation
+  // Screenshot: validation error state
+  await page.screenshot({ path: `${AGENT_LOGS_PATH}/items_validation-error_desktop.png`, fullPage: true })
 
-   // Default state
-   await page.screenshot({ path: `${AGENT_LOGS_PATH}/home_default_desktop.png`, fullPage: true })
-
-   // After clicking the trigger
-   await page.click('button:has-text("Add Item")')
-   await page.waitForSelector('label:has-text("Item name")')
-   await page.screenshot({ path: `${AGENT_LOGS_PATH}/home_item-form-open_desktop.png`, fullPage: true })
-
-   // After triggering validation
-   await page.click('button:has-text("Save")')
-   await page.waitForSelector('text=Item name is required')
-   await page.screenshot({ path: `${AGENT_LOGS_PATH}/home_validation-error_desktop.png`, fullPage: true })
-
-   await browser.close()
-   ```
-
-   Repeat at mobile viewport (390×844) for states where responsive behaviour is relevant.
-
-4. **Stop the dev server**:
-
-   ```bash
-   kill $DEV_PID 2>/dev/null
-   ```
-
-5. **Reference all screenshots in the task log**:
-
-   ```markdown
-   ## Screenshots
-
-   ![Default state](./home_default_desktop.png)
-   ![Item form open](./home_item-form-open_desktop.png)
-   ![Validation error](./home_validation-error_desktop.png)
-   ```
-
-### File structure and naming
-
-All task output lives in a single folder. Screenshots sit alongside the task log, named to describe the UI state they show:
-
+  // ... rest of test assertions
+})
+// REMEMBER: remove all page.screenshot() calls before committing this file
 ```
-agent-logs/
-  2024-03-15-14-32/
-    add-item-input.md
-    home_default_desktop.png
-    home_item-form-open_desktop.png
-    home_item-form-open_mobile.png
-    home_validation-error_desktop.png
-    home_item-saved_desktop.png
-```
+
+### File naming
 
 Name screenshots as `route_state-description_viewport.png`. The state description should be specific enough that someone reading the task log knows what they're about to see before opening the image.
 
-### What to screenshot
+```
+agent-logs/
+  2026-03-10-42-add-auth/
+    log.md
+    items_default_desktop.png
+    items_form-open_desktop.png
+    items_form-open_mobile.png
+    items_validation-error_desktop.png
+    items_saved_desktop.png
+```
 
-- Every route you created or modified
-- Every meaningful UI state within those routes, not just the page load
-- Mobile viewport for any states where responsive behaviour is relevant
-
-Do not screenshot routes you did not touch. Do not take a single page-load screenshot and call it done if the feature only appears after interaction.
+The path uses `agent-logs/` with no leading dot — it is not a hidden directory.
