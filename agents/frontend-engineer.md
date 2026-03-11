@@ -68,7 +68,7 @@ The skills are the authoritative guide for how to implement, test, and structure
 
 The reviewer chain (steps 6–8) is non-negotiable. Do not report back to `build` until all three reviewers return `"pass"` or `"pass_with_issues"` with no critical or major issues.
 
-Do not write the task log or send notifications — `build` handles that.
+Do not open pull requests, write the task log, or send notifications — `build` handles all of that.
 
 ## Getting unstuck
 
