@@ -1,6 +1,6 @@
 ---
 name: worktrees
-description: Use when the user describes a problem to solve, asks to claim or pick up a ticket, or brings review feedback for an existing PR. Covers the full lifecycle: worktree setup, subagent coordination, PR creation, and review feedback rounds.
+description: For the `build` agent only. Use when the user describes a problem to solve, asks to claim or pick up a ticket, or brings review feedback for an existing PR. Covers the full lifecycle: worktree setup, subagent coordination, PR creation, and review feedback rounds. Engineer agents must NOT load this skill — the completion workflow (commit, push, PR, notify) belongs exclusively to `build`.
 ---
 
 # Worktrees
@@ -109,9 +109,11 @@ When the user brings review feedback:
 4. Post a comment on the issue noting the updated push
 5. Leave the worktree in place for further feedback rounds
 
-## On completion
+## On completion — `build` agent ONLY
 
-After all quality gates pass, follow these steps in order.
+**STOP. These steps are exclusively for the `build` agent.** If you are `@backend-engineer`, `@frontend-engineer`, `@devops-engineer`, `@qa`, `@developer-advocate`, or any other subagent: do NOT execute any of the steps below. Report your results back to your invoker and stop. The task log, commit, push, PR, and notification are `build`'s responsibility — never yours.
+
+After all quality gates pass, `build` follows these steps in order.
 
 ### 1. Collect context from all agent reports
 
@@ -205,7 +207,7 @@ If `git status` shows `agent-logs/` is not staged, it means it was saved to the 
 
 Do not open the PR until push succeeds.
 
-### 5. Compose and open the PR
+### 5. Compose and open the PR (`build` only — never an engineer)
 
 Use the `pull-requests` skill to compose the PR body and open the PR. Pass it:
 - Head branch: `feature/{slug}`
