@@ -1,6 +1,6 @@
 ---
 name: openapi-codegen
-description: Use whenever a backend endpoint is created or modified, or whenever a frontend needs to call an API. Covers spec-first contract design, running openapi-typescript codegen, monorepo package structure, and the service/hook layer that wraps the generated client. The generated client is the only permitted way to call backend endpoints.
+description: Use whenever a backend endpoint is created or modified, or whenever a frontend needs to call an API, or when verifying that the OpenAPI spec matches the running API. Covers spec-first contract design, codegen, monorepo structure, the service/hook layer, spec verification against the running API, and documentation UI checks.
 ---
 
 # OpenAPI Codegen — Type-Safe API Contracts
@@ -42,21 +42,17 @@ apps/
       hooks/                # Custom hooks — wrap services via TanStack Query
 ```
 
-`packages/api-client/src/generated.d.ts` is always auto-generated. It must be gitignored or committed as a build artifact depending on your CI strategy — but it is **never hand-edited**.
-
 ---
 
 ## The OpenAPI Spec (Auto-Generated)
 
-The spec is auto-generated from the backend's route definitions and validation schemas — it is never hand-authored. The backend framework (e.g. Fastify with `@fastify/swagger`, Hono with `zod-openapi`, Elysia with its OpenAPI plugin) derives the spec directly from the same TypeBox/Zod schemas used for runtime validation, and exposes it at a well-known endpoint (typically `/docs/json`).
-
-This means **the validation schema is the source of truth**, not a YAML file. The spec is a derived artifact of the schema. There is no way for the spec to drift from the implementation — if the schema changes, the spec changes automatically.
+The spec is auto-generated from the backend's route definitions and validation schemas — it is never hand-authored. The backend framework derives the spec directly from the same TypeBox/Zod schemas used for runtime validation, and exposes it at a well-known endpoint (typically `/docs/json`).
 
 **What this requires of backend engineers:**
 
-- Every route must be decorated with enough schema information for the framework to generate a complete spec entry: request params/body shape, all response shapes (including errors), and auth requirements.
-- Every route must have an `operationId`. Codegen uses it as the basis for generated type names — without it, types get ugly auto-generated names.
-- Error response schemas must be registered as named components (not inlined) so they appear consistently across the generated spec and can be referenced in the frontend's error handling.
+- Every route must be decorated with enough schema information for a complete spec entry: request params/body shape, all response shapes (including errors), and auth requirements.
+- Every route must have an `operationId`.
+- Error response schemas must be registered as named components.
 
 Example (Fastify + TypeBox):
 
@@ -75,13 +71,9 @@ fastify.get('/users/:id', {
 }, handler);
 ```
 
-The spec is then available at runtime (`GET /docs/json`) and can also be exported as a static file during the build step for use in CI and codegen.
-
 ---
 
 ## Generation Script
-
-The spec is served by the running backend at `/docs/json` (or equivalent). Codegen fetches it directly from that URL, or from a static snapshot exported during the build step.
 
 **Option A — from the running dev server (local development):**
 
@@ -104,15 +96,7 @@ The spec is served by the running backend at `/docs/json` (or equivalent). Codeg
 }
 ```
 
-The export script boots the app just enough to call `fastify.inject('/docs/json')` (or equivalent) and write the response to a file. This avoids needing a running server in CI.
-
-**Run codegen:**
-
-```bash
-npm run codegen
-```
-
-Codegen must be run after any backend schema or route change, and the generated file committed alongside the backend change. The two must always move together.
+Codegen must be run after any backend schema or route change, and the generated file committed alongside the backend change.
 
 ---
 
@@ -122,17 +106,13 @@ Codegen must be run after any backend schema or route change, and the generated 
 import createClient from 'openapi-fetch';
 import type { paths } from './generated';
 
-// Export the typed client — one instance, configured once.
 export const apiClient = createClient<paths>({
   baseUrl: import.meta.env.VITE_API_BASE_URL ?? '',
   credentials: 'include',
 });
 
-// Re-export generated types for use in service files
 export type { paths, components } from './generated';
 ```
-
-The client instance is exported from `@myapp/api-client`. Services import it. Nothing else does.
 
 ---
 
@@ -141,7 +121,6 @@ The client instance is exported from `@myapp/api-client`. Services import it. No
 Services wrap the typed client and return domain-typed objects. They never expose raw `response` objects or `any`.
 
 ```typescript
-// apps/web/src/services/userService.ts
 import { apiClient } from '@myapp/api-client';
 import type { components } from '@myapp/api-client';
 
@@ -151,30 +130,12 @@ export async function fetchUser(id: string): Promise<User> {
   const { data, error } = await apiClient.GET('/users/{id}', {
     params: { path: { id } },
   });
-
   if (error) throw new Error(error.message ?? 'Failed to fetch user');
-  return data;
-}
-
-export async function updateUser(
-  id: string,
-  body: components['schemas']['UpdateUserInput'],
-): Promise<User> {
-  const { data, error } = await apiClient.PATCH('/users/{id}', {
-    params: { path: { id } },
-    body,
-  });
-
-  if (error) throw new Error(error.message ?? 'Failed to update user');
   return data;
 }
 ```
 
-**Rules:**
-- Import `apiClient` from `@myapp/api-client` — never from a relative path outside the package.
-- Always destructure `{ data, error }` — never access `response` directly.
-- Throw a typed error if `error` is present; never silently return `undefined`.
-- Return types must be derived from `components['schemas']` — never hand-written.
+**Rules:** Import from `@myapp/api-client`, always destructure `{ data, error }`, throw on error, derive return types from `components['schemas']`.
 
 ---
 
@@ -183,10 +144,8 @@ export async function updateUser(
 Custom hooks wrap services using TanStack Query. Components import only hooks.
 
 ```typescript
-// apps/web/src/hooks/useUser.ts
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { fetchUser, updateUser } from '@/services/userService';
-import type { User } from '@/services/userService';
 
 export const userKeys = {
   all: ['users'] as const,
@@ -198,18 +157,6 @@ export function useUser(id: string) {
     queryKey: userKeys.detail(id),
     queryFn: () => fetchUser(id),
     enabled: !!id,
-  });
-}
-
-export function useUpdateUser(id: string) {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (body: Parameters<typeof updateUser>[1]) =>
-      updateUser(id, body),
-    onSuccess: (updatedUser) => {
-      queryClient.setQueryData(userKeys.detail(id), updatedUser);
-    },
   });
 }
 ```
@@ -232,35 +179,13 @@ hooks/                ← wrap services in TanStack Query
 components            ← consume only hooks, never anything below
 ```
 
-Any shortcut in this chain — a component calling `fetch` directly, a service hand-writing a type, a hook bypassing the generated client — is a contract violation and must be caught in code review.
-
----
-
-## Backend Engineer Responsibilities
-
-1. **Design schemas before writing handlers.** The TypeBox/Zod schema is the design artifact. Handler logic follows from it.
-2. **Fully decorate every route** — `operationId`, all request shapes, all response shapes (including errors), auth. An incomplete route decoration is an incomplete contract.
-3. **Run codegen after any route or schema change** and commit the updated `generated.d.ts` in the same commit as the backend change.
-4. **Never change a response schema without treating it as a breaking change** — even additive changes (new optional fields) should be flagged to frontend consumers explicitly.
-
----
-
-## Frontend Engineer Responsibilities
-
-1. **Run codegen before writing any code** that touches a new or modified endpoint. If the spec hasn't been updated yet, block — don't hand-write types and patch later.
-2. **Regenerate the client** whenever you pull changes that include spec updates.
-3. **TypeScript errors from the generated types are intentional signals.** If `apiClient.GET(...)` fails to compile, the spec and implementation disagree — resolve it, don't cast your way out.
-4. **Never add the generated file to your editor's ignore list.** You need to see when codegen produces unexpected output.
+Any shortcut in this chain is a contract violation.
 
 ---
 
 ## CI Integration
 
-Add two checks to your pipeline:
-
 ```yaml
-# .github/workflows/ci.yml (or equivalent)
-
 - name: Export OpenAPI spec from backend
   run: npm run export-spec
 
@@ -270,6 +195,51 @@ Add two checks to your pipeline:
     git diff --exit-code packages/api-client/src/generated.d.ts
 ```
 
-The first step exports the live spec from the backend (without needing a running server). The second regenerates the client from that spec and fails if the committed generated file differs from what codegen produces now. This catches backend changes that didn't update the client, and client updates that weren't regenerated from the current spec.
+---
 
-Both the exported spec snapshot and the generated `generated.d.ts` should be committed to the repo so this diff check is meaningful.
+## Backend Engineer Responsibilities
+
+1. Design schemas before writing handlers.
+2. Fully decorate every route — `operationId`, all shapes, auth.
+3. Run codegen after any route/schema change and commit alongside the backend change.
+4. Treat schema changes as breaking changes.
+
+## Frontend Engineer Responsibilities
+
+1. Run codegen before writing any code that touches a new/modified endpoint.
+2. Regenerate the client whenever you pull changes that include spec updates.
+3. TypeScript errors from the generated types are intentional signals — resolve them, don't cast.
+
+---
+
+## Spec Verification (QA)
+
+When verifying that the spec matches the running API:
+
+### Locating the spec file
+
+Look for: `openapi.yaml`/`openapi.json` in project root, `docs/`, or `api/`. Missing spec is `critical`.
+
+### Starting the dev server
+
+Start with the project's dev command in the background. Poll the base URL every 2 seconds for up to 30 seconds. Always stop the server when finished.
+
+### Authentication token
+
+Attempt in order: `TEST_AUTH_TOKEN`/`API_TOKEN`/`AUTH_TOKEN` env vars → `.env.test`/`.env.local`/`.env.example` credentials → README test credentials → graceful degradation (verify protected endpoints return 401/403).
+
+### Verification steps per changed endpoint
+
+1. **Endpoint exists in spec** — path and method documented. Missing = `major`.
+2. **Request shape matches** — body schema and query params match spec.
+3. **Response shape matches** — all fields documented, types match, nested structures match. Mismatch = `major`.
+4. **Status codes match** — success, 400, 401/403, 404 all documented. Undocumented status code = `major`.
+5. **Auth requirements match** — spec matches actual auth behavior. Mismatch = `major`.
+
+**Ignore:** minor formatting differences, optional fields present in response, endpoints not changed in this task.
+
+### Documentation UI verification
+
+Check these endpoints for a docs UI: `/docs`, `/api-docs`, `/swagger`, `/reference`, `/docs/`, `/api/docs`. At least one must return HTML with API docs evidence. Also check for raw spec at `/openapi.yaml`, `/openapi.json`, `/docs/openapi.yaml`, `/docs/openapi.json`, `/api-docs/openapi.yaml`, `/api/openapi.yaml`, `/api/openapi.json`. Verify consistency between UI spec and raw spec.
+
+**Ignore:** visual styling, auth on docs endpoints, non-HTTP projects.

@@ -89,7 +89,7 @@ Every subagent invocation must include:
 
 > "Your working directory is `{worktree_path}`. All file reads, writes, edits, and bash commands must operate relative to this path. Do not operate on files outside this directory."
 
-This applies to all subagents: `@backend-engineer`, `@frontend-engineer`, `@devops-engineer`, `@qa`, `@developer-advocate`, `@code-reviewer`, `@security-reviewer`, `@observability-reviewer`, `@notifier`.
+This applies to all subagents: `@backend-engineer`, `@frontend-engineer`, `@devops-engineer`, `@qa`, `@developer-advocate`, `@reviewer`, `@notifier`.
 
 When invoking `@frontend-engineer`, also pass the agent-logs path:
 
@@ -157,13 +157,7 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 
 ## Quality gate verdicts
 
-### code-reviewer
-{full JSON verdict}
-
-### security-reviewer
-{full JSON verdict}
-
-### observability-reviewer
+### reviewer
 {full JSON verdict}
 
 ### QA

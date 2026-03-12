@@ -7,7 +7,7 @@ description: Observability standards and instrumentation conventions. Load this 
 
 Observability is the ability to understand what a system is doing in production from
 its external outputs alone. This skill defines what "good" looks like across four
-primary signals and governs how the `observability-reviewer` evaluates code.
+primary signals and governs how the `reviewer` evaluates code for observability.
 
 ---
 

@@ -148,8 +148,8 @@ Skills are `SKILL.md` files that agents load on demand using the built-in `skill
 | `tdd` | Any coding task — write failing test first, then implement |
 | `writing-dockerfiles` | Writing or editing Dockerfiles; see `node.md` and `python.md` adjuncts |
 | `playwright-e2e` | Writing or running Playwright end-to-end tests |
-| `rest-api-design` | Designing REST APIs; see `error-codes.md`, `naming-conventions.md`, `standard-formats.md` |
-| `postgres-schema-design` | Schema design, migrations, indexing; see `framework-workflows.md`, `schema-quality.md` |
+| `rest-api-design` | Designing REST APIs — naming, status codes, pagination, error formats |
+| `postgres-schema-design` | Schema design, migrations, indexing, Prisma workflows |
 | `cicd-pipeline-creation` | Writing CI/CD pipeline configuration |
 | `github-quality-control` | Code review, PR quality gates, GitHub Actions |
 | `writing-tickets` | Writing well-scoped issue/ticket descriptions |
@@ -169,7 +169,7 @@ The default agent. Handles the full feature development lifecycle:
 4. **Execute** — delegates to specialist agents in parallel waves:
    - Wave 1: `@architect` (optional, for complex tasks)
    - Wave 2: `@backend-engineer` + `@frontend-engineer` in parallel
-   - Wave 3: `@code-reviewer`, `@security-reviewer`, `@observability-reviewer` (invoked by engineers)
+   - Wave 3: `@reviewer` (invoked by engineers — covers code quality, security, and observability)
    - Wave 4: `@qa` + `@devops-engineer` in parallel
    - Wave 5: `@developer-advocate`
    - Wave 6: PR, `@notifier`

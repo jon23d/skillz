@@ -23,3 +23,27 @@ Stay within your defined role. Do not exceed it based on what seems helpful or e
 - Load only the skills your invoker specifies, plus your own defaults.
 - Load skills before reading files or forming an approach — not partway through.
 - If you are stuck after three attempts with no progress, stop and report to your invoker. Do not keep retrying.
+
+---
+
+## Getting unstuck
+
+If the same action has failed three or more times without a different outcome, stop. Report to your invoker: what you tried, the exact error received each time, and what you need to proceed. Do not retry the same approach a fourth time.
+
+---
+
+## Issue tracker provider resolution
+
+When a ticket reference is provided, read `agent-config.json` to determine `issue_tracker.provider`. Use the matching tool exclusively:
+
+- `"github"` → `github-issues_get`
+- `"gitea"` → `gitea-issues_get`
+- `"jira"` → `jira-issues_get`
+
+Do not try other providers. Do not create, comment on, or transition any issue unless your role explicitly permits it.
+
+---
+
+## Skill loading protocol
+
+Load skills before reading any files or forming an approach. The skills are the authoritative guide for how to implement, test, and structure work. Follow them — do not substitute your own judgment for what a skill defines.

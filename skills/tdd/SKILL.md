@@ -1,229 +1,226 @@
 ---
 name: tdd
-description: Use when writing any code — functions, modules, APIs, UI components, scripts, or any other implementation. Use when asked to "implement", "build", "write", "add", "create", or "refactor" anything that involves code. Apply regardless of language, framework, or perceived complexity. Especially critical during refactors — new classes and functions require new tests even when existing tests pass.
+description: Use when writing any code — functions, modules, APIs, UI components, scripts, or any other implementation. Use when asked to "implement", "build", "write", "add", "create", or "refactor" anything that involves code. Also covers TypeScript/Vitest testing patterns, factories, mocking, and integration tests with testcontainers.
 ---
 
-# tdd
+# TDD — Test-Driven Development
 
 Write the test first. Run it. Watch it fail. Then write the code.
 
 ## The sequence — no skipping, no combining steps
 
-**Step 1 — Write the test file only.**
-The implementation file must not exist. Write tests that describe the required behavior from the outside: given this input, expect this output.
+**Step 1 — Write the test file only.** The implementation file must not exist. Write tests that describe the required behavior from the outside.
 
-**Step 2 — Run the tests and show the failure output.**
-Do not proceed until you have run the test command and shown the failure. A test you haven't run failing is not a confirmed failure — it's an assumption.
-
-The format varies by language and framework, but the requirement doesn't: run the test command and show the output. For example:
-
-```
-FAIL: test_converts_to_lowercase
-  Error: module 'slugify' not found
-```
+**Step 2 — Run the tests and show the failure output.** Do not proceed until you have run the test command and shown the failure.
 
 **Step 3 — Write the minimum implementation to make the tests pass.**
 
 **Step 4 — Run the tests again and show them passing.**
 
-```
-PASS: test_converts_to_lowercase
-```
-
 **Step 5 — Refactor if needed, keeping tests green.**
 
-Writing tests and implementation in the same step is not tdd. Showing tests passing without first showing them failing is not tdd.
+Writing tests and implementation in the same step is not tdd.
 
-## Bug fixes — same principle, different starting point
+## Running tests
 
-When fixing a bug in existing code, the workflow is the same but the first step looks different:
+Run `npx vitest run` from the project root. Always run the full suite. TypeScript errors are test failures. After tests pass, run the linter: `pnpm lint` (or `npm run lint`). Zero errors required. Do not report back or invoke reviewers until both are clean.
 
-**Step 1 — Write a regression test that exposes the bug.**
-The implementation exists but is buggy. Write a test that asserts the correct behavior. This test will fail because the bug exists.
+---
 
-**Step 2 — Run the tests and show the failure output.**
-The failure proves the bug exists. For example:
+## Bug fixes
 
-```
-FAIL: test_division_by_zero
-  Expected: null
-  Received: Infinity
-```
+**Step 1 — Write a regression test that exposes the bug.** The test fails with an assertion error (wrong output), not "module not found".
+
+**Step 2 — Run and show the failure.**
 
 **Step 3 — Fix the code.**
 
-**Step 4 — Run the tests and show them passing.**
+**Step 4 — Run and show all tests passing.**
 
-The key difference: in bug fixes, the test fails with an assertion error (wrong output), not a "module not found" error. Either way, you must see the failure before fixing.
+## Adding features to existing files
 
-## Adding features to existing files — same principle, different scope
+**Step 1 — Write tests for the new feature only.** Existing code stays untouched.
 
-When adding a new feature to a file that already exists (e.g., adding an endpoint to an existing API, adding a method to an existing class):
+**Step 2 — Run: existing pass, new tests fail.**
 
-**Step 1 — Write tests for the new feature only.**
-The existing implementation stays untouched. Add tests that describe the new behavior. These tests will fail because the feature doesn't exist yet.
+**Step 3 — Add minimum implementation.**
 
-**Step 2 — Run the tests and show the failure output.**
-Existing tests should still pass. New tests should fail. For example:
-
-```
-PASS: 8 existing tests
-FAIL: test_update_todo
-  Expected: 200 OK
-  Received: 404 Not Found
-```
-
-**Step 3 — Add the minimum implementation for the new feature.**
-Do not modify existing code unless absolutely necessary.
-
-**Step 4 — Run all tests and show them passing.**
-Existing tests must still pass. New tests must now pass.
-
-The key difference: you're extending existing code, not replacing it. Run all tests to ensure you didn't break anything.
+**Step 4 — Run all tests: all pass.**
 
 ## Refactoring — new structure means new tests
 
-Refactoring is the most common way untested code enters a codebase. The reasoning feels sound: "I'm just restructuring, existing tests cover the behavior, so if they pass I'm done." This is wrong.
+**The rule: if you create it, you test it.** A new class extracted from an existing function is new code. It doesn't matter that the logic existed before — the unit is new.
 
-**The rule: if you create it, you test it.** A new class extracted from an existing function is new code. A new public method is a new contract. It doesn't matter that the logic existed before — the unit is new and needs its own tests.
+1. Run existing tests — must pass (safety net)
+2. Perform the structural refactor
+3. Run existing tests — must still pass
+4. Identify every new public interface
+5. For each new unit, apply the standard tdd sequence
+6. Run all tests — existing and new must pass
 
-### What counts as "new" during a refactor
+"Existing tests pass" is Step 3. It is not Step 6.
 
-- A new class or module, even if extracted from existing code
-- A new public function or method, even if its body was copied verbatim
-- A new interface or contract between components
-- New parameters, configuration, or options that didn't exist before
-- Error handling paths introduced by the new structure
+---
 
-### The refactoring sequence
+## When to use testcontainers vs factories
 
-**Step 1 — Run existing tests. They must pass.** This is your safety net. If they don't pass before you start, you can't trust them to catch regressions.
+- **Code that directly calls the database** (repositories, query functions) → **integration tests with testcontainers**. Mock nothing. Use a real PostgreSQL container.
+- **Everything else** (services, domain logic, handlers, utilities) → **unit tests with factories**.
 
-**Step 2 — Perform the structural refactor.** Extract classes, move functions, reorganize modules.
+Do not mock Prisma in unit tests — if the code calls Prisma, it belongs in a repository with an integration test.
 
-**Step 3 — Run existing tests again. They must still pass.** This confirms you haven't changed external behavior. But you are not done.
+---
 
-**Step 4 — Identify every new public interface you created.** List each new class, each new public method, each new module export. These are your new units.
+## Integration tests with testcontainers + Prisma
 
-**Step 5 — For each new unit, apply the standard tdd sequence.** Write a failing test that describes the unit's contract. Run it, confirm failure. Then confirm the implementation satisfies it. This is not optional — it's the same rule as writing any other new code.
+Install: `npm install --save-dev @testcontainers/postgresql testcontainers`
 
-**Step 6 — Run all tests. Existing and new must pass.**
+### Container lifecycle (once per test file)
 
-"Existing tests pass" is Step 3. It is not Step 6. You are not done at Step 3.
+```ts
+import { PostgreSqlContainer, StartedPostgreSqlContainer } from '@testcontainers/postgresql'
+import { PrismaClient } from '@prisma/client'
+import { execSync } from 'child_process'
 
-### Rationalizations specific to refactoring
+let container: StartedPostgreSqlContainer
+let prisma: PrismaClient
 
-**"It's just moving code, the behavior hasn't changed."**
-The behavior may be the same but the contracts are new. A new class has its own construction, its own edge cases, its own failure modes. The old tests don't exercise these — they go through the old call path.
+beforeAll(async () => {
+  container = await new PostgreSqlContainer('postgres:16-alpine').start()
+  const url = container.getConnectionUri()
+  execSync('npx prisma migrate deploy', { env: { ...process.env, DATABASE_URL: url } })
+  prisma = new PrismaClient({ datasources: { db: { url } } })
+  await prisma.$connect()
+}, 60_000)
 
-**"Existing tests already cover this logic."**
-Existing tests cover the logic *through the old structure*. If someone later modifies the extracted class in isolation, those tests may not catch the regression. The new unit needs tests that exercise it directly.
-
-**"All existing tests pass, so the refactor is correct."**
-Passing existing tests is necessary but not sufficient. It proves you didn't break old behavior. It proves nothing about whether the new abstractions handle edge cases, validate inputs correctly, or will survive future changes.
-
-**"Adding tests for extracted code is just testing implementation details."**
-No. A new public class with its own constructor and methods is not an implementation detail — it's a new unit with a public contract. If it's important enough to extract, it's important enough to test.
-
-### Refactoring red flags
-
-- You created new classes or functions but wrote zero new test files or test cases
-- Your PR/changeset has more new production code than new test code
-- The test plan is "existing tests should pass" with no mention of new tests
-- You're about to mark a refactor complete and haven't written a single new test
-
-## What a good test looks like
-
-Write from the outside in — describe what the code *should do*, not what it *does do*:
-
-- State the input and expected output before any implementation exists
-- Test behavior, not implementation details
-- If you already know how you'll implement it, your test is probably too detailed
-
-Bad (mirrors a known implementation — written after the fact):
-```js
-// Every assertion maps to a line I already wrote
-expect(slugify('Hello, World!')).toBe('hello-world') // matches my .replace() chain
+afterAll(async () => {
+  await prisma.$disconnect()
+  await container.stop()
+})
 ```
 
-Good (describes a requirement — written before any code exists):
-```js
-// Given a string with punctuation
-// When slugified
-// Then punctuation is removed and words are hyphen-separated
-expect(slugify('Hello, World!')).toBe('hello-world')
+### Test isolation — transaction rollback per test
+
+Each test runs inside an interactive transaction that is never committed:
+
+```ts
+let tx: Prisma.TransactionClient
+let rollback: (err: Error) => void
+
+beforeEach(async () => {
+  await new Promise<void>((resolve, reject) => {
+    rollback = reject
+    prisma.$transaction(async (t) => {
+      tx = t
+      resolve()
+      await new Promise<never>(() => {})
+    }).catch(() => {})
+  })
+})
+
+afterEach(() => {
+  rollback(new Error('rollback'))
+})
 ```
 
-The difference is intent: good tests are written not knowing the implementation.
+All queries within a test **must use `tx`**, not the global `prisma`.
 
-## Rationalizations — and the responses
+---
 
-**"It's too simple to need a test."**
-Simple things break. The test takes 30 seconds. Write it.
+## Factories
 
-**"I'll add tests after."**
-Tests written after prove what the code does. Tests written before prove what it should do. They are not the same.
+Every domain type has a factory in `test_utils/factories/`. **Never define factory functions inside a test file.** Always use `randomUUID()` for IDs.
 
-**"We're in a hurry."**
-Code without tests creates more delays, not fewer. Write one focused test, then the implementation.
-
-**"I'll just write both efficiently and run tests at the end."**
-That's not tdd. Writing both in one pass means the tests were written knowing the implementation. Run the failing test first — that's the whole point.
-
-**"This is a frontend component, testing is awkward."**
-Test the behavior before building the component. The component doesn't exist yet — that's the point. Write tests that assert what should render and what should happen on interaction, then build to make them pass:
-
-```
-# Before writing the component:
-render(<Counter />)
-assert displayed value is 0
-
-click increment button
-assert displayed value is 1
-
-click reset button
-assert displayed value is 0
+**BaseFactory:**
+```ts
+export abstract class BaseFactory<T> {
+  abstract build(overrides?: Partial<T>): T
+  buildList(count: number, overrides?: Partial<T>): T[] {
+    return Array.from({ length: count }, () => this.build(overrides))
+  }
+}
 ```
 
-These tests fail (component doesn't exist). Now build to make them pass.
+**Domain factory:**
+```ts
+class UserFactory extends BaseFactory<User> {
+  build(overrides: Partial<User> = {}): User {
+    return {
+      id: randomUUID(),
+      name: 'Test User',
+      email: `test-${randomUUID()}@example.com`,
+      isAdmin: false,
+      tier: 'free',
+      ...overrides,
+    }
+  }
+  admin(overrides: Partial<User> = {}): User {
+    return this.build({ isAdmin: true, ...overrides })
+  }
+}
+export const userFactory = new UserFactory()
+```
 
-**"The requirements aren't fully clear yet."**
-Writing a test forces you to clarify them. Start with the clearest case.
+For integration tests, use a thin `create` helper that inserts via `tx`:
+```ts
+async function createUser(overrides: Partial<User> = {}) {
+  return tx.user.create({ data: userFactory.build(overrides) })
+}
+```
+
+---
+
+## Universal test rules
+
+- **Test behaviour, not implementation.** A test must survive an internal refactor.
+- **One concept per `it`.** Multiple assertions OK if same logical outcome.
+- **Tests must be hermetic.** No shared mutable state, no run-order dependency.
+- **No logic in tests.** No conditionals, loops, or try/catch.
+- **Name the scenario and outcome:** `returns false when order is shipped`.
+
+## Mocking with vi.fn / vi.mock
+
+Mock at module boundaries only: external services, database clients, HTTP clients, filesystem. Prefer dependency injection over `vi.mock`. Create `vi.fn()` mocks inside each `it` block.
+
+## Async tests
+
+Always `await` async calls. Never use `done` callbacks.
+
+## Table-driven tests
+
+```ts
+it.each([
+  ['free', 100, 100],
+  ['pro', 100, 90],
+  ['enterprise', 100, 80],
+] as const)('applies correct discount for %s tier', (tier, input, expected) => {
+  const user = userFactory.build({ tier })
+  expect(applyDiscount(input, user)).toBe(expected)
+})
+```
+
+## React component tests
+
+Use React Testing Library. Query by accessible role, label, or visible text. Never `getByTestId`. Use `userEvent` (not `fireEvent`). Test all three data states: loading, error, success.
+
+## Coverage
+
+Do not chase numbers. Aim for tests that would catch real regressions.
+
+---
 
 ## Red flags — stop and reassess
 
-- You are about to write an implementation file and have not yet run a failing test
-- You wrote both files without running the test in between
-- You are showing passing tests without having first shown failing ones
-- You are writing a test that you already know will pass
-- You are thinking "this situation is different because..."
+- About to write an implementation file without a failing test
+- Wrote both files without running the test in between
+- Showing passing tests without first showing failing ones
+- Created new classes/functions in a refactor but wrote zero new tests
+- About to mock Prisma instead of using testcontainers
 
-## Checklist per task
+## Rationalizations — and the responses
 
-**For new code:**
-- [ ] Test file written; implementation file does not exist yet
-- [ ] Test run — failure output shown (module not found)
-- [ ] Implementation written
-- [ ] Test run — passing output shown
-- [ ] Edge cases covered with their own tests
-
-**For bug fixes:**
-- [ ] Regression test written that exposes the bug
-- [ ] Test run — failure output shown (assertion fails)
-- [ ] Bug fixed
-- [ ] Test run — passing output shown
-
-**For adding features to existing files:**
-- [ ] Tests for new feature written; existing code unchanged
-- [ ] All tests run — existing pass, new tests fail
-- [ ] New feature implemented
-- [ ] All tests run — all pass
-
-**For refactoring:**
-- [ ] Existing tests pass before any changes (safety net confirmed)
-- [ ] Structural refactor performed
-- [ ] Existing tests still pass (behavior preserved)
-- [ ] Every new public class, method, and module export identified
-- [ ] New tests written for each new unit — failing test shown first
-- [ ] New tests pass
-- [ ] All tests run — existing and new all pass
+- **"It's too simple"** → Simple things break. Write it.
+- **"I'll add tests after"** → Tests after prove what code does, not what it should do.
+- **"We're in a hurry"** → Code without tests creates more delays.
+- **"Setting up a container is complex"** → A Prisma mock tests nothing real.
+- **"Existing tests cover the extracted code"** → They cover it through the old structure. New units need direct tests.

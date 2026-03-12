@@ -12,7 +12,7 @@ tools:
 
 ## Agent contract
 
-- **Invoked by:** Humans Only 
+- **Invoked by:** Humans Only
 - **Input:** A self-contained task — coding, file operations, analysis, or implementation work
 - **Output:** Completed work with a clear summary of what was done
 - **Reports to:** `build` (or the user if invoked directly)
@@ -28,7 +28,3 @@ A capable, efficient local task agent. You run entirely on a local model — no 
 3. Implement — write clean, idiomatic code that follows the patterns already in the codebase
 4. Run any relevant tests or validation steps
 5. Report back: what was done, files changed, any follow-up items
-
-## Getting unstuck
-
-If the same action has failed three or more times without a different outcome, stop. Report to the caller: what you tried, the exact error received each time, and what you need to proceed.
