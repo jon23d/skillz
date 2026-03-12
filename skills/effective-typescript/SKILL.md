@@ -118,7 +118,7 @@ function getField<T extends object, K extends keyof T>(obj: T, key: K): T[K] {
 
 Don't re-declare types that can be derived. If `User` changes, derived types update automatically.
 
-### 7. tsconfig — always use strict mode
+### 7. tsconfig — always use strict mode and path aliases
 
 ```json
 {
@@ -130,7 +130,11 @@ Don't re-declare types that can be derived. If `User` changes, derived types upd
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
     "skipLibCheck": true,
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
   "include": ["src"]
 }
@@ -140,6 +144,19 @@ Don't re-declare types that can be derived. If `User` changes, derived types upd
 - `noUncheckedIndexedAccess` — array index access returns `T | undefined`, not `T`
 - `exactOptionalPropertyTypes` — distinguishes `{ x?: string }` from `{ x: string | undefined }`
 - "It's just a prototype" → bugs built into prototypes ship to production
+- **`baseUrl` + `paths` are required in every app.** Relative imports like `../../../hooks/useUser` are hard to read and break silently when files move. Always import via the alias instead:
+
+```typescript
+// Bad — fragile and hard to read
+import { useUser } from '../../../hooks/useUser'
+import { Button } from '../../components/Button'
+
+// Good — clear and refactor-safe
+import { useUser } from '@/hooks/useUser'
+import { Button } from '@/components/Button'
+```
+
+Bundlers don't read `tsconfig.json` automatically — pair the alias definition with the appropriate plugin (`vite-tsconfig-paths` for Vite, `tsconfig-paths-webpack-plugin` for Webpack). TypeScript and the bundler must always agree on what `@/` resolves to.
 
 ## Common anti-patterns and fixes
 
@@ -157,3 +174,4 @@ Don't re-declare types that can be derived. If `User` changes, derived types upd
 - `"strict": false` in tsconfig → set it to `true`
 - Thinking "this is too complex to type properly" → use generics
 - Thinking "I'll add proper types later" → types added later miss the bugs types were meant to catch
+- Writing a relative import that traverses more than one directory (`../../`) → define or use a path alias instead

@@ -151,9 +151,33 @@ Each package's `.eslintrc.js`:
 module.exports = { extends: ['@myorg/eslint-config'] }
 ```
 
-**Path aliases in bundlers** — TypeScript respects aliases via `extends`, but Vite and Webpack do not read `tsconfig.json` automatically:
-- Vite: add `vite-tsconfig-paths` plugin
-- Webpack: add `tsconfig-paths-webpack-plugin`
+**Path aliases — use them in every app.** Relative imports like `../../../components/Button` are hard to read and break silently when files move. Define path aliases in each app's `tsconfig.json` and import from them consistently:
+
+```json
+// apps/dashboard/tsconfig.json
+{
+  "extends": "@myorg/tsconfig/nextjs.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  }
+}
+```
+
+Then import cleanly from anywhere in the app:
+```ts
+import { Button } from '@/components/Button'
+import { userFactory } from '@/test_utils/factories/user'
+import { useUser } from '@/hooks/useUser'
+```
+
+TypeScript respects aliases via `tsconfig.json`, but bundlers need an extra plugin to do the same — add it alongside the alias definition:
+- Vite: `vite-tsconfig-paths` plugin
+- Webpack: `tsconfig-paths-webpack-plugin`
+
+The plugin and the `tsconfig.json` paths must be kept in sync — if you add a new alias to one, add it to the other.
 
 ## Environment variables — one root `.env`, no per-package `.env` files
 
@@ -233,6 +257,7 @@ feat(utils): add formatCurrency helper, use in dashboard billing view
 
 **Path alias not resolving in bundler**
 - TypeScript is happy but Vite/Webpack fails — add the bundler plugin (see above).
+- Bundler plugin installed but alias still fails — confirm the alias is defined in `tsconfig.json` paths and that `baseUrl` is set; the plugin reads from `tsconfig.json`, not from the bundler config directly.
 
 ## Checklist
 
@@ -243,7 +268,8 @@ feat(utils): add formatCurrency helper, use in dashboard billing view
 - [ ] Build ordering handled by Turborepo with `"^build"` in `turbo.json`
 - [ ] Scripts run from root with `--filter`
 - [ ] Shared configs live in dedicated packages (`@myorg/tsconfig`, `@myorg/eslint-config`)
-- [ ] Bundler alias plugins configured if using `tsconfig` path aliases
+- [ ] Path aliases defined in each app's `tsconfig.json` (`@/*` → `src/*` at minimum)
+- [ ] Bundler alias plugin installed and configured (`vite-tsconfig-paths` or `tsconfig-paths-webpack-plugin`)
 - [ ] Version changes managed with Changesets, not manual edits
 - [ ] Cross-package changes committed atomically
 - [ ] All env vars defined in root `.env`; no per-package `.env` files

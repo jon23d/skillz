@@ -134,7 +134,9 @@ describe('findUserByEmail', () => {
 
 ## Factories
 
-Every domain type has a factory. Factories live in `test_utils/factories/` and are the **only** place that knows how to build a valid object of that type.
+Every domain type has a factory. Factories live in `test_utils/factories/` and are the **only** place that knows how to build a valid object of that type. If a factory for the type you need does not exist, create one there — do not define it locally inside a test file.
+
+**Never define factory functions or helper objects inside a test file.** A local `makeUser()` or `buildOrder()` defined at the top of a test module is a factory in disguise. It duplicates schema knowledge, drifts silently when types change, and is invisible to other tests that need the same object. The rule is unconditional: if it builds a domain object, it belongs in `test_utils/factories/`.
 
 **Always use `randomUUID()` for IDs and unique fields.** Static IDs like `'user-1'` cause hidden coupling — two factory calls return objects that share an ID, which can make unrelated tests interfere with each other.
 
@@ -191,6 +193,9 @@ const user = { id: 'user-1', name: 'Alice', ... }
 
 // Bad — static IDs cause hidden inter-test coupling
 function makeUser() { return { id: 'user-1', ... } }
+
+// Bad — local factory defined inside the test file; belongs in test_utils/factories/
+function buildOrder(overrides = {}) { return { id: randomUUID(), status: 'pending', ...overrides } }
 ```
 
 ---
