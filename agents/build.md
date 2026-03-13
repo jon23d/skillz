@@ -28,7 +28,8 @@ When the user describes a problem, names a ticket, or asks you to pick up work:
    - If either is missing or the file cannot be read, **stop and use the `question` tool to ask the user** — do not guess or default to any provider
    - Carry these two values explicitly through every subsequent phase
 3. If a ticket reference was given, fetch it using the appropriate issue tool and read the full description
-4. **Do not start implementation. Do not invoke any engineer. Proceed to Phase 2.**
+4. **Rename the session now** — call `rename-session` using the format from the `worktrees` skill (e.g. `#42 - Add user authentication`). This must happen before Phase 2. If no ticket, use the slug only.
+5. **Do not start implementation. Do not invoke any engineer. Proceed to Phase 2.**
 
 ---
 
@@ -82,9 +83,7 @@ Once the user approves the plan:
 
 2. Do not proceed to Phase 4 until `@backend-engineer` confirms the worktree exists.
 
-3. **Rename the session** — call `rename-session` with the format from the `worktrees` skill (e.g. `#42 - Add user authentication`). Do this now, not later.
-
-4. **Every subsequent agent invocation must include the worktree path.**
+3. **Every subsequent agent invocation must include the worktree path.**
 
 ---
 

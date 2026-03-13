@@ -9,8 +9,8 @@ echo "Installing to $TARGET ..."
 # Ensure target directory exists
 mkdir -p "$TARGET"
 
-# Copy agents/, tools/, and skills/ into ~/.opencode/ (preserving subdirectory structure)
-for dir in agents tools skills; do
+# Copy agents/, tools/, plugins/, and skills/ into ~/.opencode/ (preserving subdirectory structure)
+for dir in agents tools plugins skills; do
   echo "  Copying $dir/ -> $TARGET/$dir/"
   cp -r "$SCRIPT_DIR/$dir" "$TARGET/"
 done
