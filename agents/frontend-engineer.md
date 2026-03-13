@@ -30,10 +30,10 @@ If the task involves a new or modified endpoint, run `npm run codegen` (per the 
 
 **Data fetching architecture (non-negotiable):**
 
-- **Service layer first.** All data fetching in dedicated service files under `@/services`. Services call the typed client and return typed data objects.
-- **Custom hooks as the interface.** Components call hooks (e.g. `useUser`), not services directly. Hooks use TanStack Query internally.
+- **Service layer owns all HTTP calls.** All data fetching lives in dedicated service files under `@/services`. Services call the typed client and return typed data. Components never call `fetch`, `axios`, or the generated client directly.
 - **No hardcoded URLs or endpoint strings.** Endpoint definitions belong in the generated client or service layer only.
-- **No `useState` + `useEffect` for server data.** Use `useQuery`/`useMutation` inside custom hooks.
+- **No `useState` + `useEffect` for server data.** Use the project's data-fetching solution (e.g. TanStack Query's `useQuery`/`useMutation`, SWR, Suspense) instead of hand-rolled fetch-in-effect patterns.
+- **Extract a reusable hook only when it earns its existence.** If the query configuration is complex (optimistic updates, polling, cache invalidation, dependent queries), extract a hook. If it's a straightforward `useQuery({ queryKey, queryFn })` call, inline it in the component — a pass-through wrapper adds indirection without value.
 
 ## Skills
 

@@ -62,12 +62,14 @@ Run `npx vitest run` from the project root. Always run the full suite. TypeScrip
 
 ---
 
-## When to use testcontainers vs factories
+## When to use testcontainers vs MSW vs factories
 
 - **Code that directly calls the database** (repositories, query functions) → **integration tests with testcontainers**. Mock nothing. Use a real PostgreSQL container.
-- **Everything else** (services, domain logic, handlers, utilities) → **unit tests with factories**.
+- **Code that directly calls HTTP APIs** (API clients, services that call `fetch`, TanStack Query hooks) → **integration tests with MSW**. Mock nothing at the code level — MSW intercepts the network.
+- **Everything else** (domain logic, handlers, utilities) → **unit tests with factories**.
 
 Do not mock Prisma in unit tests — if the code calls Prisma, it belongs in a repository with an integration test.
+Do not mock `fetch` or stub HTTP clients with `vi.fn()` — if the code makes HTTP requests, use MSW to intercept them at the network level.
 
 ---
 
@@ -127,6 +129,87 @@ All queries within a test **must use `tx`**, not the global `prisma`.
 
 ---
 
+## Integration tests with MSW
+
+Install: `npm install --save-dev msw`
+
+### Server lifecycle (once per test file)
+
+```ts
+import { setupServer } from 'msw/node'
+import { http, HttpResponse } from 'msw'
+
+const server = setupServer()
+
+beforeAll(() => server.listen({ onUnhandledRequest: 'error' }))
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+```
+
+`onUnhandledRequest: 'error'` makes any request without a handler fail the test — no silent network leaks.
+
+### Define handlers per test
+
+Define handlers inside each test (or `beforeEach` for a shared happy path). Keep handlers close to the assertions that depend on them:
+
+```ts
+it('returns the user profile', async () => {
+  server.use(
+    http.get('https://api.example.com/users/:id', ({ params }) => {
+      return HttpResponse.json({
+        id: params.id,
+        name: 'Jane Doe',
+        email: 'jane@example.com',
+      })
+    }),
+  )
+
+  const profile = await userService.getProfile('user-1')
+
+  expect(profile).toEqual({
+    id: 'user-1',
+    name: 'Jane Doe',
+    email: 'jane@example.com',
+  })
+})
+```
+
+### Error and edge-case scenarios
+
+Use `server.use()` to override the happy path for individual tests:
+
+```ts
+it('throws on server error', async () => {
+  server.use(
+    http.get('https://api.example.com/users/:id', () => {
+      return new HttpResponse(null, { status: 500 })
+    }),
+  )
+
+  await expect(userService.getProfile('user-1')).rejects.toThrow('Server error')
+})
+
+it('handles network failure', async () => {
+  server.use(
+    http.get('https://api.example.com/users/:id', () => {
+      return HttpResponse.error()
+    }),
+  )
+
+  await expect(userService.getProfile('user-1')).rejects.toThrow()
+})
+```
+
+### Rules
+
+- **One `setupServer()` per test file.** Do not share server instances across files.
+- **`onUnhandledRequest: 'error'`** is non-negotiable. Silent passthrough hides real bugs.
+- **Define handlers in tests, not in shared fixture files.** The test must be readable without jumping to another file. Exception: a shared `handlers.ts` for a large API surface where every test uses the same happy path — but per-test overrides via `server.use()` still go in the test.
+- **Do not assert on request details** (headers, body) unless the test is specifically about how the request is formed. Test the *outcome* (what your code does with the response), not the *request*.
+- **Use `HttpResponse.json()`, `HttpResponse.text()`, or `new HttpResponse()`** — never return plain objects.
+
+---
+
 ## Factories
 
 Every domain type has a factory in `test_utils/factories/`. **Never define factory functions inside a test file.** Always use `randomUUID()` for IDs.
@@ -180,7 +263,7 @@ async function createUser(overrides: Partial<User> = {}) {
 
 ## Mocking with vi.fn / vi.mock
 
-Mock at module boundaries only: external services, database clients, HTTP clients, filesystem. Prefer dependency injection over `vi.mock`. Create `vi.fn()` mocks inside each `it` block.
+Mock at module boundaries only: external services, database clients, filesystem. Prefer dependency injection over `vi.mock`. Create `vi.fn()` mocks inside each `it` block. For HTTP APIs, use MSW instead of `vi.fn()` — see the MSW section above.
 
 ## Async tests
 
@@ -220,6 +303,7 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - Showing passing tests without first showing failing ones
 - Created new classes/functions in a refactor but wrote zero new tests
 - About to mock Prisma instead of using testcontainers
+- About to mock `fetch` or stub an HTTP client with `vi.fn()` instead of using MSW
 
 ## Rationalizations — and the responses
 
@@ -227,4 +311,5 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - **"I'll add tests after"** → Tests after prove what code does, not what it should do.
 - **"We're in a hurry"** → Code without tests creates more delays.
 - **"Setting up a container is complex"** → A Prisma mock tests nothing real.
+- **"I'll just mock fetch, it's simpler"** → A fetch mock tests your mock, not your HTTP integration. MSW intercepts real requests.
 - **"Existing tests cover the extracted code"** → They cover it through the old structure. New units need direct tests.

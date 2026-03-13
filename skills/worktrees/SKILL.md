@@ -175,9 +175,9 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 ## Screenshots
 
 {Embed each screenshot:}
-![description](https://raw.githubusercontent.com/{owner}/{repo}/{branch}/agent-logs/YYYY-MM-DD-{slug}/filename.png)
+![description](../blob/{branch}/agent-logs/YYYY-MM-DD-{slug}/filename.png?raw=true)
 
-{Use raw.githubusercontent.com absolute URLs — relative paths do not render in GitHub PR bodies. "None" if no UI changes.}
+{Use relative blob URLs with `?raw=true` — `raw.githubusercontent.com` URLs break on private repos. "None" if no UI changes.}
 
 ## Documentation updates
 

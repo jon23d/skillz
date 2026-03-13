@@ -71,8 +71,8 @@ Always use this template. Fill every section — do not leave sections empty or 
      "No setup needed — check out the branch and run the app." -->
 
 ## Screenshots
-<!-- Frontend changes: embed screenshots using absolute raw URLs to images committed on this branch.
-     Example: ![Login form](https://raw.githubusercontent.com/OWNER/REPO/BRANCH/agent-logs/YYYY-MM-DD-slug/login-form.png)
+<!-- Frontend changes: embed screenshots using relative blob URLs to images committed on this branch.
+     Example: ![Login form](../blob/BRANCH/agent-logs/YYYY-MM-DD-slug/login-form.png?raw=true)
      No frontend changes: remove this section. -->
 
 ## Closes
@@ -110,15 +110,16 @@ If the issue tracker is GitHub or Gitea (not Jira), the `Closes #N` keyword in t
 
 ## Screenshots
 
-Screenshots must be embedded as absolute `raw.githubusercontent.com` URLs. Relative paths do not work in GitHub PR bodies — GitHub resolves them against the compare URL, producing broken links.
+Screenshots must be embedded as relative blob URLs with `?raw=true`. Do not use `raw.githubusercontent.com` — those URLs return 404 for private repos because the viewer's browser has no token.
 
-Construct the URL from three values you already have:
-- `OWNER/REPO` — from `agent-config.json → git_host.github.repo_url` (strip `https://github.com/`)
+Construct the URL from two values you already have:
 - `BRANCH` — from `git branch --show-current`
 - `PATH` — the path to the image file from the repo root (e.g. `agent-logs/2026-03-08-slug/login-form.png`)
 
 ```markdown
-![Description of what is shown](https://raw.githubusercontent.com/OWNER/REPO/BRANCH/agent-logs/YYYY-MM-DD-slug/filename.png)
+![Description of what is shown](../blob/BRANCH/agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
 ```
+
+The `../blob/` prefix works because GitHub resolves relative URLs in PR bodies against the PR page URL (`/owner/repo/pull/N`). The `?raw=true` suffix tells GitHub to serve the binary image instead of the HTML file viewer.
 
 The image must exist on the branch at the path used in the URL. If screenshots have not yet been committed to the branch, omit the Screenshots section and update the PR body later using `github-prs_update` or `gitea-prs_update` once they are available.
