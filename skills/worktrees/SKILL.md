@@ -28,14 +28,18 @@ If this fails, run `git init` before proceeding.
 **Branch name**: `feature/{slug}`
 **Agent-logs path**: `{worktree_path}/agent-logs/YYYY-MM-DD-{slug}/` (use today's date) — note: `agent-logs`, no leading dot. It is not a hidden directory.
 
-## Step 1b — Rename the session
+## Step 1b — Rename the session (mandatory)
 
-Call `rename-session` once with:
-- Gitea/GitHub ticket: `Issue #N - {slug}`
-- Jira ticket: `PROJ-N - {slug}`
-- No ticket: `{slug}`
+Call `rename-session` immediately after deriving paths. Do not defer this or skip it.
 
-If it errors, log and continue — not a blocker.
+Format — use the ticket number and a plain-English description (≤10 words) of what the ticket is about:
+- GitHub/Gitea ticket: `#N - brief description` → `#42 - Add user authentication`
+- Jira ticket: `PROJ-N - brief description` → `PROJ-42 - Add user authentication`
+- No ticket: `brief description` → `Add user authentication`
+
+The description is **not** the slug. It is a short human-readable summary of the ticket title, not the hyphenated path-safe version.
+
+If `rename-session` errors, log the error and continue — not a blocker.
 
 ## Step 2 — Create or re-enter the worktree
 

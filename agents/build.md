@@ -82,7 +82,7 @@ Once the user approves the plan:
 
 2. Do not proceed to Phase 4 until `@backend-engineer` confirms the worktree exists.
 
-3. Rename the session using the `worktrees` skill naming convention.
+3. **Rename the session** — call `rename-session` with the format from the `worktrees` skill (e.g. `#42 - Add user authentication`). Do this now, not later.
 
 4. **Every subsequent agent invocation must include the worktree path.**
 
