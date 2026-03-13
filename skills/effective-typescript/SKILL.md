@@ -158,6 +158,26 @@ import { Button } from '@/components/Button'
 
 Bundlers don't read `tsconfig.json` automatically — pair the alias definition with the appropriate plugin (`vite-tsconfig-paths` for Vite, `tsconfig-paths-webpack-plugin` for Webpack). TypeScript and the bundler must always agree on what `@/` resolves to.
 
+### 8. Trust inference — don't annotate what the compiler already knows
+
+TypeScript's inference is strong. Redundant annotations add noise and create maintenance burden when types change.
+
+**Don't annotate:**
+- Variables assigned from typed expressions: `const user = userFactory.build()` — not `const user: User = ...`
+- Return types the body makes obvious: `function add(a: number, b: number) { return a + b }`
+- Callback parameters: `.map((item) => ...)` — not `.map((item: SomeType) => ...)`
+- Generic type parameters the compiler resolves: `useState(0)` — not `useState<number>(0)`
+
+**Do annotate:**
+- Exported function signatures — they're module boundaries and documentation
+- When inference produces `any` or a wider type than intended
+- Empty collections that need a specific type: `const items: User[] = []`
+- Complex return types that aren't obvious from the function body
+
+**Rationalization to reject:**
+- "Explicit types are more readable" → redundant types are noise, not documentation. If the right-hand side says `new Map<string, User>()`, writing `const users: Map<string, User> =` repeats information.
+- "It catches bugs earlier" → the compiler already caught it. You're just typing it twice.
+
 ## Common anti-patterns and fixes
 
 - `as any` to do optional chaining on `unknown` → use a type guard or optional chaining on `unknown` after narrowing
