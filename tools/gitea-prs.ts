@@ -110,7 +110,7 @@ function tracker(): GiteaPRs {
 
 export const create = tool({
   description:
-    "Open a new Gitea pull request. Always opens as ready-for-review, never draft. Base branch defaults to the value in agent-config.json git_host.gitea.default_branch, falling back to 'main'.",
+    "Only use when agent-config.json sets git_host.provider to 'gitea'. Open a new Gitea pull request. Always opens as ready-for-review, never draft. Base branch defaults to the value in agent-config.json git_host.gitea.default_branch, falling back to 'main'.",
   args: {
     title: tool.schema.string().describe("PR title"),
     body: tool.schema.string().describe("PR body (Markdown). Use the pull request template."),
@@ -129,7 +129,7 @@ export const create = tool({
 })
 
 export const get = tool({
-  description: "Read a Gitea pull request by number.",
+  description: "Only use when agent-config.json sets git_host.provider to 'gitea'. Read a Gitea pull request by number.",
   args: {
     id: tool.schema.string().describe("PR number, e.g. '42'"),
   },
@@ -150,7 +150,7 @@ export const get = tool({
 })
 
 export const list = tool({
-  description: "List Gitea pull requests.",
+  description: "Only use when agent-config.json sets git_host.provider to 'gitea'. List Gitea pull requests.",
   args: {
     state: tool.schema.string().optional().describe('"open" (default), "closed", or "all"'),
     limit: tool.schema.number().optional().describe("Max results (default 20, max 50)"),
@@ -172,7 +172,7 @@ export const list = tool({
 })
 
 export const update = tool({
-  description: "Update the title or body of an existing Gitea pull request.",
+  description: "Only use when agent-config.json sets git_host.provider to 'gitea'. Update the title or body of an existing Gitea pull request.",
   args: {
     id: tool.schema.string().describe("PR number"),
     title: tool.schema.string().optional().describe("New title"),

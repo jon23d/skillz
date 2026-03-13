@@ -196,7 +196,7 @@ function tracker(): GithubIssues {
 }
 
 export const get = tool({
-  description: "Read a GitHub issue by number, including comments.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'github'. Read a GitHub issue by number, including comments.",
   args: { id: tool.schema.string().describe("Issue number, e.g. '42'") },
   async execute(args) {
     try {
@@ -224,7 +224,7 @@ export const get = tool({
 })
 
 export const create = tool({
-  description: "Create a new GitHub issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'github'. Create a new GitHub issue.",
   args: {
     title: tool.schema.string().describe("Issue title"),
     description: tool.schema.string().optional().describe("Issue body (Markdown supported)"),
@@ -247,7 +247,7 @@ export const create = tool({
 })
 
 export const update = tool({
-  description: "Update an existing GitHub issue. Only provided fields are changed.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'github'. Update an existing GitHub issue. Only provided fields are changed.",
   args: {
     id: tool.schema.string().describe("Issue number"),
     title: tool.schema.string().optional(),
@@ -273,7 +273,7 @@ export const update = tool({
 })
 
 export const list = tool({
-  description: "List GitHub issues with optional filters.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'github'. List GitHub issues with optional filters.",
   args: {
     state: tool.schema.string().optional().describe('"open" (default), "closed", or "all"'),
     assignee: tool.schema.string().optional(),
@@ -299,7 +299,7 @@ export const list = tool({
 })
 
 export const search = tool({
-  description: "Search GitHub issues by keyword.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'github'. Search GitHub issues by keyword.",
   args: {
     query: tool.schema.string().describe("Search query"),
     limit: tool.schema.number().optional().describe("Max results (default 20)"),
@@ -316,7 +316,7 @@ export const search = tool({
 })
 
 export const comment = tool({
-  description: "Add a comment to a GitHub issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'github'. Add a comment to a GitHub issue.",
   args: {
     id: tool.schema.string().describe("Issue number"),
     body: tool.schema.string().describe("Comment text (Markdown supported)"),
@@ -332,7 +332,7 @@ export const comment = tool({
 })
 
 export const transition = tool({
-  description: 'Transition a GitHub issue status. Use "closed" to close, "open" to reopen.',
+  description: 'Only use when agent-config.json sets issue_tracker.provider to \'github\'. Transition a GitHub issue status. Use "closed" to close, "open" to reopen.',
   args: {
     id: tool.schema.string().describe("Issue number"),
     status: tool.schema.string().describe('"open" or "closed"'),

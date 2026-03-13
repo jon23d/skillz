@@ -107,7 +107,7 @@ function tracker(): GithubPRs {
 
 export const create = tool({
   description:
-    "Open a new GitHub pull request. Always opens as ready-for-review, never draft. Base branch defaults to the value in agent-config.json git_host.github.default_branch, falling back to 'main'.",
+    "Only use when agent-config.json sets git_host.provider to 'github'. Open a new GitHub pull request. Always opens as ready-for-review, never draft. Base branch defaults to the value in agent-config.json git_host.github.default_branch, falling back to 'main'.",
   args: {
     title: tool.schema.string().describe("PR title"),
     body: tool.schema.string().describe("PR body (Markdown). Use the pull request template."),
@@ -126,7 +126,7 @@ export const create = tool({
 })
 
 export const get = tool({
-  description: "Read a GitHub pull request by number.",
+  description: "Only use when agent-config.json sets git_host.provider to 'github'. Read a GitHub pull request by number.",
   args: {
     id: tool.schema.string().describe("PR number, e.g. '42'"),
   },
@@ -147,7 +147,7 @@ export const get = tool({
 })
 
 export const list = tool({
-  description: "List GitHub pull requests.",
+  description: "Only use when agent-config.json sets git_host.provider to 'github'. List GitHub pull requests.",
   args: {
     state: tool.schema.string().optional().describe('"open" (default), "closed", or "all"'),
     limit: tool.schema.number().optional().describe("Max results (default 20, max 50)"),
@@ -169,7 +169,7 @@ export const list = tool({
 })
 
 export const update = tool({
-  description: "Update the title or body of an existing GitHub pull request.",
+  description: "Only use when agent-config.json sets git_host.provider to 'github'. Update the title or body of an existing GitHub pull request.",
   args: {
     id: tool.schema.string().describe("PR number"),
     title: tool.schema.string().optional().describe("New title"),

@@ -237,7 +237,7 @@ function tracker(): GiteaIssues {
 }
 
 export const get = tool({
-  description: "Read a Gitea issue by number, including comments and attachments.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. Read a Gitea issue by number, including comments and attachments.",
   args: { id: tool.schema.string().describe("Issue number, e.g. '42'") },
   async execute(args) {
     try {
@@ -265,7 +265,7 @@ export const get = tool({
 })
 
 export const create = tool({
-  description: "Create a new Gitea issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. Create a new Gitea issue.",
   args: {
     title: tool.schema.string().describe("Issue title"),
     description: tool.schema.string().optional().describe("Issue body (Markdown supported)"),
@@ -288,7 +288,7 @@ export const create = tool({
 })
 
 export const update = tool({
-  description: "Update an existing Gitea issue. Only provided fields are changed.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. Update an existing Gitea issue. Only provided fields are changed.",
   args: {
     id: tool.schema.string().describe("Issue number"),
     title: tool.schema.string().optional(),
@@ -312,7 +312,7 @@ export const update = tool({
 })
 
 export const list = tool({
-  description: "List Gitea issues with optional filters.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. List Gitea issues with optional filters.",
   args: {
     state: tool.schema.string().optional().describe('"open" (default), "closed", or "all"'),
     assignee: tool.schema.string().optional(),
@@ -336,7 +336,7 @@ export const list = tool({
 })
 
 export const search = tool({
-  description: "Search Gitea issues by keyword.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. Search Gitea issues by keyword.",
   args: {
     query: tool.schema.string().describe("Search query"),
     limit: tool.schema.number().optional().describe("Max results (default 20)"),
@@ -353,7 +353,7 @@ export const search = tool({
 })
 
 export const comment = tool({
-  description: "Add a comment to a Gitea issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. Add a comment to a Gitea issue.",
   args: {
     id: tool.schema.string().describe("Issue number"),
     body: tool.schema.string().describe("Comment text (Markdown supported)"),
@@ -369,7 +369,7 @@ export const comment = tool({
 })
 
 export const transition = tool({
-  description: 'Transition a Gitea issue status. Use "closed" to close, "open" to reopen.',
+  description: 'Only use when agent-config.json sets issue_tracker.provider to \'gitea\'. Transition a Gitea issue status. Use "closed" to close, "open" to reopen.',
   args: {
     id: tool.schema.string().describe("Issue number"),
     status: tool.schema.string().describe('"open" or "closed"'),
@@ -385,7 +385,7 @@ export const transition = tool({
 })
 
 export const upload_attachment = tool({
-  description: "Upload a file as an attachment to a Gitea issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'gitea'. Upload a file as an attachment to a Gitea issue.",
   args: {
     id: tool.schema.string().describe("Issue number"),
     file_path: tool.schema.string().describe("Absolute path to the file to upload"),

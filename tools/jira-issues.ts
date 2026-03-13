@@ -289,7 +289,7 @@ function tracker(): JiraIssues {
 }
 
 export const get = tool({
-  description: "Read a Jira issue by key (e.g. PROJ-123), including comments and attachments.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Read a Jira issue by key (e.g. PROJ-123), including comments and attachments.",
   args: { id: tool.schema.string().describe("Issue key, e.g. 'PROJ-123'") },
   async execute(args) {
     try {
@@ -317,7 +317,7 @@ export const get = tool({
 })
 
 export const create = tool({
-  description: "Create a new Jira issue in the configured project.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Create a new Jira issue in the configured project.",
   args: {
     title: tool.schema.string().describe("Issue summary/title"),
     description: tool.schema.string().optional().describe("Issue description (plain text)"),
@@ -338,7 +338,7 @@ export const create = tool({
 })
 
 export const update = tool({
-  description: "Update an existing Jira issue. Only provided fields are changed.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Update an existing Jira issue. Only provided fields are changed.",
   args: {
     id: tool.schema.string().describe("Issue key, e.g. 'PROJ-123'"),
     title: tool.schema.string().optional(),
@@ -360,7 +360,7 @@ export const update = tool({
 })
 
 export const list = tool({
-  description: "List Jira issues in the configured project. Uses JQL internally.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. List Jira issues in the configured project. Uses JQL internally.",
   args: {
     state: tool.schema.string().optional().describe('"open" (default), "closed", or "all"'),
     assignee: tool.schema.string().optional().describe("Filter by assignee username or email"),
@@ -386,7 +386,7 @@ export const list = tool({
 })
 
 export const search = tool({
-  description: "Search Jira issues by keyword or JQL query. Plain text is automatically scoped to the configured project.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Search Jira issues by keyword or JQL query. Plain text is automatically scoped to the configured project.",
   args: {
     query: tool.schema.string().describe("Keyword or JQL, e.g. 'login bug' or 'status = \"In Progress\"'"),
     limit: tool.schema.number().optional().describe("Max results (default 20)"),
@@ -403,7 +403,7 @@ export const search = tool({
 })
 
 export const comment = tool({
-  description: "Add a comment to a Jira issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Add a comment to a Jira issue.",
   args: {
     id: tool.schema.string().describe("Issue key, e.g. 'PROJ-123'"),
     body: tool.schema.string().describe("Comment text (plain text)"),
@@ -419,7 +419,7 @@ export const comment = tool({
 })
 
 export const transition = tool({
-  description: "Transition a Jira issue to a new status. Omit status to list available transitions. Automatically assigns to current user when transitioning to 'In Progress'.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Transition a Jira issue to a new status. Omit status to list available transitions. Automatically assigns to current user when transitioning to 'In Progress'.",
   args: {
     id: tool.schema.string().describe("Issue key, e.g. 'PROJ-123'"),
     status: tool.schema.string().optional().describe("Target status name. Omit to list available transitions."),
@@ -441,7 +441,7 @@ export const transition = tool({
 })
 
 export const upload_attachment = tool({
-  description: "Upload a file as an attachment to a Jira issue.",
+  description: "Only use when agent-config.json sets issue_tracker.provider to 'jira'. Upload a file as an attachment to a Jira issue.",
   args: {
     id: tool.schema.string().describe("Issue key, e.g. 'PROJ-123'"),
     file_path: tool.schema.string().describe("Absolute path to the file to upload"),
