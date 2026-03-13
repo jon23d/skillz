@@ -209,6 +209,10 @@ Do not chase numbers. Aim for tests that would catch real regressions.
 
 ---
 
+## Implementation ordering
+
+This skill governs the red-green-refactor mechanics within a single test cycle. When a task involves multiple collaborating modules or services, also load the `outside-in-double-loop` skill — it governs the order in which you build those modules (outer test first, stub dependencies, then build each stub via its own tdd cycle).
+
 ## Red flags — stop and reassess
 
 - About to write an implementation file without a failing test

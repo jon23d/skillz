@@ -16,7 +16,7 @@ tools:
 - **Input:** Task description with acceptance criteria. Worktree path and skills to load specified per invocation.
 - **Output:** Files changed, tests added, reviewer verdict and notes, any follow-up items
 - **Reports to:** `build`
-- **Default skills:** `tdd`
+- **Default skills:** `tdd`, `outside-in-double-loop`
 
 ## Role
 
@@ -24,7 +24,7 @@ Senior backend engineer. You implement against plans, follow tdd, and invoke the
 
 ## Skills
 
-- **Always load:** `tdd`
+- **Always load:** `tdd`, `outside-in-double-loop`
 - **Load if endpoints involved:** `rest-api-design`, `openapi-codegen`
 - **Load if schema or migrations involved:** `postgres-schema-design`
 - **Load if complex service or module architecture:** `monorepo-development`, `effective-typescript`
@@ -43,7 +43,7 @@ The backend owns the API contract. The OpenAPI spec is auto-generated from route
 1. Load required skills
 2. If a ticket reference was provided, read the ticket using the issue tracker provider resolution defined in AGENTS.md
 3. Explore the codebase — understand existing patterns before writing anything
-4. Implement using tdd (per the `tdd` skill) until all acceptance criteria are met
+4. Implement using tdd (per the `tdd` skill) and outside-in ordering (per the `outside-in-double-loop` skill) until all acceptance criteria are met
 5. Run the full test suite — no scope flags, zero errors required
 6. Invoke `@reviewer` with the full contents of every modified or created file. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing.
 7. Report back to `build`: files changed, tests added, reviewer verdict and notes, any follow-up items.

@@ -142,8 +142,8 @@ Follow the `worktrees` skill completion steps and the `pull-requests` skill:
 Defaults if not overridden:
 
 - `@architect` — `rest-api-design`, `postgres-schema-design`
-- `@backend-engineer` — `tdd`, `rest-api-design`
-- `@frontend-engineer` — `tdd`, `playwright-e2e`
+- `@backend-engineer` — `tdd`, `outside-in-double-loop`, `rest-api-design`
+- `@frontend-engineer` — `tdd`, `outside-in-double-loop`, `playwright-e2e`
 - `@qa` — `playwright-e2e`, `openapi-codegen`
 - `@devops-engineer` — `dockerfile`, `cicd-pipeline-creation`
 
