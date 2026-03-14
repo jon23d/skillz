@@ -100,7 +100,7 @@ Invoke `@architect` when the task touches APIs, schema, multiple layers, or scop
 - Full-stack → invoke both **in parallel**; sequence if frontend depends on new endpoints.
 
 Each engineer invocation must include: worktree path, implementation plan, skills to load, and:
-> "Do not open a PR, invoke `@notifier`, write the task log, or send any notification. Report your results back to me and stop."
+> "Your working directory is `{worktree_path}`. Pass this as the `workdir` parameter on **every** bash call and use absolute paths starting with `{worktree_path}/` for every file read, write, and edit. There is no persistent working directory between tool calls — if you omit `workdir`, you will silently corrupt the main branch. Do not open a PR, invoke `@notifier`, write the task log, or send any notification. Report your results back to me and stop."
 
 Every `@frontend-engineer` invocation must also include:
 > "Save all screenshots to `{agent_logs_path}`. Create the directory if it does not exist."

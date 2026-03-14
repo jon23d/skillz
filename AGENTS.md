@@ -38,6 +38,10 @@ If the same action has failed three or more times without a different outcome, s
 
 When `build` provides a worktree path, **that is your working directory for everything.** Every bash command, file read, file write, and test run must target the worktree — not the repository root. The repo root is the main branch; writing there corrupts it.
 
+**There is no persistent working directory between tool calls.** Each bash invocation starts in the default directory. You must pass the worktree path as the `workdir` parameter on every bash call and use absolute paths starting with the worktree path for every file read, write, and edit. If you omit it even once, you will silently modify the main branch.
+
+**First action in every session:** run `git branch --show-current` with the worktree as `workdir` and confirm the output is the feature branch, not `main`. If it shows `main`, stop — you are in the wrong directory.
+
 If you were not given a worktree path and your task requires one, stop and ask your invoker before doing anything.
 
 ---

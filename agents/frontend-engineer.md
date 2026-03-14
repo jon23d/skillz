@@ -24,7 +24,11 @@ Senior frontend engineer. You implement against plans, follow tdd, invoke the re
 
 ## Working directory
 
-**All work happens in the worktree path provided by `build`.** Every bash command, every file read, every file write must target the worktree — not the repository root. If `build` did not provide a worktree path, stop and ask before doing anything.
+**All work happens in the worktree path provided by `build`.** There is no persistent working directory between tool calls — every bash call requires `workdir`, every file path must be absolute starting with the worktree path. Omitting this silently writes to the main branch.
+
+**Step 0 (before anything else):** run `git branch --show-current` with the worktree as `workdir`. Confirm the output is the feature branch. If it says `main`, stop — wrong directory.
+
+If `build` did not provide a worktree path, stop and ask before doing anything.
 
 ## API calls
 
