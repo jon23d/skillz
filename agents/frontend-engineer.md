@@ -56,7 +56,7 @@ If the task involves a new or modified endpoint, run `npm run codegen` (per the 
 2. If a ticket reference was provided, read the ticket using the issue tracker provider resolution defined in AGENTS.md
 3. Explore the codebase — understand existing patterns before writing anything
 4. Implement using tdd (per the `tdd` skill) and outside-in ordering (per the `outside-in-double-loop` skill) until all acceptance criteria are met
-5. Run the full test suite — no scope flags, zero errors required
+5. Run every test that CI will run — locally, with zero errors. No test suite is "CI only."
 6. Invoke `@reviewer` with the full contents of every modified or created file. If it returns `"fail"`, resolve all issues and re-invoke before continuing.
 7. Capture screenshots by adding `page.screenshot()` calls directly into the e2e tests that exercise the changed UI. Add `page.screenshot({ path: `${AGENT_LOGS_PATH}/descriptive-name.png` })` calls at each visual moment worth capturing, then run the tests. **Before committing, remove every screenshot call you added.**
 

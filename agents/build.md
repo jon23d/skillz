@@ -100,7 +100,7 @@ Invoke `@architect` when the task touches APIs, schema, multiple layers, or scop
 - Full-stack → invoke both **in parallel**; sequence if frontend depends on new endpoints.
 
 Each engineer invocation must include: worktree path, implementation plan, skills to load, and:
-> "Your working directory is `{worktree_path}`. Pass this as the `workdir` parameter on **every** bash call and use absolute paths starting with `{worktree_path}/` for every file read, write, and edit. There is no persistent working directory between tool calls — if you omit `workdir`, you will silently corrupt the main branch. Do not open a PR, invoke `@notifier`, write the task log, or send any notification. Report your results back to me and stop."
+> "Your working directory is `{worktree_path}`. Pass this as the `workdir` parameter on **every** bash call and use absolute paths starting with `{worktree_path}/` for every file read, write, and edit. There is no persistent working directory between tool calls — if you omit `workdir`, you will silently corrupt the main branch. Run every test that CI will run — locally, before reporting back. No test suite is 'CI only'. Do not open a PR, invoke `@notifier`, write the task log, or send any notification. Report your results back to me and stop."
 
 Every `@frontend-engineer` invocation must also include:
 > "Save all screenshots to `{agent_logs_path}`. Create the directory if it does not exist."
@@ -154,7 +154,7 @@ Issue tracker **write** operations are yours alone. Issue tracker **read** opera
 
 A task is NOT done until all of these pass:
 
-1. Each engineer ran the full test suite with zero errors
+1. Each engineer ran every test that CI will run — locally, with zero errors. No test suite is "CI only".
 2. `@reviewer` passed for each engineer
 3. `@qa` passed (if endpoints or UI changed)
 4. Screenshots exist for UI changes

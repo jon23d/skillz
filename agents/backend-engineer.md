@@ -52,7 +52,7 @@ The backend owns the API contract. The OpenAPI spec is auto-generated from route
 2. If a ticket reference was provided, read the ticket using the issue tracker provider resolution defined in AGENTS.md
 3. Explore the codebase — understand existing patterns before writing anything
 4. Implement using tdd (per the `tdd` skill) and outside-in ordering (per the `outside-in-double-loop` skill) until all acceptance criteria are met
-5. Run the full test suite — no scope flags, zero errors required
+5. Run every test that CI will run — locally, with zero errors. No test suite is "CI only."
 6. Invoke `@reviewer` with the full contents of every modified or created file. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing.
 7. Report back to `build`: files changed, tests added, reviewer verdict and notes, any follow-up items.
 

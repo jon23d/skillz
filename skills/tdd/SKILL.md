@@ -23,7 +23,7 @@ Writing tests and implementation in the same step is not tdd.
 
 ## Running tests
 
-Run `npx vitest run` from the project root. Always run the full suite. TypeScript errors are test failures. After tests pass, run the linter: `pnpm lint` (or `npm run lint`). Zero errors required. Do not report back or invoke reviewers until both are clean.
+Run every test that CI will run — locally, before reporting back. No test suite is "CI only." This includes unit tests (`npx vitest run`), integration tests, e2e tests (`npx playwright test`), type checking, and linting (`pnpm lint` or `npm run lint`). Zero errors required across all of them. Do not report back or invoke reviewers until everything is clean.
 
 ---
 
@@ -304,6 +304,7 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - Created new classes/functions in a refactor but wrote zero new tests
 - About to mock Prisma instead of using testcontainers
 - About to mock `fetch` or stub an HTTP client with `vi.fn()` instead of using MSW
+- Wrote e2e tests but planning to skip running them ("CI only")
 
 ## Rationalizations — and the responses
 
@@ -313,3 +314,4 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - **"Setting up a container is complex"** → A Prisma mock tests nothing real.
 - **"I'll just mock fetch, it's simpler"** → A fetch mock tests your mock, not your HTTP integration. MSW intercepts real requests.
 - **"Existing tests cover the extracted code"** → They cover it through the old structure. New units need direct tests.
+- **"E2E tests need CI / a special environment"** → Every test CI runs, you run first. Install a headless browser, start the DB, run them.

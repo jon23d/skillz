@@ -9,6 +9,20 @@ description: Use when writing end-to-end tests with Playwright, adding a new tes
 
 Playwright has built-in auto-waiting — every `locator` action and `expect` assertion retries until it passes or times out. Use this instead of manual waits. Tests should locate elements the way users do: by role, label, or visible text. If you can't locate an element without adding a `data-testid`, the app likely has an accessibility gap — fix the markup instead.
 
+## Running E2E tests
+
+**If you write e2e tests, you run e2e tests.** Do not defer to CI. Do not claim the environment is insufficient. The Playwright config includes a `webServer` block that starts the application automatically.
+
+Run from the worktree root:
+```bash
+npx playwright install --with-deps chromium   # first time only — installs headless browser
+npx playwright test                            # runs all e2e tests
+```
+
+If the database is required, start it first (e.g. `docker compose up -d db`). If other services are needed, start those too. The test environment is your responsibility — "CI only" is not an acceptable answer.
+
+Do not report back or invoke reviewers until e2e tests pass alongside unit/integration tests.
+
 ## Project setup
 
 Two files are required at the project root.
@@ -163,3 +177,10 @@ test.describe('Login', () => {
 - **Reaching for `data-testid` too soon** — if you need a testid to locate an element, the app is probably missing a label or ARIA role. Fix the app.
 - **No `webServer` in config** — tests fail with "connection refused" unless the dev server is already running manually.
 - **Bare path in `page.route`** — `route('/api/login', ...)` only matches that exact origin. Use `route('**/api/login', ...)` so tests work across environments.
+
+## Rationalizations — and the responses
+
+- **"E2E tests require CI / a special environment"** → Every test CI runs, you run first. Install a headless browser, start the DB, run them.
+- **"The environment is too complex to set up locally"** → Docker exists. `docker compose up -d` and `npx playwright install chromium` is two commands.
+- **"Unit tests cover it"** → Unit tests verify logic. E2E tests verify the user can actually use the feature. They test different things.
+- **"I'll let CI catch it"** → CI catches it after you've reported success. That's not testing — that's hoping.
