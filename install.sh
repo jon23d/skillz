@@ -70,7 +70,7 @@ set_model() {
   local model="$2"
   if [ ! -f "$file" ]; then return; fi
   # sed -i behaviour differs between macOS and GNU; use perl for portability
-  perl -i -pe "s/^model: .*/model: $model/" "$file"
+  perl -i -pe "s|^model: .*|model: $model|" "$file"
   echo "  Set $1 model -> $model"
 }
 
