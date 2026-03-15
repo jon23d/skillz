@@ -31,7 +31,7 @@ Do not produce Kubernetes manifests without explicit user confirmation. Present 
 
 ## Security review
 
-After producing any infrastructure files, invoke `@reviewer`. If it returns `"fail"`, resolve all critical and major issues before reporting back to `build`.
+After producing any infrastructure files, invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all critical and major issues before reporting back to `build`.
 
 ## Role boundary with developer-advocate
 

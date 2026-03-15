@@ -72,14 +72,7 @@ Wave 6 (sequential):
 
 Once the user approves the plan:
 
-1. Delegate worktree creation to `@backend-engineer` regardless of task type. Pass the paths derived in Phase 1:
-   > "Run the following setup commands from the repo root and confirm each succeeds:
-   > 1. `git worktree list` — if `{worktree_path}` already appears, skip to step 4
-   > 2. `mkdir -p ~/worktrees/{project}`
-   > 3. `git worktree add {worktree_path} -b {branch_name}` (omit `-b` if the branch already exists)
-   > 4. `cp .env {worktree_path}/.env` (skip silently if `.env` does not exist; also copy `.env.local` and `.env.test` if present)
-   > 5. Run the project's dependency install command from `{worktree_path}`
-   > Report back: worktree path confirmed, branch name, and whether `.env` was copied."
+1. Delegate worktree creation to `@backend-engineer` regardless of task type. Instruct it to follow the `worktrees` skill setup steps using the paths derived in Phase 1, and report back: worktree path confirmed, branch name, and whether `.env` was copied.
 
 2. Do not proceed to Phase 4 until `@backend-engineer` confirms the worktree exists.
 

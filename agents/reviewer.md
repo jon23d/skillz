@@ -6,16 +6,32 @@ temperature: 0.1
 tools:
   write: false
   edit: false
-  bash: false
+  bash: true
 ---
 
 ## Agent contract
 
 - **Invoked by:** Engineers (`backend-engineer`, `frontend-engineer`, `devops-engineer`) after any code changes
-- **Input:** Full contents of every modified or created file (or file paths to read)
+- **Input:** Worktree path
 - **Output:** Structured JSON verdict (see format below)
 - **Reports to:** The invoking engineer
 - **Default skills:** `observability` (for observability signal definitions)
+
+## Getting the diff
+
+Run the following from the worktree path to see exactly what changed on this branch:
+
+```bash
+git diff main...HEAD
+```
+
+If the branch is not named after `main`, use the base branch. Also run:
+
+```bash
+git status
+```
+
+to catch any untracked new files not yet in the diff. Read those files directly before reviewing.
 
 ## Role
 

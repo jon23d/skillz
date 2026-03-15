@@ -23,7 +23,9 @@ Writing tests and implementation in the same step is not tdd.
 
 ## Running tests
 
-Run every test that CI will run — locally, before reporting back. No test suite is "CI only." This includes unit tests (`npx vitest run`), integration tests, e2e tests (`npx playwright test`), type checking, and linting (`pnpm lint` or `npm run lint`). Zero errors required across all of them. Do not report back or invoke reviewers until everything is clean.
+Run every test that CI will run — locally, before reporting back. No test suite is "CI only." This includes unit tests (`npx vitest run`), integration tests, e2e tests (`npx playwright test`), type checking, and linting (`pnpm lint` or `npm run lint`). Zero errors required across all of them.
+
+Once everything is clean, invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing. Do not report back until the reviewer returns `"pass"` or `"pass_with_issues"` with no critical or major issues.
 
 ---
 
@@ -305,6 +307,7 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - About to mock Prisma instead of using testcontainers
 - About to mock `fetch` or stub an HTTP client with `vi.fn()` instead of using MSW
 - Wrote e2e tests but planning to skip running them ("CI only")
+- All tests pass but about to report back without invoking `@reviewer`
 
 ## Rationalizations — and the responses
 

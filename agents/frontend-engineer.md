@@ -57,14 +57,26 @@ If the task involves a new or modified endpoint, run `npm run codegen` (per the 
 3. Explore the codebase — understand existing patterns before writing anything
 4. Implement using tdd (per the `tdd` skill) and outside-in ordering (per the `outside-in-double-loop` skill) until all acceptance criteria are met
 5. Run every test that CI will run — locally, with zero errors. No test suite is "CI only."
-6. Invoke `@reviewer` with the full contents of every modified or created file. If it returns `"fail"`, resolve all issues and re-invoke before continuing.
-7. Capture screenshots by adding `page.screenshot()` calls directly into the e2e tests that exercise the changed UI. Add `page.screenshot({ path: `${AGENT_LOGS_PATH}/descriptive-name.png` })` calls at each visual moment worth capturing, then run the tests. **Before committing, remove every screenshot call you added.**
+6. Invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all issues and re-invoke before continuing.
+7. Capture screenshots. **This step is non-negotiable for any UI change. Do not skip it, do not substitute it with a description, do not claim a running server is required.**
 
-   Cover every state a reviewer would need to see: each new/modified page at rest, all key interaction states (error, validation, loading, empty, success), and any meaningful UI difference introduced by the change.
+   The e2e tests start the server automatically via the `webServer` block in `playwright.config.ts` — the same mechanism used when you ran the tests in step 5. There is no additional server setup required.
 
-   Name files descriptively (e.g. `login-form.png`, `dashboard.png`, `error-empty-email.png`).
-8. Report back to `build`: files changed, tests added, reviewer verdict and notes, screenshot filenames, any follow-up items.
+   Add `page.screenshot()` calls directly into the e2e tests that exercise the changed UI:
+   ```ts
+   await page.screenshot({ path: `${process.env.AGENT_LOGS_PATH}/descriptive-name.png` });
+   ```
+   Place them at each visual moment worth capturing, then run the tests to produce the files. **Before committing, remove every screenshot call you added** — they are for the PR only, not permanent test code.
 
-The reviewer step (6) is non-negotiable. Do not report back to `build` until the reviewer returns `"pass"` or `"pass_with_issues"` with no critical or major issues.
+   Cover every state a reviewer would need to see: each new/modified page at rest, all key interaction states (error, validation, loading, empty, success), and any meaningful UI difference introduced by the change. Name files descriptively (e.g. `login-form.png`, `dashboard-empty.png`, `error-invalid-email.png`).
+
+   After the tests run, confirm the files exist at `${AGENT_LOGS_PATH}/` before continuing. If they do not exist, the screenshot calls did not execute — fix and re-run. Do not proceed without real screenshot files on disk.
+
+
+8. Commit the screenshot files to the branch. They must be committed so the PR blob URL resolves.
+
+9. Report back to `build`: files changed, tests added, reviewer verdict and notes, **the exact relative path of each screenshot file from the repo root** (e.g. `.agent-logs/2026-03-15-slug/login-form.png`), any follow-up items.
+
+The reviewer step (6) and screenshot step (7) are both non-negotiable. Do not report back to `build` until the reviewer passes and real screenshot files exist on disk and are committed to the branch.
 
 Do not open pull requests, write the task log, or send notifications — `build` handles all of that.

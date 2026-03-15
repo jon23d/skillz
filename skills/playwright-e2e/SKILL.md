@@ -184,3 +184,4 @@ test.describe('Login', () => {
 - **"The environment is too complex to set up locally"** → Docker exists. `docker compose up -d` and `npx playwright install chromium` is two commands.
 - **"Unit tests cover it"** → Unit tests verify logic. E2E tests verify the user can actually use the feature. They test different things.
 - **"I'll let CI catch it"** → CI catches it after you've reported success. That's not testing — that's hoping.
+- **"Screenshots require a running server"** → The `webServer` block in `playwright.config.ts` starts the server automatically when you run `npx playwright test`. There is nothing extra to set up. If `webServer` is missing, add it — that is a project setup bug, not a reason to skip screenshots.

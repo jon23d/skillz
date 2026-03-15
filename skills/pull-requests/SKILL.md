@@ -71,8 +71,10 @@ Always use this template. Fill every section — do not leave sections empty or 
      "No setup needed — check out the branch and run the app." -->
 
 ## Screenshots
-<!-- Frontend changes: embed screenshots using relative blob URLs to images committed on this branch.
-     Example: ![Login form](../blob/BRANCH/agent-logs/YYYY-MM-DD-slug/login-form.png?raw=true)
+<!-- Frontend changes: embed each screenshot as an inline image using the syntax below.
+     The image must render directly in the PR body — do NOT use a table of links or bare filenames.
+     One image per line. Each must use a relative blob URL so GitHub renders it inline:
+     ![Description of what is shown](../blob/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
      No frontend changes: remove this section. -->
 
 ## Closes
@@ -110,16 +112,26 @@ If the issue tracker is GitHub or Gitea (not Jira), the `Closes #N` keyword in t
 
 ## Screenshots
 
-Screenshots must be embedded as relative blob URLs with `?raw=true`. Do not use `raw.githubusercontent.com` — those URLs return 404 for private repos because the viewer's browser has no token.
+Each screenshot must be an **inline embedded image** that renders directly in the PR body. Do not use a table of links, bare filenames, or hyperlinked text — the reviewer must be able to see the screenshots without clicking anything.
 
-Construct the URL from two values you already have:
-- `BRANCH` — from `git branch --show-current`
-- `PATH` — the path to the image file from the repo root (e.g. `agent-logs/2026-03-08-slug/login-form.png`)
+Use `![description](url)` syntax with relative blob URLs and `?raw=true`. Do not use `raw.githubusercontent.com` — those URLs return 404 for private repos because the viewer's browser has no token.
+
+**Before writing any URL, run:**
+```bash
+git branch --show-current   # → BRANCH
+```
+
+Then construct each URL using the exact relative path reported by `@frontend-engineer`:
 
 ```markdown
-![Description of what is shown](../blob/BRANCH/agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
+![Description of what is shown](../blob/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
+```
+
+**Example** — branch `feature/PROJ-42-login`, file reported as `.agent-logs/2026-03-15-login/login-form.png`:
+```markdown
+![Login form](../blob/feature/PROJ-42-login/.agent-logs/2026-03-15-login/login-form.png?raw=true)
 ```
 
 The `../blob/` prefix works because GitHub resolves relative URLs in PR bodies against the PR page URL (`/owner/repo/pull/N`). The `?raw=true` suffix tells GitHub to serve the binary image instead of the HTML file viewer.
 
-The image must exist on the branch at the path used in the URL. If screenshots have not yet been committed to the branch, omit the Screenshots section and update the PR body later using `github-prs_update` or `gitea-prs_update` once they are available.
+**The image must exist on the branch before the PR is opened.** Verify by running `git show HEAD:.agent-logs/...` for each screenshot path. If a file is missing, the `@frontend-engineer` did not complete the screenshot step — send them back before opening the PR. Do not open the PR with a Screenshots section containing broken links, and do not omit the Screenshots section when screenshots were taken.
