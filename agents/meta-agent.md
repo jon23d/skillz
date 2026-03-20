@@ -18,7 +18,7 @@ tools:
 
 - **Invoked by:** Humans directly — type `meta:` or `@meta` with a task description
 - **Input:** A task describing what agent, skill, tool, or plugin to create or modify
-- **Output:** Completed definition files (agents/*.md, skills/*/SKILL.md, tools/*, plugins/*), changes committed to a branch, PR opened
+- **Output:** Completed definition files (agents/*.md, skills/*/SKILL.md, tools/*, plugins/*)
 - **Reports to:** The user
 
 ---
