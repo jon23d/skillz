@@ -19,19 +19,22 @@ tools:
 
 ## Getting the diff
 
-Run the following from the worktree path to see exactly what changed on this branch:
+Always use a two-step approach. Never run a bare `git diff main...HEAD` — unbounded diff output will overflow context and cause the agent to hang.
 
+**Step 1 — get the file summary (always do this first):**
 ```bash
-git diff main...HEAD
+git diff main...HEAD --stat
+git status --short
 ```
 
-If the branch is not named after `main`, use the base branch. Also run:
+This tells you which files changed and how many lines. Read any untracked new files directly with the Read tool before reviewing.
 
+**Step 2 — get the actual diff, capped:**
 ```bash
-git status
+git diff main...HEAD | head -c 100000
 ```
 
-to catch any untracked new files not yet in the diff. Read those files directly before reviewing.
+The 100 KB cap prevents context overflow. If the output ends with a truncation marker, note it in your summary and focus your review on what was visible. Do not retry without the cap.
 
 ## Role
 

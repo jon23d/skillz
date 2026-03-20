@@ -29,11 +29,14 @@ Never open a PR on a branch with unresolved conflicts.
 
 Read `agent-config.json → git_host.provider` to select the right tool set.
 
-**GitHub** (`provider: "github"`):
-- `github-prs_create` — open a PR
-- `github-prs_get` — read a PR
-- `github-prs_list` — list PRs
-- `github-prs_update` — update title or body
+**GitHub** (`provider: "github"`) — use `gh` CLI. Check `gh auth status` first; stop and tell the user if it fails.
+```bash
+gh pr create --title "..." --body "..."   # open a PR
+gh pr view <number> --json number,title,state,body,headRefName
+gh pr list --json number,title,state,headRefName
+gh pr edit <number> --title "..." --body "..."
+```
+See `skills/github/SKILL.md` for full reference.
 
 **Gitea** (`provider: "gitea"`):
 - `gitea-prs_create` — open a PR
