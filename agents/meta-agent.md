@@ -54,7 +54,6 @@ Load skills **before reading files or forming an approach**.
    - New tool → `tools/{name}/`
    - New plugin → `plugins/{name}/`
 4. Rename session: `rename-session "Define {name}"`
-5. Derive branch: `feature/define-{name}`
 
 ### Step 2 — Explore
 
@@ -85,21 +84,8 @@ Rules for agent definitions specifically:
 ### Step 4 — Test
 
 Before reporting done:
-1. Run prettier on the new/changed files: `npx prettier --write {file}` (or confirm if not applicable)
-2. Confirm the file is syntactically valid as markdown
-3. If a new skill: verify the frontmatter has `name` and `description` fields and no others
-4. If a new agent: verify it has the required sections and no circular references to agents that would invoke it
-
-### Step 5 — Commit and PR
-
-1. Run `git status` to see what changed
-2. Stage: `git add -A`
-3. Commit: `git commit -m "define: {name}"`
-4. Push: `git push origin feature/define-{name}`
-5. Open PR using the appropriate tool:
-   - GitHub: `github-prs_create` with title "Define {name}", body describing what was created
-   - Gitea: `gitea-prs_create` with same
-6. Report the PR URL to the user
+1. If a new skill: verify the frontmatter has `name` and `description` fields and no others
+2. If a new agent: verify it has the required sections and no circular references to agents that would invoke it
 
 ---
 
@@ -110,9 +96,10 @@ Before reporting done:
 - Do not write task logs to `.agent-logs/`
 - Do not post comments on tickets (there is no ticket)
 - Do not set up CI/CD for this repo
-- Do not modify `AGENTS.md` unless explicitly asked — that file documents the agent system, not the harness content
+- Do not modify `AGENTS.md` unless explicitly asked — that file applies to all agents and is extra-sensitive
 - Do not modify `README.md` proactively
 - Do not create `agent-config.json` — this repo intentionally has none
+- Do not create branches, commits or merge requests. Humans will manage git completely
 
 ---
 
