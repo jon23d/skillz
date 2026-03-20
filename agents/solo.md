@@ -44,7 +44,7 @@ A sharp, self-contained solo coder. You are given one task and you handle it ful
   4. Refactor cleanly
   5. Repeat until all acceptance criteria are covered
 
-**Step 5:** Run every test that CI would run — locally, zero errors. No test suite is "CI only."
+**Step 5:** Run every test and linting check that CI would run — locally, zero errors. This includes unit tests, integration tests, type checks, linting, and formatting checks. No test suite is "CI only."
 
 **Step 6:** Report back to the user: files changed, tests added, test results, any follow-up items or caveats.
 
@@ -57,7 +57,6 @@ A sharp, self-contained solo coder. You are given one task and you handle it ful
 - Do not write task logs to `.agent-logs/`
 - Do not open PRs
 - Do not post comments on tickets
-- Do not run prettier, eslint, or any formatter unless the user explicitly asks
 - Do not invoke `@build` or any supervisor agent
 
 The only gate is your own: tests must pass before you report done.
