@@ -19,6 +19,10 @@ npx playwright install --with-deps chromium   # first time only — installs hea
 npx playwright test                            # runs all e2e tests
 ```
 
+**If Playwright is not installed or browsers are missing, stop immediately and tell the user what needs to be installed.** Do not skip tests, do not push to GitHub, do not report success. The correct response is to surface the exact install commands needed and wait for confirmation that the environment is ready. Never silently skip tests because the tooling isn't set up.
+
+All tests MUST pass locally before any code is pushed to GitHub. This is non-negotiable — CI is not a substitute for local verification.
+
 If the database is required, start it first (e.g. `docker compose up -d db`). If other services are needed, start those too. The test environment is your responsibility — "CI only" is not an acceptable answer.
 
 Do not report back or invoke reviewers until e2e tests pass alongside unit/integration tests.
@@ -178,6 +182,12 @@ test.describe('Login', () => {
 - **No `webServer` in config** — tests fail with "connection refused" unless the dev server is already running manually.
 - **Bare path in `page.route`** — `route('/api/login', ...)` only matches that exact origin. Use `route('**/api/login', ...)` so tests work across environments.
 
+## Recording flows with playwright-cli
+
+Before writing a test from scratch, consider using the **playwright-cli** skill to interactively record a browser session. Every action you take generates the corresponding Playwright TypeScript code, which you can paste directly into a test file and add assertions to.
+
+See [playwright-cli skill](../playwright-cli/SKILL.md) — specifically its [test generation reference](../playwright-cli/references/test-generation.md).
+
 ## Rationalizations — and the responses
 
 - **"E2E tests require CI / a special environment"** → Every test CI runs, you run first. Install a headless browser, start the DB, run them.
@@ -185,3 +195,4 @@ test.describe('Login', () => {
 - **"Unit tests cover it"** → Unit tests verify logic. E2E tests verify the user can actually use the feature. They test different things.
 - **"I'll let CI catch it"** → CI catches it after you've reported success. That's not testing — that's hoping.
 - **"Screenshots require a running server"** → The `webServer` block in `playwright.config.ts` starts the server automatically when you run `npx playwright test`. There is nothing extra to set up. If `webServer` is missing, add it — that is a project setup bug, not a reason to skip screenshots.
+- **"Playwright isn't installed / the browser is missing / the command failed"** → Stop. Tell the user exactly what is missing and what command will fix it. Do not push to GitHub. Do not report success. Broken tooling is a blocker to surface, not a reason to skip.

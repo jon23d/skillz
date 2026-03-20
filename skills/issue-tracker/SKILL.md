@@ -22,18 +22,17 @@ Before using any tool, read `agent-config.json` in the project root to identify 
 
 Supported providers: `github`, `gitea`, `jira`. If `agent-config.json` is missing or `issue_tracker` is not configured, tell the user and stop. For credential setup, refer to `JIRA_SETUP.md`, `GITHUB_SETUP.md`, or `GITEA_SETUP.md`.
 
+## GitHub provider — use gh CLI, not tools
+
+**If the provider is `github`, do not use the `github-issues_*` tools.** Use the `gh` CLI instead, as documented in the **github skill** (`skills/github/SKILL.md`). Check `gh auth status` first — if gh is unavailable or unauthenticated, stop and tell the user before doing anything else.
+
 ## Tools
 
 Each provider has a single tool file with named exports. The tool name format is `<file>_<export>`.
 
-**GitHub** (`provider: "github"`) — tools prefixed `github-issues_`:
-- `github-issues_get` — read issue + comments
-- `github-issues_create` — create issue
-- `github-issues_update` — update title, body, state, labels, assignees
-- `github-issues_list` — list issues
-- `github-issues_search` — search by keyword
-- `github-issues_comment` — add comment
-- `github-issues_transition` — open or close (`"open"` / `"closed"`)
+**GitHub** (`provider: "github"`) — **use the github skill (gh CLI). Do not use these tools.**
+
+**⚠ The `github-issues_*` tools are superseded by `gh` for GitHub. See `skills/github/SKILL.md`.**
 
 **Gitea** (`provider: "gitea"`) — tools prefixed `gitea-issues_`:
 - `gitea-issues_get` — read issue + comments + attachments

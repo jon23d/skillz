@@ -25,7 +25,7 @@ Pre-PR quality gates (local tests, linting, code review) are not the same as CI 
 
 After opening the PR:
 
-1. **Get the PR number** — you have this from the `github-prs_create` or `gitea-prs_create` response
+1. **Get the PR number** — you have this from the `gh pr create` output (GitHub) or `gitea-prs_create` response (Gitea)
 2. **Wait for checks to register** — delegate to an agent with bash access: `sleep 30`
 3. **Poll check status** — delegate: `gh pr checks <PR-number> --watch`
 4. **Handle the result:**
@@ -38,6 +38,13 @@ After opening the PR:
 Delegate to `@backend-engineer` or any agent with bash access.
 
 **GitHub** (`git_host.provider: "github"`):
+
+Before running any `gh` command, verify it is available and authenticated:
+```bash
+gh auth status
+```
+If this fails, stop immediately. Tell the user gh is not installed or not authenticated and provide install/auth instructions (`brew install gh` / `sudo apt install gh`, then `gh auth login`). Do not proceed with pipeline watching until gh is working.
+
 ```bash
 # Wait for checks to register, then watch until terminal state
 sleep 30 && gh pr checks <PR-number> --watch
