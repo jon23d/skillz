@@ -1,7 +1,7 @@
 ---
 description: Reviews code for correctness, security, and observability. Invoked by engineers after any code changes. Returns a structured JSON verdict covering all three dimensions. Engineers must resolve all critical and major issues before reporting back to build.
 mode: subagent
-model: github-copilot/grok-code-fast-1
+model: github-copilot/claude-sonnet-4.6
 temperature: 0.1
 tools:
   write: false
