@@ -76,7 +76,7 @@ set_model() {
 
 # --model applies to all primary agents (excludes reviewer and local-task)
 if [ -n "$MODEL" ]; then
-  for agent in build architect backend-engineer frontend-engineer devops-engineer developer-advocate qa notifier ticket-writer; do
+  for agent in build architect backend-engineer frontend-engineer devops-engineer developer-advocate qa notifier reviewer ticket-writer; do
     set_model "$agent" "$MODEL"
   done
 fi
