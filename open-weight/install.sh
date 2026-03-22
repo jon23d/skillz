@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="$HOME/.opencode"
+TARGET="$HOME/.config/opencode"
 
 
 echo "Installing to $TARGET ..."
@@ -16,7 +16,7 @@ for dir in agents tools plugins skills; do
   rm -rf "$TARGET/$dir/"
 done
 
-# Copy agents/, tand skills/ into ~/.opencode/ (preserving subdirectory structure)
+# Copy agents/, and skills/ into ~/.config/opencode/ (preserving subdirectory structure)
 for dir in agents skills; do
   echo "  Copying $dir/ -> $TARGET/$dir/"
   cp -r "$SCRIPT_DIR/$dir" "$TARGET/"
