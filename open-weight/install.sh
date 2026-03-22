@@ -13,7 +13,7 @@ mkdir -p "$TARGET"
 # Remove existing agents/, tools, plugins, and skills
 for dir in agents tools plugins skills; do
   echo "  Removing $TARGET/$dir/"
-  rm -r "$TARGET/$dir/"
+  rm -rf "$TARGET/$dir/"
 done
 
 # Copy agents/, tand skills/ into ~/.opencode/ (preserving subdirectory structure)
