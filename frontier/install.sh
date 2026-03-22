@@ -2,7 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="$HOME/.opencode"
+TARGET="$HOME/.config/opencode"
 
 # --- Model flags -----------------------------------------------------------
 # --model sets all agents except reviewer and local-task.
