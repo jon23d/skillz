@@ -1,7 +1,6 @@
 ---
 description: Ticket writer. Reads docs/ domain files to understand current system behaviour and writes well-structured tickets with clear acceptance criteria. Posts tickets to the configured issue tracker. Can be invoked by build or directly by the user.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.3
 tools:
   edit: true

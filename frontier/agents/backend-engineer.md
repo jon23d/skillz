@@ -1,7 +1,6 @@
 ---
 description: Backend engineer. Implements API endpoints, services, database migrations, and business logic using tdd. Invokes reviewer after any code changes. Reports back to build when reviewer passes.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.3
 tools:
   write: true

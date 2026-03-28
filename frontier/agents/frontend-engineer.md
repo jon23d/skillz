@@ -1,7 +1,6 @@
 ---
 description: Frontend engineer. Implements UI components, interactions, and client-side logic using tdd. Invokes reviewer after any code changes. Takes screenshots of all UI changes. Reports back to build when reviewer passes.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.3
 tools:
   write: true

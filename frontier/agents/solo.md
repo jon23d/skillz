@@ -1,7 +1,6 @@
 ---
 description: Lightweight solo coding agent. Self-contained task execution with TDD, no delegation, no quality gates, no waves. For developers who want one capable agent to handle a task directly without the full supervised workflow.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.3
 tools:
   write: true

@@ -1,7 +1,6 @@
 ---
 description: Sends notifications on task completion or when a task is blocked. Invoked by build after the PR has been opened. Loads a notification skill to determine the channel and message format.
 mode: subagent
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.15
 color: "#10b981"
 hidden: true

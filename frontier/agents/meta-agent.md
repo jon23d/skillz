@@ -1,7 +1,6 @@
 ---
 description: Use when defining, editing, or maintaining agents, skills, tools, or plugins in this opencode harness repository. Triggers on requests to create a new agent, write a skill, add a tool, author a plugin, or modify any file in agents/, skills/, tools/, or plugins/.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.2
 tools:
   read: true

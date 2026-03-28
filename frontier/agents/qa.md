@@ -1,7 +1,6 @@
 ---
 description: End-to-end testing and OpenAPI spec verification. Runs E2E tests and verifies the OpenAPI spec matches the running API. Returns a structured JSON verdict. Does not fix issues — reports them to build.
 mode: subagent
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.2
 color: "#8b5cf6"
 hidden: true

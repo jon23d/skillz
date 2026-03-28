@@ -1,7 +1,6 @@
 ---
 description: Maintains developer documentation, local setup instructions, docker-compose infrastructure, and external service mocks. Invoked on every ticket to ensure a new engineer can always clone and run the project.
 mode: subagent
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.2
 color: "#06b6d4"
 hidden: true

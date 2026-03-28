@@ -1,7 +1,6 @@
 ---
 description: Technical architect. Explores the codebase and produces a detailed implementation plan before any code is written. Invoke before any task that touches APIs, schema, or spans multiple files. Read-only — plans, never implements.
 mode: subagent
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.15
 color: "#6366f1"
 ---

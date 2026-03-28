@@ -1,7 +1,6 @@
 ---
 description: DevOps engineer. Produces Dockerfiles, Kubernetes manifests, and CI/CD pipeline configuration for services in the monorepo. Recommends and confirms with the user before producing Kubernetes manifests. Invoked by build when new services are introduced or deployment setup is requested.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.2
 color: "#10b981"
 ---
