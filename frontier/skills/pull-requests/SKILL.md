@@ -46,6 +46,7 @@ See `skills/github/SKILL.md` for full reference.
 
 The base branch defaults to `main`. Override by setting `default_branch` in `agent-config.json`:
 
+**GitHub example:**
 ```json
 "git_host": {
   "provider": "github",
@@ -55,6 +56,19 @@ The base branch defaults to `main`. Override by setting `default_branch` in `age
   }
 }
 ```
+
+**Gitea example:**
+```json
+"git_host": {
+  "provider": "gitea",
+  "gitea": {
+    "repo_url": "https://gitea.example.com/owner/repo",
+    "default_branch": "develop"
+  }
+}
+```
+
+For Gitea, the `repo_url` is required for constructing screenshot image URLs — see the Screenshots section below.
 
 ## PR body template
 
@@ -76,8 +90,7 @@ Always use this template. Fill every section — do not leave sections empty or 
 ## Screenshots
 <!-- Frontend changes: embed each screenshot as an inline image using the syntax below.
      The image must render directly in the PR body — do NOT use a table of links or bare filenames.
-     One image per line. Each must use a relative blob URL so GitHub renders it inline:
-     ![Description of what is shown](../blob/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
+     One image per line. Use the URL format for your provider (see the Screenshots section of this skill).
      No frontend changes: remove this section. -->
 
 ## Closes
@@ -117,24 +130,52 @@ If the issue tracker is GitHub or Gitea (not Jira), the `Closes #N` keyword in t
 
 Each screenshot must be an **inline embedded image** that renders directly in the PR body. Do not use a table of links, bare filenames, or hyperlinked text — the reviewer must be able to see the screenshots without clicking anything.
 
-Use `![description](url)` syntax with relative blob URLs and `?raw=true`. Do not use `raw.githubusercontent.com` — those URLs return 404 for private repos because the viewer's browser has no token.
+The URL format differs by provider. Read `agent-config.json → git_host.provider` before constructing any URL.
 
 **Before writing any URL, run:**
 ```bash
 git branch --show-current   # → BRANCH
 ```
 
-Then construct each URL using the exact relative path reported by `@frontend-engineer`:
+---
+
+### GitHub screenshots
+
+Use relative blob URLs with `?raw=true`. Do not use `raw.githubusercontent.com` — those URLs return 404 for private repos because the viewer's browser has no token.
 
 ```markdown
 ![Description of what is shown](../blob/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
 ```
 
-**Example** — branch `feature/PROJ-42-login`, file reported as `.agent-logs/2026-03-15-login/login-form.png`:
+**Example** — branch `feature/PROJ-42-login`, file `.agent-logs/2026-03-15-login/login-form.png`:
 ```markdown
 ![Login form](../blob/feature/PROJ-42-login/.agent-logs/2026-03-15-login/login-form.png?raw=true)
 ```
 
 The `../blob/` prefix works because GitHub resolves relative URLs in PR bodies against the PR page URL (`/owner/repo/pull/N`). The `?raw=true` suffix tells GitHub to serve the binary image instead of the HTML file viewer.
+
+---
+
+### Gitea screenshots
+
+Gitea does not support relative URLs or `?raw=true` in PR bodies. Use absolute raw URLs constructed from `git_host.gitea.repo_url` in `agent-config.json`.
+
+**URL format:**
+```
+{repo_url}/raw/branch/{BRANCH}/{relative-path-from-repo-root}
+```
+
+```markdown
+![Description of what is shown](https://gitea.example.com/owner/repo/raw/branch/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png)
+```
+
+**Example** — `repo_url` is `https://gitea.example.com/acme/myapp`, branch `feature/42-login`, file `.agent-logs/2026-03-15-login/login-form.png`:
+```markdown
+![Login form](https://gitea.example.com/acme/myapp/raw/branch/feature/42-login/.agent-logs/2026-03-15-login/login-form.png)
+```
+
+No `?raw=true` is needed — the `/raw/branch/` path already serves the raw binary.
+
+---
 
 **The image must exist on the branch before the PR is opened.** Verify by running `git show HEAD:.agent-logs/...` for each screenshot path. If a file is missing, the `@frontend-engineer` did not complete the screenshot step — send them back before opening the PR. Do not open the PR with a Screenshots section containing broken links, and do not omit the Screenshots section when screenshots were taken.

@@ -178,10 +178,15 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 
 ## Screenshots
 
-{Embed each screenshot:}
+{Embed each screenshot using the URL format for the provider (see `pull-requests` skill Screenshots section):}
+
+GitHub:
 ![description](../blob/{branch}/.agent-logs/YYYY-MM-DD-{slug}/filename.png?raw=true)
 
-{Use relative blob URLs with `?raw=true` — `raw.githubusercontent.com` URLs break on private repos. "None" if no UI changes.}
+Gitea:
+![description]({repo_url}/raw/branch/{branch}/.agent-logs/YYYY-MM-DD-{slug}/filename.png)
+
+{"None" if no UI changes.}
 
 ## Documentation updates
 
@@ -196,7 +201,17 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 {Uncertainty, brittleness, tech debt flagged by engineers. Or "None."}
 ```
 
-### 4. Commit and push
+### 4. Verify screenshots are on disk (hard gate — UI changes only)
+
+Before touching git: confirm every screenshot file reported by `@frontend-engineer` exists locally.
+
+```bash
+ls {agent_logs_path}/*.png   # or the exact filenames from the engineer's report
+```
+
+If any file is missing, **stop here**. Send `@frontend-engineer` back to retake screenshots and commit them. Do not continue to step 5 until every file is present on disk.
+
+### 5. Commit and push
 
 Stage everything with `git add -A` — this must include `.agent-logs/` (screenshots and log.md). Do not use selective `git add <file>` which would leave `.agent-logs/` unstaged.
 
@@ -211,7 +226,17 @@ If `git status` shows `.agent-logs/` is not staged, stage it explicitly and comm
 
 Do not open the PR until push succeeds.
 
-### 5. Compose and open the PR (`build` only — never an engineer)
+### 5b. Verify screenshots are on the remote branch (hard gate — UI changes only)
+
+After push, before opening the PR, confirm each screenshot file is reachable on `HEAD`:
+
+```bash
+git -C ~/worktrees/{project}/{slug} show HEAD:.agent-logs/YYYY-MM-DD-{slug}/filename.png > /dev/null
+```
+
+Run this for every screenshot path from the engineer's report. If any command fails (file not found on `HEAD`), stage it explicitly, commit, and push again. **Do not open the PR until every screenshot resolves on the pushed branch.**
+
+### 6. Compose and open the PR (`build` only — never an engineer)
 
 Use the `pull-requests` skill to compose the PR body and open the PR. Pass it:
 - Head branch: `feature/{slug}`
@@ -222,7 +247,7 @@ Use the `pull-requests` skill to compose the PR body and open the PR. Pass it:
 
 The pull-requests skill owns the PR body template and the Jira transition.
 
-### 6. Update the task log with the PR URL
+### 7. Update the task log with the PR URL
 
 Once the PR URL is returned, fill it into the `**PR:**` field in `log.md`:
 
@@ -232,16 +257,16 @@ git -C ~/worktrees/{project}/{slug} commit -m "Add PR URL to task log"
 git push origin feature/{slug}
 ```
 
-### 7. Post the PR URL on the ticket
+### 8. Post the PR URL on the ticket
 
 - Gitea/GitHub: `gitea-issues_comment` / `github-issues_comment` — post `🔀 PR opened: {pr_url}`
 - Jira: handled by the pull-requests skill
 
-### 8. Invoke notifier
+### 9. Invoke notifier
 
 Pass to `@notifier`: the PR URL and a one-sentence summary of what was done.
 
-### 9. Leave the worktree in place
+### 10. Leave the worktree in place
 
 Report the PR URL to the user. The worktree stays available for review feedback rounds.
 

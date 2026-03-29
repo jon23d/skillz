@@ -109,23 +109,32 @@ The reviewer is invoked by engineers, not by you directly. When an engineer repo
 Invoke `@developer-advocate` with: task name, files changed, new services/dependencies, new endpoints, new environment variables, follow-up items.
 
 ### Wave 6 — PR and notify
-Follow the `worktrees` skill completion steps and the `pull-requests` skill:
+Follow the `worktrees` skill completion steps and the `pull-requests` skill. The order below is strict — do not reorder or skip steps.
 
 1. Collect all context from every agent report
 2. Write `{agent_logs_path}/log.md`
-3. Run prettier across the worktree: `npx prettier --write .`. Commit formatting changes with `chore: prettier`.
-4. Commit and push the feature branch
-5. Open the PR using the tool for `git_host_provider`:
+3. **Screenshot gate (hard stop for any UI change).** Confirm every screenshot file reported by `@frontend-engineer` exists on disk before touching git:
+   - List the filenames from the engineer's report
+   - Verify each file is present under `{agent_logs_path}/`
+   - If any file is missing, send `@frontend-engineer` back immediately to retake and commit screenshots. Do not continue past this step until all files exist.
+4. Run prettier across the worktree: `npx prettier --write .`. Commit formatting changes with `chore: prettier`.
+5. Commit and push the feature branch — **this commit must include `.agent-logs/` (screenshots + log.md)**. Use `git add -A` and confirm `.agent-logs/` appears in `git status` before committing.
+6. **Verify screenshots are on the remote branch.** For each screenshot path reported by `@frontend-engineer`, run:
+   ```
+   git -C {worktree_path} show HEAD:<relative-path-to-screenshot>
+   ```
+   If any file is not found on `HEAD`, stage it explicitly, commit, and push again. **Do not open the PR until every screenshot resolves on the pushed branch.**
+7. Open the PR using the tool for `git_host_provider`:
    - `"github"` → `github-prs_create`
    - `"gitea"` → `gitea-prs_create`
-6. Update `log.md` with the PR URL, commit and push
-7. Post PR URL on the ticket using the tool for `issue_tracker_provider`:
+8. Update `log.md` with the PR URL, commit and push
+9. Post PR URL on the ticket using the tool for `issue_tracker_provider`:
    - `"github"` → `github-issues_comment`
    - `"gitea"` → `gitea-issues_comment`
    - `"jira"` → `jira-issues_transition` + `jira-issues_comment`
-8. **Only after you have a real PR URL:** invoke `@notifier` with the PR URL and one-sentence summary.
-9. **Follow the `pipeline-watch` skill:** watch CI checks until all pass.
-10. Report the PR URL and CI result to the user
+10. **Follow the `pipeline-watch` skill:** watch CI checks until all pass (or fail).
+11. **Only after CI is green:** invoke `@notifier` with the PR URL, CI status, and one-sentence summary. Do not invoke `@notifier` before CI completes — the notification is the signal to the user that the PR is ready to review.
+12. Report the PR URL and CI result to the user
 
 ---
 
@@ -145,18 +154,21 @@ Issue tracker **write** operations are yours alone. Issue tracker **read** opera
 
 ## Quality gates
 
-A task is NOT done until all of these pass:
+A task is NOT done until all of these pass, **in this order**:
 
 1. Each engineer ran every test that CI will run — locally, with zero errors. No test suite is "CI only".
 2. `@reviewer` passed for each engineer
 3. `@qa` passed (if endpoints or UI changed)
-4. Screenshots exist for UI changes
-5. `@devops-engineer` invoked and its reviewer passed (if new service)
-6. `@developer-advocate` updated README, docker-compose, docs as needed
-7. `{agent_logs_path}/log.md` written
-8. PR opened with complete body
-9. `@notifier` invoked **after** the PR URL is confirmed
+4. `@devops-engineer` invoked and its reviewer passed (if new service)
+5. `@developer-advocate` updated README, docker-compose, docs as needed
+6. Screenshots exist on disk and are committed to the branch (UI changes) — **must happen before push and PR**
+7. Feature branch pushed with screenshots included
+8. `{agent_logs_path}/log.md` written and committed
+9. PR opened with complete body and screenshot blob URLs that resolve on the pushed branch
 10. CI pipeline checks are green (per `pipeline-watch` skill)
+11. `@notifier` invoked **after** CI is green — not before
+
+**The PR must never be opened before screenshots are on the branch. Screenshots come before the PR, always.**
 
 **NEVER merge a PR.** The task ends when the PR is open and CI is green.
 

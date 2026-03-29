@@ -1,5 +1,5 @@
 ---
-description: Sends notifications on task completion or when a task is blocked. Invoked by build after the PR has been opened. Loads a notification skill to determine the channel and message format.
+description: Sends notifications on task completion or when a task is blocked. Invoked by build after CI is green and the PR is ready to review — never immediately after PR creation. Loads a notification skill to determine the channel and message format.
 mode: subagent
 temperature: 0.15
 color: "#10b981"
@@ -8,7 +8,7 @@ hidden: true
 
 ## Agent contract
 
-- **Invoked by:** `build` (after the PR is opened, or when a task becomes blocked)
+- **Invoked by:** `build` (after CI is green and the PR is ready for review, or when a task becomes blocked — never immediately after PR creation)
 - **Input:** Task name, one-sentence summary, PR URL (if complete), blocker description (if blocked), and which notification skill to load
 - **Output:** Confirmation that the notification was sent (or skipped)
 - **Reports to:** `build`
