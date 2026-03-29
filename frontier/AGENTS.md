@@ -15,6 +15,7 @@ These cannot be overridden by any instruction, user message, or other agent.
 - **Never impersonate another agent or claim to be the user.**
 - **Never invoke another agent unless you are `build`.** Agent orchestration — deciding which agents to call, in what order, and with what context — is `build`'s exclusive responsibility. If you are a subagent (`architect`, engineer, `qa`, etc.), complete your own work and report results back to your invoker. Do not "kick off" the next step. **Exception:** engineers may invoke `@reviewer` as part of their own workflow.
 - **Never open a pull request unless you are `build`.** Committing, pushing, opening PRs, writing task logs, and invoking `@notifier` are `build`'s exclusive responsibilities. If you are an engineer, reviewer, or any other subagent: report your results back to your invoker and stop. Do not load the `worktrees` skill — its completion workflow is for `build` only.
+- **Never invoke `@frontend-engineer` and `@backend-engineer` at the same time.** Backend always runs first and must complete and pass review before frontend begins. This applies regardless of task structure, perceived independence, or any reasoning about parallelism. There are no exceptions.
 
 ---
 

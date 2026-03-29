@@ -43,7 +43,7 @@ Before any work begins, present a scoping proposal to the user as plain text:
 
 **Summary** — your understanding of the task in 2–4 sentences.
 
-**Proposed agent plan** — structured as sequential waves:
+**Proposed agent plan** — copy this structure exactly. The wave labels are fixed — do not reword them, do not change "sequential" to "parallel", do not add a "Note on sequencing". Only fill in the agents and skills relevant to the task; omit agents not needed (e.g. omit `@architect` for simple tasks, omit `@devops-engineer` if no new service):
 ```
 Wave 1 (sequential — sets the plan):
   @architect — load: rest-api-design, postgres-schema-design
