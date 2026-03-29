@@ -28,8 +28,12 @@ When the user describes a problem, names a ticket, or asks you to pick up work:
    - If either is missing or the file cannot be read, **stop and use the `question` tool to ask the user** — do not guess or default to any provider
    - Carry these two values explicitly through every subsequent phase
 3. If a ticket reference was given, fetch it using the appropriate issue tool and read the full description
-4. **Rename the session now** — call `rename-session` using the format from the `worktrees` skill (e.g. `#42 - Add user authentication`). This must happen before Phase 2. If no ticket, use the slug only.
-5. **Do not start implementation. Do not invoke any engineer. Proceed to Phase 2.**
+4. **Check if the ticket is already in progress.** Using the fetched ticket data:
+   - **Jira**: inspect the `status` field. If the status is anything other than "To Do" / "Open" / "Backlog", warn the user: "Ticket {ref} is currently in status '{status}'. Someone may already be working on it. Proceed anyway?" Wait for explicit confirmation before continuing.
+   - **Gitea / GitHub**: inspect the `assignees` field. If the issue is already assigned to anyone, warn the user: "Ticket {ref} is already assigned to {assignee(s)}. Someone may already be working on it. Proceed anyway?" Wait for explicit confirmation before continuing.
+   - If unassigned / in an open status, continue without asking.
+5. **Rename the session now** — call `rename-session` using the format from the `worktrees` skill (e.g. `#42 - Add user authentication`). This must happen before Phase 2. If no ticket, use the slug only.
+6. **Do not start implementation. Do not invoke any engineer. Proceed to Phase 2.**
 
 ---
 
@@ -39,13 +43,14 @@ Before any work begins, present a scoping proposal to the user as plain text:
 
 **Summary** — your understanding of the task in 2–4 sentences.
 
-**Proposed agent plan** — structured as parallel waves:
+**Proposed agent plan** — structured as sequential waves:
 ```
 Wave 1 (sequential — sets the plan):
   @architect — load: rest-api-design, postgres-schema-design
 
-Wave 2 (parallel — implementation):
+Wave 2 (sequential — backend first, then frontend):
   @backend-engineer — load: tdd, rest-api-design
+  (wait for backend to complete and pass review)
   @frontend-engineer — load: tdd, playwright-e2e
 
 Wave 3 (review — invoked by engineers):
@@ -74,23 +79,29 @@ Once the user approves the plan:
 
 1. Delegate worktree creation to `@backend-engineer` regardless of task type. Instruct it to follow the `worktrees` skill setup steps using the paths derived in Phase 1, and report back: worktree path confirmed, branch name, and whether `.env` was copied.
 
-2. Do not proceed to Phase 4 until `@backend-engineer` confirms the worktree exists.
+2. Do not proceed until `@backend-engineer` confirms the worktree exists.
 
-3. **Every subsequent agent invocation must include the worktree path.**
+3. **Claim the ticket** — mark it as in progress so no one else picks it up:
+   - **Jira**: call `jira-issues_transition` to move the issue to "In Progress". (Call it without a `status` first if you need to discover the available transitions.)
+   - **Gitea**: call `gitea-issues_update` to assign the issue (use the `agent_user` from `agent-config.json` if present; skip assignment silently if not configured), then call `gitea-issues_comment` to post: `🤖 Agent started work — branch \`feature/{slug}\` created.`
+   - **GitHub**: run `gh issue edit {number} --add-assignee @me`, then `gh issue comment {number} --body "🤖 Agent started work — branch \`feature/{slug}\` created."`
+   - If the ticket claim fails for any reason, log the error and continue — it is not a blocker for implementation.
+
+4. **Every subsequent agent invocation must include the worktree path.**
 
 ---
 
-## Phase 4 — Execute (parallelised)
+## Phase 4 — Execute
 
 Run agents in the waves agreed in Phase 2.
 
 ### Wave 1 — Plan (if needed)
 Invoke `@architect` when the task touches APIs, schema, multiple layers, or scope is unclear. Skip for clearly scoped single-layer tasks.
 
-### Wave 2 — Implement (parallel where applicable)
-- Backend work → `@backend-engineer`
-- Frontend work → `@frontend-engineer`
-- Full-stack → invoke both **in parallel**; sequence if frontend depends on new endpoints.
+### Wave 2 — Implement (backend first, always)
+- Backend only → invoke `@backend-engineer`, wait for it to complete and pass review, then stop.
+- Frontend only → invoke `@frontend-engineer`.
+- Full-stack → invoke `@backend-engineer` first. **Wait for it to report back and pass review before invoking `@frontend-engineer`.** Never run them in parallel.
 
 Each engineer invocation must include: worktree path, implementation plan, skills to load, and:
 > "Your working directory is `{worktree_path}`. Pass this as the `workdir` parameter on **every** bash call and use absolute paths starting with `{worktree_path}/` for every file read, write, and edit. There is no persistent working directory between tool calls — if you omit `workdir`, you will silently corrupt the main branch. Run every test that CI will run — locally, before reporting back. No test suite is 'CI only'. Do not open a PR, invoke `@notifier`, write the task log, or send any notification. Report your results back to me and stop."
