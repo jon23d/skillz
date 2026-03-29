@@ -83,7 +83,12 @@ Once the user approves the plan:
 
 3. **Claim the ticket** — mark it as in progress so no one else picks it up:
    - **Jira**: call `jira-issues_transition` to move the issue to "In Progress". (Call it without a `status` first if you need to discover the available transitions.)
-   - **Gitea**: call `gitea-issues_update` to assign the issue (use the `agent_user` from `agent-config.json` if present; skip assignment silently if not configured), then call `gitea-issues_comment` to post: `🤖 Agent started work — branch \`feature/{slug}\` created.`
+   - **Gitea**: first resolve the authenticated username by delegating this bash command to `@backend-engineer`:
+     ```bash
+     curl -s -H "Authorization: token $GITEA_ACCESS_TOKEN" {gitea_base_url}/api/v1/user | jq -r '.login'
+     ```
+     where `{gitea_base_url}` is the scheme+host from `git_host.gitea.repo_url` (e.g. `https://gitea.example.com`). Then call `gitea-issues_update` with that login as the assignee. Finally call `gitea-issues_comment` to post: `🤖 Agent started work — branch \`feature/{slug}\` created.`
+     If the curl or jq call fails, skip assignment and post the comment only — do not skip the comment.
    - **GitHub**: run `gh issue edit {number} --add-assignee @me`, then `gh issue comment {number} --body "🤖 Agent started work — branch \`feature/{slug}\` created."`
    - If the ticket claim fails for any reason, log the error and continue — it is not a blocker for implementation.
 
