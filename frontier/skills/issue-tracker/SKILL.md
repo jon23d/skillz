@@ -22,29 +22,34 @@ Before using any tool, read `agent-config.json` in the project root to identify 
 
 Supported providers: `github`, `gitea`, `jira`. If `agent-config.json` is missing or `issue_tracker` is not configured, tell the user and stop. For credential setup, refer to `JIRA_SETUP.md`, `GITHUB_SETUP.md`, or `GITEA_SETUP.md`.
 
-## GitHub provider — use gh CLI, not tools
+## GitHub provider — use gh CLI
 
-**If the provider is `github`, do not use the `github-issues_*` tools.** Use the `gh` CLI instead, as documented in the **github skill** (`skills/github/SKILL.md`). Check `gh auth status` first — if gh is unavailable or unauthenticated, stop and tell the user before doing anything else.
+Use the `gh` CLI as documented in `skills/github/SKILL.md`. Check `gh auth status` first — if unavailable or unauthenticated, stop and tell the user.
 
-## Tools
+## Gitea provider — use tea CLI
 
-Each provider has a single tool file with named exports. The tool name format is `<file>_<export>`.
+Check availability first:
+```bash
+tea --version
+```
+If `tea` is not found, stop immediately and tell the user to install it from https://gitea.com/gitea/tea. Do not proceed. Assume it is already authenticated.
 
-**GitHub** (`provider: "github"`) — **use the github skill (gh CLI). Do not use these tools.**
+Run all `tea` commands from the worktree directory so it picks up the repo context.
 
-**⚠ The `github-issues_*` tools are superseded by `gh` for GitHub. See `skills/github/SKILL.md`.**
+```bash
+tea issues list [--state open|closed] [--label <label>] [--assigned]
+tea issues view <number>
+tea issues create --title "..." --description "..."
+tea issues edit <number> [--title "..."] [--description "..."] [--assignees "..."] [--labels "..."]
+tea issues close <number>
+tea issues reopen <number>
+tea issues comment <number> --body "..."
+```
 
-**Gitea** (`provider: "gitea"`) — tools prefixed `gitea-issues_`:
-- `gitea-issues_get` — read issue + comments + attachments
-- `gitea-issues_create` — create issue
-- `gitea-issues_update` — update title, body, state, assignees
-- `gitea-issues_list` — list issues
-- `gitea-issues_search` — search by keyword
-- `gitea-issues_comment` — add comment
-- `gitea-issues_transition` — open or close
-- `gitea-issues_upload_attachment` — upload file to issue
+Gitea has no attachment upload via `tea` — commit files to the branch and link them inline instead.
 
-**Jira** (`provider: "jira"`) — tools prefixed `jira-issues_`:
+## Jira provider — use jira-issues_* tools
+
 - `jira-issues_get` — read issue + comments + attachments
 - `jira-issues_create` — create issue
 - `jira-issues_update` — update summary, description, labels
@@ -54,9 +59,4 @@ Each provider has a single tool file with named exports. The tool name format is
 - `jira-issues_transition` — change status; omit status to list available transitions
 - `jira-issues_upload_attachment` — upload file to issue
 
-## Provider differences
-
-- **GitHub has no attachment API.** The REST API does not support uploading or reading attachments on issues. Do not attempt it — the tool will return an error. Use inline image links or commit screenshots to the branch instead.
-- **Jira transitions are workflow-specific.** Call `jira-issues_transition` without a `status` to list what's available for that issue before transitioning.
-- **Jira search accepts plain text or JQL.** Plain text is automatically scoped to the configured project. JQL gives full control: `status = "In Progress" AND assignee = currentUser()`.
-- **Jira transitions to "In Progress" auto-assign** to the `JIRA_EMAIL` env var user.
+Jira transitions are workflow-specific — call `jira-issues_transition` without a `status` to list available transitions first. Search accepts plain text or JQL. Transitions to "In Progress" auto-assign to the `JIRA_EMAIL` env var user.

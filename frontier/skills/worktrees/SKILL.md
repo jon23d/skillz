@@ -183,7 +183,7 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 GitHub:
 ![description](../blob/{branch}/.agent-logs/YYYY-MM-DD-{slug}/filename.png?raw=true)
 
-Gitea:
+Gitea — absolute raw URL, images must be committed and pushed first:
 ![description]({repo_url}/raw/branch/{branch}/.agent-logs/YYYY-MM-DD-{slug}/filename.png)
 
 {"None" if no UI changes.}
@@ -259,7 +259,8 @@ git push origin feature/{slug}
 
 ### 8. Post the PR URL on the ticket
 
-- Gitea/GitHub: `gitea-issues_comment` / `github-issues_comment` — post `🔀 PR opened: {pr_url}`
+- Gitea: `tea issues comment <number> --body "🔀 PR opened: {pr_url}"` (run from worktree)
+- GitHub: `gh issue comment <number> --body "🔀 PR opened: {pr_url}"`
 - Jira: handled by the pull-requests skill
 
 ### 9. Invoke notifier

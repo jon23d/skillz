@@ -23,7 +23,7 @@ Writing tests and implementation in the same step is not tdd.
 
 ## Running tests
 
-Run every test that CI will run — locally, before reporting back. No test suite is "CI only." This includes unit tests (`npx vitest run`), integration tests, e2e tests (`npx playwright test`), type checking, and linting (`pnpm lint` or `npm run lint`). Zero errors required across all of them.
+Run every test that CI will run — locally, before reporting back. No test suite is "CI only." This includes unit tests (`npx vitest run`), integration tests, type checking, and linting (`pnpm lint` or `npm run lint`). If the project has e2e tests, run them too. Zero errors required across all of them.
 
 Once everything is clean, invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing. Do not report back until the reviewer returns `"pass"` or `"pass_with_issues"` with no critical or major issues.
 
@@ -288,6 +288,26 @@ it.each([
 
 Use React Testing Library. Query by accessible role, label, or visible text. Never `getByTestId`. Use `userEvent` (not `fireEvent`). Test all three data states: loading, error, success.
 
+## E2e tests — default answer is no
+
+If the project has **both** API endpoint tests and RTL+MSW component tests, the existing layers already cover the seams e2e is meant to catch. Do not add e2e tests by default.
+
+Before writing any e2e test, answer: does this scenario require a real browser against a real backend, and would it be caught by nothing lower in the stack?
+
+**Legitimate e2e scenarios:**
+- Critical user paths where failure would be a significant incident (login, checkout, the core paid flow) — one test per path, happy path only
+- Browser behaviors MSW cannot intercept: OAuth redirects, cookie/session mechanics, file downloads, clipboard, drag-and-drop, the file picker
+- Documented regression traps: a specific bug that has burned the team and that lower-level tests demonstrably failed to catch
+
+**Not legitimate — use RTL+MSW or endpoint tests instead:**
+- Form validation and inline error messages
+- Loading and error states
+- Page or route "coverage"
+- Happy-path duplication of what the endpoint tests already prove
+- Any scenario that can be fully described with a mocked API response
+
+If none of the legitimate cases apply, do not write the e2e test. Write or improve the RTL or endpoint test instead.
+
 ## Coverage
 
 Do not chase numbers. Aim for tests that would catch real regressions.
@@ -306,6 +326,7 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - Created new classes/functions in a refactor but wrote zero new tests
 - About to mock Prisma instead of using testcontainers
 - About to mock `fetch` or stub an HTTP client with `vi.fn()` instead of using MSW
+- About to write an e2e test when endpoint tests + RTL/MSW component tests exist and the scenario doesn't require a real browser or has no documented history of slipping through lower layers
 - Wrote e2e tests but planning to skip running them ("CI only")
 - All tests pass but about to report back without invoking `@reviewer`
 
@@ -317,4 +338,6 @@ This skill governs the red-green-refactor mechanics within a single test cycle. 
 - **"Setting up a container is complex"** → A Prisma mock tests nothing real.
 - **"I'll just mock fetch, it's simpler"** → A fetch mock tests your mock, not your HTTP integration. MSW intercepts real requests.
 - **"Existing tests cover the extracted code"** → They cover it through the old structure. New units need direct tests.
+- **"E2E gives us confidence the whole thing works"** → Endpoint tests prove the API contract. RTL+MSW proves the UI against that contract. E2e proves the wiring — which is a small gap when both layers exist. Write to the gap, not for confidence.
+- **"It's easier to just write a Playwright test"** → Easier is the wrong reason. An e2e test that duplicates what RTL covers adds maintenance cost and flakiness without adding signal.
 - **"E2E tests need CI / a special environment"** → Every test CI runs, you run first. Install a headless browser, start the DB, run them.

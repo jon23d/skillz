@@ -50,16 +50,17 @@ If this fails, stop immediately. Tell the user gh is not installed or not authen
 sleep 30 && gh pr checks <PR-number> --watch
 ```
 
-**Gitea** (`git_host.provider: "gitea"`): `gh` does not work with Gitea. Use the Gitea API directly:
+**Gitea** (`git_host.provider: "gitea"`): use `tea` CLI. Check availability first:
 ```bash
-# Poll Gitea commit status — replace GITEA_URL, OWNER, REPO, SHA
-curl -s "https://GITEA_URL/api/v1/repos/OWNER/REPO/statuses/SHA" \
-  -H "Authorization: token $GITEA_ACCESS_TOKEN" \
-  | jq '[.[] | {context, state}]'
-# state values: pending, success, error, failure, warning
-# Get the branch SHA: git rev-parse HEAD
+tea --version
 ```
-Poll every 30s until all statuses are non-pending, or 20 minutes elapses.
+If not found, stop and tell the user to install it from https://gitea.com/gitea/tea.
+
+```bash
+# Poll run status — run from the worktree directory
+sleep 30 && tea runs list
+```
+Poll every 30s until all runs reach a terminal state (`success`, `failure`, `cancelled`), or 20 minutes elapses.
 
 ## Failure Handling
 

@@ -38,11 +38,29 @@ gh pr edit <number> --title "..." --body "..."
 ```
 See `skills/github/SKILL.md` for full reference.
 
-**Gitea** (`provider: "gitea"`):
-- `gitea-prs_create` — open a PR
-- `gitea-prs_get` — read a PR
-- `gitea-prs_list` — list PRs
-- `gitea-prs_update` — update title or body
+**Gitea** (`provider: "gitea"`): use `tea` CLI. Check availability first:
+```bash
+tea --version
+```
+If not found, stop and tell the user to install it from https://gitea.com/gitea/tea. Assume already authenticated. Run from the worktree directory.
+
+`tea pulls create` takes `--description` with no file-reading flag. Write the PR body to a temp file and use command substitution to avoid multiline/escaping issues:
+```bash
+cat > /tmp/pr-body.md << 'EOF'
+## Summary
+...
+EOF
+
+tea pulls create \
+  --title "..." \
+  --description "$(cat /tmp/pr-body.md)" \
+  --head <branch> \
+  --base <base>
+
+tea pulls view <number>
+tea pulls list [--state open|closed]
+tea pulls edit <number> --title "..." --description "$(cat /tmp/pr-body.md)"
+```
 
 The base branch defaults to `main`. Override by setting `default_branch` in `agent-config.json`:
 
@@ -158,24 +176,24 @@ The `../blob/` prefix works because GitHub resolves relative URLs in PR bodies a
 
 ### Gitea screenshots
 
-Gitea does not support relative URLs or `?raw=true` in PR bodies. Use absolute raw URLs constructed from `git_host.gitea.repo_url` in `agent-config.json`.
+Gitea renders inline images in PR descriptions from absolute raw URLs. Images must be committed and pushed to the branch **before** opening the PR — Gitea fetches the raw file URL using the viewer's authenticated session, so they render inline for anyone who can see the PR.
 
-**URL format:**
-```
-{repo_url}/raw/branch/{BRANCH}/{relative-path-from-repo-root}
+Relative URLs and `?raw=true` do not work in Gitea PR descriptions. Use the absolute `/raw/branch/` path.
+
+**Step 1 — Confirm every screenshot is committed and on the remote:**
+```bash
+git show HEAD:.agent-logs/YYYY-MM-DD-slug/filename.png > /dev/null
+# Repeat for each file. If this fails, the file is not committed — stop and fix it before proceeding.
 ```
 
-```markdown
-![Description of what is shown](https://gitea.example.com/owner/repo/raw/branch/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png)
+**Step 2 — Construct the URL** from `git_host.gitea.repo_url` in `agent-config.json`:
+```
+{repo_url}/raw/branch/{BRANCH}/{path-from-repo-root}
 ```
 
-**Example** — `repo_url` is `https://gitea.example.com/acme/myapp`, branch `feature/42-login`, file `.agent-logs/2026-03-15-login/login-form.png`:
+**Step 3 — Embed in the PR body:**
 ```markdown
 ![Login form](https://gitea.example.com/acme/myapp/raw/branch/feature/42-login/.agent-logs/2026-03-15-login/login-form.png)
 ```
 
-No `?raw=true` is needed — the `/raw/branch/` path already serves the raw binary.
-
----
-
-**The image must exist on the branch before the PR is opened.** Verify by running `git show HEAD:.agent-logs/...` for each screenshot path. If a file is missing, the `@frontend-engineer` did not complete the screenshot step — send them back before opening the PR. Do not open the PR with a Screenshots section containing broken links, and do not omit the Screenshots section when screenshots were taken.
+Write the full PR body (including image lines) to `/tmp/pr-body.md` and pass it via `$(cat /tmp/pr-body.md)` — see the `tea pulls create` command above. Do not try to inline long URLs directly in the shell command string.
