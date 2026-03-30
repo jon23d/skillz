@@ -1,9 +1,20 @@
 ---
 name: playwright-e2e
-description: Use when writing end-to-end tests with Playwright, adding a new test file, setting up Playwright in a project, or testing user flows in a web app.
+description: Use when writing Playwright e2e tests for scenarios that genuinely require a real browser against a real backend — OAuth flows, cookie/session mechanics, file downloads, drag-and-drop, or a documented critical path where lower-level tests have failed to catch a regression. Do NOT use for form validation, error states, loading states, or any scenario fully coverable with RTL+MSW.
 ---
 
 # Playwright E2E Testing
+
+## Before writing anything — check the gate
+
+If the project has API endpoint tests **and** RTL+MSW component tests, the default answer to "should I write an e2e test?" is **no**. Those two layers already cover the seams e2e is meant to catch.
+
+Only proceed if the scenario is one of these:
+- A critical path where failure would be a significant incident (one happy-path test per flow — no mocked API responses)
+- Browser behavior MSW cannot intercept: OAuth redirects, cookie/session mechanics, file downloads, clipboard, drag-and-drop, file picker
+- A documented regression that demonstrably slipped through RTL and endpoint tests
+
+If none of these apply, write or improve the RTL+MSW test instead. Come back here only when you have a clear answer for which legitimate scenario this is.
 
 ## Overview
 
@@ -107,25 +118,24 @@ If you feel like adding a sleep, that is a signal to find the right condition to
 
 ## API mocking with `page.route`
 
-Use `page.route` to intercept network requests. Always set up routes **before** navigating.
+If you feel the urge to mock an API response in an e2e test, stop and ask: can this be covered by an RTL+MSW test instead? Error states, validation responses, and loading states almost always can — and should be.
+
+The legitimate uses of `page.route` in e2e are for **external** services that can't be intercepted at the MSW level: OAuth providers, payment iframes, third-party redirects, or cases where the real browser navigation is the thing being tested.
 
 ```ts
-test('shows error on failed login', async ({ page }) => {
-  await page.route('**/api/login', route =>
-    route.fulfill({ status: 401, json: { error: 'Invalid credentials' } })
+// Legitimate — intercepting an external OAuth redirect
+test('completes login via SSO', async ({ page }) => {
+  await page.route('**/oauth/token', route =>
+    route.fulfill({ status: 200, json: { access_token: 'fake-token' } })
   );
 
   await page.goto('/login');
-  await page.getByLabel('Email').fill('user@example.com');
-  await page.getByLabel('Password').fill('wrong');
-  await page.getByRole('button', { name: 'Log In' }).click();
-
-  await expect(page.getByRole('alert')).toHaveText('Invalid credentials');
+  await page.getByRole('button', { name: 'Sign in with Google' }).click();
+  await page.waitForURL('/dashboard');
 });
 ```
 
-- Always use `**/api/login` (with `**/` prefix), not `/api/login`. The bare path only matches when origin and path are identical; the glob matches regardless of host or port, so tests work in CI, staging, and local dev without changes.
-- `route.fulfill({ json: ... })` automatically sets `Content-Type: application/json`.
+Always set up routes **before** navigating. Use `**/api/path` (with `**/` prefix) rather than `/api/path` — the glob matches regardless of host or port so tests work across environments. `route.fulfill({ json: ... })` automatically sets `Content-Type: application/json`.
 
 ## Test isolation
 
@@ -135,38 +145,21 @@ test('shows error on failed login', async ({ page }) => {
 
 ## Complete example
 
+This example tests the critical login path against a real backend — no mocked responses. The error-state test (`shows error banner on invalid credentials`) belongs in RTL+MSW, not here.
+
 ```ts
 import { test, expect } from '@playwright/test';
 
-test.describe('Login', () => {
-  test.beforeEach(async ({ page }) => {
+test.describe('Login — critical path', () => {
+  test('redirects to dashboard after successful login', async ({ page }) => {
     await page.goto('/login');
-  });
-
-  test('redirects to dashboard on valid credentials', async ({ page }) => {
-    await page.route('**/api/login', route =>
-      route.fulfill({ status: 200, json: { username: 'ada' } })
-    );
 
     await page.getByLabel('Email').fill('ada@example.com');
-    await page.getByLabel('Password').fill('correct');
+    await page.getByLabel('Password').fill('correct-password');
     await page.getByRole('button', { name: 'Log In' }).click();
 
     await page.waitForURL('/dashboard');
     await expect(page.getByRole('heading', { name: 'Hello, ada' })).toBeVisible();
-  });
-
-  test('shows error banner on invalid credentials', async ({ page }) => {
-    await page.route('**/api/login', route =>
-      route.fulfill({ status: 401, json: { error: 'Invalid credentials' } })
-    );
-
-    await page.getByLabel('Email').fill('ada@example.com');
-    await page.getByLabel('Password').fill('wrong');
-    await page.getByRole('button', { name: 'Log In' }).click();
-
-    await expect(page.getByRole('alert')).toHaveText('Invalid credentials');
-    await expect(page).toHaveURL('/login');
   });
 });
 ```
@@ -190,9 +183,10 @@ See [playwright-cli skill](../playwright-cli/SKILL.md) — specifically its [tes
 
 ## Rationalizations — and the responses
 
+- **"We need e2e coverage of this flow"** → Coverage is not a reason. If endpoint tests + RTL+MSW tests exist, the flow is already covered at the seams. E2e is for the gaps, not for redundancy.
+- **"RTL/unit tests only verify logic, not the real user experience"** → RTL with `userEvent` tests real user interactions. MSW intercepts real network calls. The gap between that and a full browser is smaller than it looks — and it's covered by the specific legitimate scenarios above.
+- **"It's faster to just write a Playwright test"** → Faster to write, slower to run, more prone to flakiness, harder to debug. Write the RTL test.
 - **"E2E tests require CI / a special environment"** → Every test CI runs, you run first. Install a headless browser, start the DB, run them.
 - **"The environment is too complex to set up locally"** → Docker exists. `docker compose up -d` and `npx playwright install chromium` is two commands.
-- **"Unit tests cover it"** → Unit tests verify logic. E2E tests verify the user can actually use the feature. They test different things.
 - **"I'll let CI catch it"** → CI catches it after you've reported success. That's not testing — that's hoping.
-- **"Screenshots require a running server"** → The `webServer` block in `playwright.config.ts` starts the server automatically when you run `npx playwright test`. There is nothing extra to set up. If `webServer` is missing, add it — that is a project setup bug, not a reason to skip screenshots.
 - **"Playwright isn't installed / the browser is missing / the command failed"** → Stop. Tell the user exactly what is missing and what command will fix it. Do not push to GitHub. Do not report success. Broken tooling is a blocker to surface, not a reason to skip.
