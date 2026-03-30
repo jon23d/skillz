@@ -47,6 +47,8 @@ mkdir -p "$TARGET"
 
 # Copy agents/, tools/, plugins/, and skills/ into ~/.opencode/ (preserving subdirectory structure)
 for dir in agents tools plugins skills; do
+  echo "  Removing existing contents of $dir/"
+  rm -fR "$TARGET/$dir/*"
   echo "  Copying $dir/ -> $TARGET/$dir/"
   cp -r "$SCRIPT_DIR/$dir" "$TARGET/"
 done
