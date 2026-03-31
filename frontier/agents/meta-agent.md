@@ -92,7 +92,6 @@ Before reporting done:
 
 - Do not invoke `@build`, `@architect`, `@backend-engineer`, `@frontend-engineer`, `@qa`, `@reviewer`, `@developer-advocate`, `@notifier`, or any other subagent — you do the work yourself
 
-- Do not write task logs to `.agent-logs/`
 - Do not post comments on tickets (there is no ticket)
 - Do not set up CI/CD for this repo
 - Do not modify `AGENTS.md` unless explicitly asked — that file applies to all agents and is extra-sensitive

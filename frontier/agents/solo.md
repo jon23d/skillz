@@ -53,7 +53,6 @@ A sharp, self-contained solo coder. You are given one task and you handle it ful
 - Do not invoke `@qa`
 - Do not invoke `@developer-advocate`
 - Do not invoke `@notifier`
-- Do not write task logs to `.agent-logs/`
 - Do not open PRs
 - Do not post comments on tickets
 - Do not invoke `@build` or any supervisor agent

@@ -34,6 +34,8 @@ tea --version
 If not found, stop and tell the user to install it from https://gitea.com/gitea/tea. Assume already authenticated. Run from the repo root.
 
 `tea pulls create` takes `--description` with no file-reading flag. Write the PR body to a temp file and use command substitution to avoid multiline/escaping issues:
+
+**Create a PR:**
 ```bash
 cat > /tmp/pr-body.md << 'EOF'
 ## Summary
@@ -43,13 +45,31 @@ EOF
 tea pulls create \
   --title "..." \
   --description "$(cat /tmp/pr-body.md)" \
-  --head <branch> \
   --base <base>
-
-tea pulls view <number>
-tea pulls list [--state open|closed]
-tea pulls edit <number> --title "..." --description "$(cat /tmp/pr-body.md)"
+# --head defaults to the current branch; only set it if creating from a different branch
 ```
+
+**View a specific PR** (no `view` subcommand — pass the number as a positional arg):
+```bash
+tea pulls <number>
+tea pulls <number> --fields title,body,state,head,base,assignees
+tea pulls <number> --comments    # include review comments
+```
+
+**List PRs:**
+```bash
+tea pulls ls                     # open PRs (default)
+tea pulls ls --state closed
+tea pulls ls --state all
+```
+
+**Close / reopen:**
+```bash
+tea pulls close <number>
+tea pulls reopen <number>
+```
+
+**Note:** There is no `tea pulls edit` command. PR title and description cannot be updated via `tea`. Once opened, update the PR by pushing new commits to the branch.
 
 Determine the base branch from git:
 ```bash
@@ -62,23 +82,39 @@ Falls back to `main` if unset. This is also used for constructing screenshot ima
 Always use this template. Fill every section — do not leave sections empty or omit them.
 
 ```markdown
-## Summary
-<!-- What changed and why. 2-4 sentences. -->
+# {PR title — concise imperative phrase}
+
+{Brief summary — 2–4 sentences. What changed and why.}
+
+# Screenshots
+<!-- Frontend changes: embed each Gitea attachment URL as an inline image.
+     The image must render directly in the PR body — do NOT use links or filenames.
+     One image per line. See the Screenshots section below for how to upload and construct URLs.
+     No frontend changes: remove this entire section. -->
+![caption](https://gitea.example.com/attachments/{uuid})
+
+# Detail
 
 ## Changes
 <!-- Bullet list of notable changes. Be specific. -->
-- 
+-
 
 ## How to Test
 <!-- Starting from main running locally, numbered steps a reviewer must follow to test this PR.
      If no setup is needed beyond checking out the branch, write exactly:
      "No setup needed — check out the branch and run the app." -->
 
-## Screenshots
-<!-- Frontend changes: embed each screenshot as an inline image using the syntax below.
-     The image must render directly in the PR body — do NOT use a table of links or bare filenames.
-     One image per line. Use the URL format for your provider (see the Screenshots section of this skill).
-     No frontend changes: remove this section. -->
+## Tests added
+<!-- List test files added or modified and what they cover. -->
+
+## Quality gate verdicts
+<!-- @reviewer verdict. @qa verdict if run. -->
+
+## Errors and complications
+<!-- Any blockers hit and how they were resolved. "None" if clean. -->
+
+## Follow-up items
+<!-- Anything deferred, known gaps, or suggestions for future work. "None" if clean. -->
 
 ## Closes
 Closes #ISSUE_NUMBER
@@ -102,7 +138,7 @@ Write one numbered step per action. Start from: *reviewer has `main` checked out
 
 This section is always required. If none of the above apply, write: "No setup needed — check out the branch and run the app."
 
-For GitHub, `Closes #42` in the body will automatically close the linked issue when the PR is merged. Use the issue number, not the full URL.
+`Closes #42` in the body will automatically close the linked issue when the PR is merged on Gitea. Use the issue number, not the full URL.
 
 ## After opening the PR
 
@@ -110,35 +146,35 @@ The `Closes #N` keyword in the body links the PR to the issue — no additional 
 
 ## Screenshots
 
-Each screenshot must be an **inline embedded image** that renders directly in the PR body. Do not use a table of links, bare filenames, or hyperlinked text — the reviewer must be able to see the screenshots without clicking anything.
+Each screenshot must be an **inline embedded image** that renders directly in the PR body. Do not commit screenshots to the branch — upload them to Gitea's issue attachments API instead.
 
-**Before writing any URL, run:**
+### Uploading screenshots to Gitea
+
+Screenshots are uploaded to the **issue** (not the PR — the issue already exists before the PR is opened). Gitea serves them from a stable attachment URL that embeds inline in any PR body.
+
+**Step 1 — Parse the repo owner and name from the remote URL:**
 ```bash
-git branch --show-current   # → BRANCH
+REMOTE_URL=$(git remote get-url origin)
+# e.g. http://gitea.example.com/acme/myapp
+# owner=acme  repo=myapp  issue_number=42
 ```
 
----
-
-### Screenshots
-
-Gitea renders inline images in PR descriptions from absolute raw URLs. Images must be committed and pushed to the branch **before** opening the PR — Gitea fetches the raw file URL using the viewer's authenticated session, so they render inline for anyone who can see the PR.
-
-Relative URLs and `?raw=true` do not work in Gitea PR descriptions. Use the absolute `/raw/branch/` path.
-
-**Step 1 — Confirm every screenshot is committed and on the remote:**
+**Step 2 — Upload each screenshot:**
 ```bash
-git show HEAD:.agent-logs/YYYY-MM-DD-slug/filename.png > /dev/null
-# Repeat for each file. If this fails, the file is not committed — stop and fix it before proceeding.
+curl -s -X POST \
+  -H "Authorization: token ${GITEA_ACCESS_TOKEN}" \
+  -F "attachment=@/path/to/screenshot.png" \
+  "${REMOTE_URL}/api/v1/repos/{owner}/{repo}/issues/{issue_number}/assets"
 ```
 
-**Step 2 — Construct the URL** using the repo URL from `git remote get-url origin`:
-```
-{repo_url}/raw/branch/{BRANCH}/{path-from-repo-root}
+The response contains the URL to embed:
+```json
+{"browser_download_url": "https://gitea.example.com/attachments/{uuid}"}
 ```
 
-**Step 3 — Embed in the PR body:**
+**Step 3 — Embed in the `# Screenshots` section of the PR body:**
 ```markdown
-![Login form](https://gitea.example.com/acme/myapp/raw/branch/feature/42-login/.agent-logs/2026-03-15-login/login-form.png)
+![Login form](https://gitea.example.com/attachments/{uuid})
 ```
 
-Write the full PR body (including image lines) to `/tmp/pr-body.md` and pass it via `$(cat /tmp/pr-body.md)` — see the `tea pulls create` command above. Do not try to inline long URLs directly in the shell command string.
+Upload all screenshots before opening the PR. Collect every `browser_download_url`, then write them into the PR body in the `# Screenshots` section. Write the full PR body to `/tmp/pr-body.md` and pass it via `$(cat /tmp/pr-body.md)` — see the `tea pulls create` command above.

@@ -50,7 +50,12 @@ Do not modify files on `main`. If you find yourself on `main`, stop and report t
 The only supported issue tracker is Gitea. Use the `tea` CLI (assumed installed and authenticated):
 
 ```bash
-tea issues view <number>
+# Read a specific issue (tea has no view subcommand)
+tea issues ls --output json --fields index,title,body,state,assignees,labels \
+  | jq '.[] | select(.index == <number>)'
+
+# Comment on an issue or PR (top-level command, body is a positional arg)
+tea comment <number> "your message"
 ```
 
 Do not create, comment on, or transition any issue unless your role explicitly permits it.

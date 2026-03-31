@@ -17,16 +17,54 @@ If `tea` is not found, stop and tell the user to install it from https://gitea.c
 
 ## Commands
 
+**List issues:**
 ```bash
-tea issues list [--state open|closed] [--label <label>] [--assigned]
-tea issues view <number>
-tea issues create --title "..." --description "$(cat /tmp/issue-body.md)"
-tea issues edit <number> [--title "..."] [--description "..."] [--assignees "..."] [--labels "..."]
-tea issues close <number>
-tea issues reopen <number>
-tea issues comment <number> --body "..."
+tea issues ls                                          # open issues (default)
+tea issues ls --state closed
+tea issues ls --state all
+tea issues ls --assignee <username>
+tea issues ls --label <label>
 ```
 
-Write multi-line bodies to a temp file and use `$(cat /tmp/file.md)` to avoid shell-escaping issues.
+**Read a specific issue** (no `view` subcommand — use ls + jq):
+```bash
+tea issues ls --output json --fields index,title,body,state,assignees,labels \
+  | jq '.[] | select(.index == <NUMBER>)'
+```
+
+**Create an issue:**
+```bash
+cat > /tmp/issue-body.md << 'EOF'
+...
+EOF
+tea issues create --title "..." --description "$(cat /tmp/issue-body.md)"
+```
+
+**Edit an issue** (use `--add-assignees` to assign, not `--assignees`):
+```bash
+tea issues edit <number> --title "..."
+tea issues edit <number> --description "$(cat /tmp/body.md)"
+tea issues edit <number> --add-assignees <username>
+tea issues edit <number> --add-labels <label>
+```
+
+**Close / reopen:**
+```bash
+tea issues close <number>
+tea issues reopen <number>
+```
+
+**Add a comment** (`comment` is a top-level command, body is a positional arg — no `--body` flag):
+```bash
+tea comment <number> "Your comment here"
+
+# Multi-line:
+cat > /tmp/comment.md << 'EOF'
+...
+EOF
+tea comment <number> "$(cat /tmp/comment.md)"
+```
+
+Write multi-line content to a temp file and use `$(cat /tmp/file.md)` to avoid shell-escaping issues.
 
 Gitea has no attachment upload via `tea` — commit files to the branch and link them inline instead.

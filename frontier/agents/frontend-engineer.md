@@ -12,8 +12,8 @@ tools:
 ## Agent contract
 
 - **Invoked by:** `build` (with acceptance criteria from an architect plan, or directly for simple tasks)
-- **Input:** Task description with acceptance criteria. Branch name, agent-logs path for screenshots, and skills to load specified per invocation.
-- **Output:** Files changed, tests added, reviewer verdict and notes, screenshot paths, any follow-up items
+- **Input:** Task description with acceptance criteria. Branch name and skills to load specified per invocation.
+- **Output:** Files changed, tests added, reviewer verdict and notes, Gitea screenshot attachment URLs, any follow-up items
 - **Reports to:** `build`
 - **Default skills:** `tdd`, `outside-in-double-loop`, `ui-design`, `playwright-e2e` (when adding or modifying user-facing pages or flows)
 
@@ -55,25 +55,34 @@ If the task involves a new or modified endpoint, run `npm run codegen` (per the 
 4. Implement using tdd (per the `tdd` skill) and outside-in ordering (per the `outside-in-double-loop` skill) until all acceptance criteria are met
 5. Run every test that CI will run — locally, with zero errors. No test suite is "CI only."
 6. Invoke `@reviewer`. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all issues and re-invoke before continuing.
-7. Capture screenshots. **This step is non-negotiable for any UI change. Do not skip it, do not substitute it with a description, do not claim a running server is required.**
+7. Capture screenshots and upload them to Gitea. **This step is non-negotiable for any UI change. Do not skip it, do not substitute it with a description, do not claim a running server is required.**
 
    The e2e tests start the server automatically via the `webServer` block in `playwright.config.ts` — the same mechanism used when you ran the tests in step 5. There is no additional server setup required.
 
    Add `page.screenshot()` calls directly into the e2e tests that exercise the changed UI:
    ```ts
-   await page.screenshot({ path: `${process.env.AGENT_LOGS_PATH}/descriptive-name.png` });
+   await page.screenshot({ path: `/tmp/screenshots/descriptive-name.png` });
    ```
    Place them at each visual moment worth capturing, then run the tests to produce the files. **Before committing, remove every screenshot call you added** — they are for the PR only, not permanent test code.
 
    Cover every state a reviewer would need to see: each new/modified page at rest, all key interaction states (error, validation, loading, empty, success), and any meaningful UI difference introduced by the change. Name files descriptively (e.g. `login-form.png`, `dashboard-empty.png`, `error-invalid-email.png`).
 
-   After the tests run, confirm the files exist at `${AGENT_LOGS_PATH}/` before continuing. If they do not exist, the screenshot calls did not execute — fix and re-run. Do not proceed without real screenshot files on disk.
+   After the tests run, confirm the files exist at `/tmp/screenshots/` before continuing. If they do not exist, the screenshot calls did not execute — fix and re-run.
 
+   **Upload each screenshot to Gitea** using the issue assets API (the issue number comes from the task description):
+   ```bash
+   REMOTE_URL=$(git remote get-url origin)
+   # Upload and capture the returned attachment URL
+   curl -s -X POST \
+     -H "Authorization: token ${GITEA_ACCESS_TOKEN}" \
+     -F "attachment=@/tmp/screenshots/descriptive-name.png" \
+     "${REMOTE_URL}/api/v1/repos/{owner}/{repo}/issues/{issue_number}/assets" \
+     | jq -r '.browser_download_url'
+   ```
+   Parse the owner and repo name from `REMOTE_URL` (e.g. `http://gitea.example.com/acme/myapp` → owner=`acme`, repo=`myapp`). Repeat for each file. Collect every `browser_download_url` — you will report these back to `build`.
 
-8. Commit the screenshot files to the branch. They must be committed so the PR blob URL resolves.
+8. Report back to `build`: files changed, tests added, reviewer verdict and notes, **the Gitea attachment URL for every screenshot** (e.g. `https://gitea.example.com/attachments/{uuid}`), any follow-up items.
 
-9. Report back to `build`: files changed, tests added, reviewer verdict and notes, **the exact relative path of each screenshot file from the repo root** (e.g. `.agent-logs/2026-03-15-slug/login-form.png`), any follow-up items.
-
-The reviewer step (6) and screenshot step (7) are both non-negotiable. Do not report back to `build` until the reviewer passes and real screenshot files exist on disk and are committed to the branch.
+The reviewer step (6) and screenshot step (7) are both non-negotiable. Do not report back to `build` until the reviewer passes and every screenshot has been uploaded to Gitea with a `browser_download_url` in hand.
 
 Do not open pull requests, write the task log, or send notifications — `build` handles all of that.
