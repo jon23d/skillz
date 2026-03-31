@@ -156,7 +156,7 @@ The default agent. Handles the full feature development lifecycle:
 
 1. **Understand** — reads the ticket, loads config
 2. **Scoping checkpoint** — presents a proposed agent plan to the user as plain text and waits for approval before starting any work
-3. **Setup** — creates a git worktree (via the `worktrees` skill), renames the session
+3. **Setup** — creates a git worktree (via the `git-worktrees` skill), renames the session
 4. **Execute** — delegates to specialist agents in parallel waves:
    - Wave 1: `@architect` (optional, for complex tasks)
    - Wave 2: `@backend-engineer` + `@frontend-engineer` in parallel

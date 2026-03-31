@@ -5,7 +5,7 @@ export const RenameSessionPlugin: Plugin = async ({ client }) => {
     tool: {
       "rename-session": tool({
         description:
-          "Rename the current session. Use the format from the worktrees skill: '#N - brief description' for tickets, or just 'brief description' without a ticket.",
+          "Rename the current session. Use the format from the git-worktrees skill: '#N - brief description' for tickets, or just 'brief description' without a ticket.",
         args: {
           title: tool.schema
             .string()

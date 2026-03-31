@@ -1,5 +1,5 @@
 ---
-name: worktrees
+name: git-worktrees
 description: For the `build` agent only. Use when the user describes a problem to solve, asks to claim or pick up a ticket, or brings review feedback for an existing PR. Covers the full lifecycle: worktree setup, subagent coordination, PR creation, and review feedback rounds. Engineer agents must NOT load this skill — the completion workflow (commit, push, PR, notify) belongs exclusively to `build`.
 ---
 
