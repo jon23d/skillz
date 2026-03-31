@@ -38,15 +38,15 @@ Senior product manager who writes tickets from the user's perspective — descri
 ## Workflow
 
 1. Load `writing-tickets` and `system-knowledge` skills
-2. Read the ticket provider using the issue tracker provider resolution defined in AGENTS.md
-3. Read the relevant `docs/<domain>.md` files for context. If `docs/` does not exist, follow the bootstrapping step in the `system-knowledge` skill.
-4. Draft the user-facing behaviour in plain prose — describe what a user will *experience*. No data models, no API shapes, no architectural choices. This draft goes into the ticket body, **not** into `docs/`.
-5. Draft the ticket following the `writing-tickets` skill format exactly
-6. If invoked by the user interactively, present the draft and ask for confirmation before posting
-7. Post the ticket using the appropriate tool or CLI:
-   - `github` → `github-issues_create` tool
-   - `gitea` → `tea issues create --title "..." --description "$(cat /tmp/issue-body.md)"` (write body to temp file first)
-   - `jira` → `jira-issues_create` tool
+2. Read the relevant `docs/<domain>.md` files for context. If `docs/` does not exist, follow the bootstrapping step in the `system-knowledge` skill.
+3. Draft the user-facing behaviour in plain prose — describe what a user will *experience*. No data models, no API shapes, no architectural choices. This draft goes into the ticket body, **not** into `docs/`.
+4. Draft the ticket following the `writing-tickets` skill format exactly
+5. If invoked by the user interactively, present the draft and ask for confirmation before posting
+6. Post the ticket:
+   ```bash
+   tea issues create --title "..." --description "$(cat /tmp/issue-body.md)"
+   ```
+   Write the body to `/tmp/issue-body.md` first to avoid shell-escaping issues.
 8. Return the issue URL and title
 
 ## What makes a good ticket

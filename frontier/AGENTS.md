@@ -47,15 +47,15 @@ If you were not given a worktree path and your task requires one, stop and ask y
 
 ---
 
-## Issue tracker provider resolution
+## Issue tracker
 
-When a ticket reference is provided, read `agent-config.json` to determine `issue_tracker.provider`. Use the matching approach exclusively:
+The only supported issue tracker is Gitea. Use the `tea` CLI (assumed installed and authenticated):
 
-- `"github"` → `github-issues_get` tool
-- `"gitea"` → `tea issues view <number>` (via bash — `tea` CLI, assumed installed and authenticated)
-- `"jira"` → `jira-issues_get` tool
+```bash
+tea issues view <number>
+```
 
-Do not try other providers. Do not create, comment on, or transition any issue unless your role explicitly permits it.
+Do not create, comment on, or transition any issue unless your role explicitly permits it.
 
 ---
 

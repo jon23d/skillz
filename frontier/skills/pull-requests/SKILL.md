@@ -27,18 +27,7 @@ Never open a PR on a branch with unresolved conflicts.
 
 ## Tools
 
-Read `agent-config.json → git_host.provider` to select the right tool set.
-
-**GitHub** (`provider: "github"`) — use `gh` CLI. Check `gh auth status` first; stop and tell the user if it fails.
-```bash
-gh pr create --title "..." --body "..."   # open a PR
-gh pr view <number> --json number,title,state,body,headRefName
-gh pr list --json number,title,state,headRefName
-gh pr edit <number> --title "..." --body "..."
-```
-See `skills/github/SKILL.md` for full reference.
-
-**Gitea** (`provider: "gitea"`): use `tea` CLI. Check availability first:
+Use the `tea` CLI. Check availability first:
 ```bash
 tea --version
 ```
@@ -64,18 +53,6 @@ tea pulls edit <number> --title "..." --description "$(cat /tmp/pr-body.md)"
 
 The base branch defaults to `main`. Override by setting `default_branch` in `agent-config.json`:
 
-**GitHub example:**
-```json
-"git_host": {
-  "provider": "github",
-  "github": {
-    "repo_url": "https://github.com/owner/repo",
-    "default_branch": "develop"
-  }
-}
-```
-
-**Gitea example:**
 ```json
 "git_host": {
   "provider": "gitea",
@@ -86,7 +63,7 @@ The base branch defaults to `main`. Override by setting `default_branch` in `age
 }
 ```
 
-For Gitea, the `repo_url` is required for constructing screenshot image URLs — see the Screenshots section below.
+The `repo_url` is required for constructing screenshot image URLs — see the Screenshots section below.
 
 ## PR body template
 
@@ -137,18 +114,11 @@ For GitHub, `Closes #42` in the body will automatically close the linked issue w
 
 ## After opening the PR
 
-If the project uses Jira, call these two tools immediately after the PR is created:
-
-1. `jira-issues_transition` — transition the issue to "In Review"
-2. `jira-issues_link_pr` — post the PR URL as a comment on the Jira issue
-
-If the issue tracker is GitHub or Gitea (not Jira), the `Closes #N` keyword in the body handles the link — no additional step needed.
+The `Closes #N` keyword in the body links the PR to the issue — no additional step needed.
 
 ## Screenshots
 
 Each screenshot must be an **inline embedded image** that renders directly in the PR body. Do not use a table of links, bare filenames, or hyperlinked text — the reviewer must be able to see the screenshots without clicking anything.
-
-The URL format differs by provider. Read `agent-config.json → git_host.provider` before constructing any URL.
 
 **Before writing any URL, run:**
 ```bash
@@ -157,24 +127,7 @@ git branch --show-current   # → BRANCH
 
 ---
 
-### GitHub screenshots
-
-Use relative blob URLs with `?raw=true`. Do not use `raw.githubusercontent.com` — those URLs return 404 for private repos because the viewer's browser has no token.
-
-```markdown
-![Description of what is shown](../blob/BRANCH/.agent-logs/YYYY-MM-DD-slug/filename.png?raw=true)
-```
-
-**Example** — branch `feature/PROJ-42-login`, file `.agent-logs/2026-03-15-login/login-form.png`:
-```markdown
-![Login form](../blob/feature/PROJ-42-login/.agent-logs/2026-03-15-login/login-form.png?raw=true)
-```
-
-The `../blob/` prefix works because GitHub resolves relative URLs in PR bodies against the PR page URL (`/owner/repo/pull/N`). The `?raw=true` suffix tells GitHub to serve the binary image instead of the HTML file viewer.
-
----
-
-### Gitea screenshots
+### Screenshots
 
 Gitea renders inline images in PR descriptions from absolute raw URLs. Images must be committed and pushed to the branch **before** opening the PR — Gitea fetches the raw file URL using the viewer's authenticated session, so they render inline for anyone who can see the PR.
 

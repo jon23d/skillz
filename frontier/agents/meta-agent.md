@@ -109,7 +109,7 @@ agents/         — agent definition .md files
 skills/        — skill directories, each with SKILL.md + optional references/
 tools/         — tool definitions and references
 plugins/       — plugin definitions and references
-docs/          — setup and integration docs (GitHub, Gitea, Jira)
+docs/          — setup and integration docs (Gitea)
 ```
 
 The agent file name (without `.md`) is the agent's invocation name. `agents/solo.md` → `@solo`. `agents/build.md` → `@build`.

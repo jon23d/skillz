@@ -37,20 +37,7 @@ After opening the PR:
 
 Delegate to `@backend-engineer` or any agent with bash access.
 
-**GitHub** (`git_host.provider: "github"`):
-
-Before running any `gh` command, verify it is available and authenticated:
-```bash
-gh auth status
-```
-If this fails, stop immediately. Tell the user gh is not installed or not authenticated and provide install/auth instructions (`brew install gh` / `sudo apt install gh`, then `gh auth login`). Do not proceed with pipeline watching until gh is working.
-
-```bash
-# Wait for checks to register, then watch until terminal state
-sleep 30 && gh pr checks <PR-number> --watch
-```
-
-**Gitea** (`git_host.provider: "gitea"`): use `tea` CLI. Check availability first:
+Check `tea` is available first:
 ```bash
 tea --version
 ```

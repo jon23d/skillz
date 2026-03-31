@@ -30,9 +30,9 @@ npx playwright install --with-deps chromium   # first time only — installs hea
 npx playwright test                            # runs all e2e tests
 ```
 
-**If Playwright is not installed or browsers are missing, stop immediately and tell the user what needs to be installed.** Do not skip tests, do not push to GitHub, do not report success. The correct response is to surface the exact install commands needed and wait for confirmation that the environment is ready. Never silently skip tests because the tooling isn't set up.
+**If Playwright is not installed or browsers are missing, stop immediately and tell the user what needs to be installed.** Do not skip tests, do not push, do not report success. The correct response is to surface the exact install commands needed and wait for confirmation that the environment is ready. Never silently skip tests because the tooling isn't set up.
 
-All tests MUST pass locally before any code is pushed to GitHub. This is non-negotiable — CI is not a substitute for local verification.
+All tests MUST pass locally before any code is pushed. This is non-negotiable — CI is not a substitute for local verification.
 
 If the database is required, start it first (e.g. `docker compose up -d db`). If other services are needed, start those too. The test environment is your responsibility — "CI only" is not an acceptable answer.
 
@@ -189,4 +189,4 @@ See [playwright-cli skill](../playwright-cli/SKILL.md) — specifically its [tes
 - **"E2E tests require CI / a special environment"** → Every test CI runs, you run first. Install a headless browser, start the DB, run them.
 - **"The environment is too complex to set up locally"** → Docker exists. `docker compose up -d` and `npx playwright install chromium` is two commands.
 - **"I'll let CI catch it"** → CI catches it after you've reported success. That's not testing — that's hoping.
-- **"Playwright isn't installed / the browser is missing / the command failed"** → Stop. Tell the user exactly what is missing and what command will fix it. Do not push to GitHub. Do not report success. Broken tooling is a blocker to surface, not a reason to skip.
+- **"Playwright isn't installed / the browser is missing / the command failed"** → Stop. Tell the user exactly what is missing and what command will fix it. Do not push. Do not report success. Broken tooling is a blocker to surface, not a reason to skip.

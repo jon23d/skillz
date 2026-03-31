@@ -1,6 +1,6 @@
 ---
 name: cicd-pipeline-creation
-description: Use when creating CI/CD pipelines for any project. Use when asked to "set up CI/CD", "create a pipeline", "automate deployments", "configure GitHub Actions", "set up Vercel/Render/AWS", or similar. Apply regardless of hosting platform, language, or framework.
+description: Use when creating CI/CD pipelines for any project. Use when asked to "set up CI/CD", "create a pipeline", "automate deployments", "configure Gitea Actions", "set up Vercel/Render/AWS", or similar. Apply regardless of hosting platform, language, or framework.
 ---
 
 # CI/CD Pipeline Creation
@@ -44,7 +44,7 @@ Without verification, you don't know if the deploy succeeded. A health check is 
 Rollback is required. Either document the manual steps or implement auto-rollback. Production failures happen.
 
 **"I'll assume people know what secrets to set."**
-List every secret explicitly. Example: `RENDER_API_KEY`, `VERCEL_TOKEN`, `AWS_ACCESS_KEY_ID`. Say where to configure them (GitHub repo secrets, environment variables, etc.).
+List every secret explicitly. Example: `RENDER_API_KEY`, `VERCEL_TOKEN`, `AWS_ACCESS_KEY_ID`. Say where to configure them (Gitea repo secrets, environment variables, etc.).
 
 **"Staging is optional."**
 For production safety, staging is required. Test on staging first, then promote to production.
@@ -67,35 +67,37 @@ For production safety, staging is required. Test on staging first, then promote 
 - [ ] Secrets documented: list every secret, say where to configure
 - [ ] Staging environment: test on staging before production (for production pipelines)
 
-## Example structure (GitHub Actions)
+## Example structure (Gitea Actions)
 
 ```yaml
-on: push, pull_request
+on: [push, pull_request]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - checkout
-      - setup-node
-      - npm ci
-      - npm test
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - run: npm test
 
   deploy-staging:
     needs: test
-    if: main branch push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
     steps:
-      - checkout
-      - deploy to staging (Vercel/Render/etc.)
-      - health check: GET /health, expect 200
+      - uses: actions/checkout@v4
+      - run: deploy to staging (Vercel/Render/etc.)
+      - run: curl -f http://staging.example.com/health
 
   deploy-production:
     needs: deploy-staging
-    if: production trigger
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
     steps:
-      - deploy to production
-      - health check: GET /health, expect 200
-      - rollback steps documented
+      - uses: actions/checkout@v4
+      - run: deploy to production
+      - run: curl -f https://example.com/health
+      # On failure: revert to previous deployment (see rollback docs)
 ```
 
 ## Secrets documentation format
@@ -104,12 +106,12 @@ At the end of your pipeline file or in a README, list:
 
 ```
 Required secrets:
-- VERCEL_TOKEN: Vercel API token (configure in GitHub repo secrets)
-- RENDER_API_KEY: Render API key (configure in GitHub repo secrets)
+- VERCEL_TOKEN: Vercel API token (configure in Gitea repo secrets)
+- RENDER_API_KEY: Render API key (configure in Gitea repo secrets)
 - SERVICE_ID: Your service ID from Vercel/Render
 
 Setup:
-1. Go to GitHub repo → Settings → Secrets and variables → Actions
+1. Go to Gitea repo → Settings → Actions → Secrets
 2. Add each secret with the correct value
 3. Verify in a test deploy
 ```

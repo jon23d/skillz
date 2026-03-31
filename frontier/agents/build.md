@@ -30,16 +30,9 @@ Load these before reading any files or forming any plan. Do not proceed to Phase
 When the user describes a problem, names a ticket, or asks you to pick up work:
 
 1. Load the `git-worktrees` skill and derive the worktree path, branch name, and agent-logs path
-2. Read `agent-config.json` and resolve the providers:
-   - `issue_tracker_provider` = `issue_tracker.provider` (e.g. `"github"`, `"gitea"`, `"jira"`)
-   - `git_host_provider` = `git_host.provider` (e.g. `"github"`, `"gitea"`)
-   - If either is missing or the file cannot be read, **stop and use the `question` tool to ask the user** — do not guess or default to any provider
-   - Carry these two values explicitly through every subsequent phase
-3. If a ticket reference was given, fetch it using the appropriate issue tool and read the full description
-4. **Check if the ticket is already in progress.** Using the fetched ticket data:
-   - **Jira**: inspect the `status` field. If the status is anything other than "To Do" / "Open" / "Backlog", warn the user: "Ticket {ref} is currently in status '{status}'. Someone may already be working on it. Proceed anyway?" Wait for explicit confirmation before continuing.
-   - **Gitea / GitHub**: inspect the `assignees` field. If the issue is already assigned to anyone, warn the user: "Ticket {ref} is already assigned to {assignee(s)}. Someone may already be working on it. Proceed anyway?" Wait for explicit confirmation before continuing.
-   - If unassigned / in an open status, continue without asking.
+2. Read `agent-config.json` to confirm `git_host.provider` is `"gitea"` and get the repo URL. If missing, stop and ask the user.
+3. If a ticket reference was given, run `tea issues view <number>` and read the full description
+4. **Check if the ticket is already in progress.** Inspect the `assignees` field from the tea output. If already assigned, warn the user: "Ticket {ref} is already assigned to {assignee(s)}. Someone may already be working on it. Proceed anyway?" Wait for confirmation before continuing. If unassigned, continue.
 5. **Rename the session now** — call `rename-session` using the format from the `git-worktrees` skill (e.g. `#42 - Add user authentication`). This must happen before Phase 2. If no ticket, use the slug only.
 6. **Do not start implementation. Do not invoke any engineer. Proceed to Phase 2.**
 
@@ -89,17 +82,13 @@ Once the user approves the plan:
 
 2. Do not proceed until `@backend-engineer` confirms the worktree exists.
 
-3. **Claim the ticket** — mark it as in progress so no one else picks it up:
-   - **Jira**: call `jira-issues_transition` to move the issue to "In Progress". (Call it without a `status` first if you need to discover the available transitions.)
-   - **Gitea**: delegate to `@backend-engineer` (run from the worktree):
-     ```bash
-     tea login ls   # identify the active login name
-     tea issues edit {number} --assignees <login-name>
-     tea issues comment {number} --body "🤖 Agent started work — branch \`feature/{slug}\` created."
-     ```
-     If the assign step fails, skip it and post the comment only — do not skip the comment.
-   - **GitHub**: run `gh issue edit {number} --add-assignee @me`, then `gh issue comment {number} --body "🤖 Agent started work — branch \`feature/{slug}\` created."`
-   - If the ticket claim fails for any reason, log the error and continue — it is not a blocker for implementation.
+3. **Claim the ticket** — delegate to `@backend-engineer` (run from the worktree):
+   ```bash
+   tea login ls   # identify the active login name
+   tea issues edit {number} --assignees <login-name>
+   tea issues comment {number} --body "🤖 Agent started work — branch \`feature/{slug}\` created."
+   ```
+   If the assign step fails, skip it and post the comment only — do not skip the comment. If the ticket claim fails entirely, log the error and continue — it is not a blocker.
 
 4. **Every subsequent agent invocation must include the worktree path.**
 
@@ -149,14 +138,9 @@ Follow the `git-worktrees` skill completion steps and the `pull-requests` skill.
    git -C {worktree_path} show HEAD:<relative-path-to-screenshot>
    ```
    If any file is not found on `HEAD`, stage it explicitly, commit, and push again. **Do not open the PR until every screenshot resolves on the pushed branch.**
-7. Open the PR using the tool or CLI for `git_host_provider`:
-   - `"github"` → `github-prs_create`
-   - `"gitea"` → `tea pulls create` (per the `pull-requests` skill — write body to `/tmp/pr-body.md` first)
+7. Open the PR: `tea pulls create` (per the `pull-requests` skill — write body to `/tmp/pr-body.md` first)
 8. Update `log.md` with the PR URL, commit and push
-9. Post PR URL on the ticket using the tool or CLI for `issue_tracker_provider`:
-   - `"github"` → `github-issues_comment`
-   - `"gitea"` → `tea issues comment {number} --body "🔀 PR opened: {pr_url}"`
-   - `"jira"` → `jira-issues_transition` + `jira-issues_comment`
+9. Post PR URL on the ticket: `tea issues comment {number} --body "🔀 PR opened: {pr_url}"`
 10. **Follow the `pipeline-watch` skill:** watch CI checks until all pass (or fail).
 11. **Only after CI is green:** invoke `@notifier` with the PR URL, CI status, and one-sentence summary. Do not invoke `@notifier` before CI completes — the notification is the signal to the user that the PR is ready to review.
 12. Report the PR URL and CI result to the user

@@ -33,8 +33,7 @@ If this fails, run `git init` before proceeding.
 Call `rename-session` immediately after deriving paths. Do not defer this or skip it.
 
 Format — use the ticket number and a plain-English description (≤10 words) of what the ticket is about:
-- GitHub/Gitea ticket: `#N - brief description` → `#42 - Add user authentication`
-- Jira ticket: `PROJ-N - brief description` → `PROJ-42 - Add user authentication`
+- With ticket: `#N - brief description` → `#42 - Add user authentication`
 - No ticket: `brief description` → `Add user authentication`
 
 The description is **not** the slug. It is a short human-readable summary of the ticket title, not the hyphenated path-safe version.
@@ -178,12 +177,9 @@ If none: "No significant tradeoffs — implementation followed the plan directly
 
 ## Screenshots
 
-{Embed each screenshot using the URL format for the provider (see `pull-requests` skill Screenshots section):}
+{Embed each screenshot as an inline image (see `pull-requests` skill Screenshots section).
+Absolute raw URL — images must be committed and pushed before the PR is opened:}
 
-GitHub:
-![description](../blob/{branch}/.agent-logs/YYYY-MM-DD-{slug}/filename.png?raw=true)
-
-Gitea — absolute raw URL, images must be committed and pushed first:
 ![description]({repo_url}/raw/branch/{branch}/.agent-logs/YYYY-MM-DD-{slug}/filename.png)
 
 {"None" if no UI changes.}
@@ -245,7 +241,7 @@ Use the `pull-requests` skill to compose the PR body and open the PR. Pass it:
 - Files changed, tests added, quality gate results, screenshot paths, follow-up items
 - Ticket reference for the `Closes` line
 
-The pull-requests skill owns the PR body template and the Jira transition.
+The pull-requests skill owns the PR body template.
 
 ### 7. Update the task log with the PR URL
 
@@ -259,9 +255,11 @@ git push origin feature/{slug}
 
 ### 8. Post the PR URL on the ticket
 
-- Gitea: `tea issues comment <number> --body "🔀 PR opened: {pr_url}"` (run from worktree)
-- GitHub: `gh issue comment <number> --body "🔀 PR opened: {pr_url}"`
-- Jira: handled by the pull-requests skill
+```bash
+tea issues comment <number> --body "🔀 PR opened: {pr_url}"
+```
+
+Run from the worktree directory.
 
 ### 9. Invoke notifier
 

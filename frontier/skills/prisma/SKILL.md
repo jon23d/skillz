@@ -111,7 +111,7 @@ prisma db push
 **When to use:** Production deployments in your CI/CD pipeline.
 
 ```bash
-# In your deployment script (GitHub Actions, etc)
+# In your deployment script (CI/CD pipeline, etc)
 prisma migrate deploy
 
 # This runs all pending migrations in order
@@ -121,7 +121,7 @@ prisma migrate deploy
 **Deployment workflow:**
 
 ```yaml
-# .github/workflows/deploy.yml
+# .gitea/workflows/deploy.yml
 - name: Run migrations
   run: npx prisma migrate deploy
   env:
