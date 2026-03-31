@@ -1,7 +1,6 @@
 ---
 description: Primary orchestrator. Scopes work, proposes a plan for user approval, then delegates to specialist agents and verifies quality gates. All other agents report back to build.
 mode: primary
-model: github-copilot/claude-sonnet-4.6
 temperature: 0.2
 color: "#f59e0b"
 ---
