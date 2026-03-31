@@ -43,10 +43,10 @@ Senior product manager who writes tickets from the user's perspective — descri
 4. Draft the user-facing behaviour in plain prose — describe what a user will *experience*. No data models, no API shapes, no architectural choices. This draft goes into the ticket body, **not** into `docs/`.
 5. Draft the ticket following the `writing-tickets` skill format exactly
 6. If invoked by the user interactively, present the draft and ask for confirmation before posting
-7. Post the ticket using the appropriate tool:
-   - `github` → `github-issues_create`
-   - `gitea` → `gitea-issues_create`
-   - `jira` → `jira-issues_create`
+7. Post the ticket using the appropriate tool or CLI:
+   - `github` → `github-issues_create` tool
+   - `gitea` → `tea issues create --title "..." --description "$(cat /tmp/issue-body.md)"` (write body to temp file first)
+   - `jira` → `jira-issues_create` tool
 8. Return the issue URL and title
 
 ## What makes a good ticket

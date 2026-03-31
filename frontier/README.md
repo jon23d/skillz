@@ -36,10 +36,9 @@ skillz/
     │   ├── issue-tracker.ts          # Abstract IssueTracker class + shared types
     │   └── pull-request-tracker.ts   # Abstract PullRequestTracker class + shared types
     ├── github-issues.ts              # GitHub issue tools
-    ├── gitea-issues.ts               # Gitea issue tools
     ├── jira-issues.ts                # Jira issue tools
-    ├── github-prs.ts                 # GitHub PR tools
-    └── gitea-prs.ts                  # Gitea PR tools
+    └── github-prs.ts                 # GitHub PR tools
+    # Gitea — no wrapper tools; agents use the tea CLI directly
 ```
 
 ---
@@ -98,14 +97,6 @@ Tool names follow the pattern `<filename>_<export>` for named exports, or just `
 | `github-issues_comment` | Add a comment to a GitHub issue |
 | `github-issues_search` | Search GitHub issues |
 | `github-issues_close` | Close a GitHub issue |
-| `gitea-issues_get` | Read a Gitea issue by number |
-| `gitea-issues_create` | Create a Gitea issue |
-| `gitea-issues_update` | Update a Gitea issue |
-| `gitea-issues_list` | List Gitea issues |
-| `gitea-issues_comment` | Add a comment to a Gitea issue |
-| `gitea-issues_search` | Search Gitea issues |
-| `gitea-issues_close` | Close a Gitea issue |
-| `gitea-issues_dependencies` | List/add/remove issue dependencies |
 | `jira-issues_get` | Read a Jira issue by key |
 | `jira-issues_create` | Create a Jira issue |
 | `jira-issues_update` | Update a Jira issue |
@@ -115,6 +106,8 @@ Tool names follow the pattern `<filename>_<export>` for named exports, or just `
 | `jira-issues_assign` | Assign a Jira issue |
 | `jira-issues_link_pr` | Link a PR URL to a Jira issue |
 
+**Gitea** — all Gitea issue and PR operations use the `tea` CLI directly (no wrapper tools). See `docs/GITEA_SETUP.md`.
+
 ### PR tools
 
 | Tool | Description |
@@ -123,16 +116,14 @@ Tool names follow the pattern `<filename>_<export>` for named exports, or just `
 | `github-prs_get` | Read a GitHub PR |
 | `github-prs_list` | List GitHub PRs |
 | `github-prs_update` | Update a GitHub PR (title, body, state) |
-| `gitea-prs_create` | Open a Gitea pull request |
-| `gitea-prs_get` | Read a Gitea PR |
-| `gitea-prs_list` | List Gitea PRs |
-| `gitea-prs_update` | Update a Gitea PR |
+
+**Gitea PRs** — use `tea pulls create/view/list/edit`. See `skills/pull-requests/SKILL.md`.
 
 ### Setup guides
 
 For detailed credential setup, see:
 - `GITHUB_SETUP.md` — GitHub token scopes and config
-- `GITEA_SETUP.md` — Gitea token scopes and config
+- `GITEA_SETUP.md` — `tea` CLI install and auth setup
 - `JIRA_SETUP.md` — Jira API token setup and ADF notes
 
 ---

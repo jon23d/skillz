@@ -57,9 +57,13 @@ done
 echo "  Copying docs/* -> $TARGET/"
 cp -r "$SCRIPT_DIR/docs/." "$TARGET/"
 
-# Main Agents
+# Main Agents.md
 echo "  Copying AGENTS.md -> $TARGET/"
 cp "$SCRIPT_DIR/AGENTS.md" "$TARGET/"
+
+# Opencode config
+eco "   Copying opencode.json"
+cp "$SCRIPT_DIR/opencode.json" "$TARGET/"
 
 # Install tool dependencies
 echo "  Installing tool dependencies..."

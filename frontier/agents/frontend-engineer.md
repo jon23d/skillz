@@ -45,7 +45,7 @@ If the task involves a new or modified endpoint, run `npm run codegen` (per the 
 ## Skills
 
 - **Always load:** `tdd`, `outside-in-double-loop`, `ui-design`
-- **Load if adding or modifying user-facing pages, flows, or interactions:** `playwright-e2e`
+- **Load if the task requires a real browser (OAuth, file download, drag-and-drop) or is a documented critical path with no lower-level coverage:** `playwright-e2e` — the skill itself defines the gate; load it and follow its decision section before writing any test
 - **Load if complex module or component architecture:** `monorepo-development`, `effective-typescript`
 - **Load if calling any backend endpoint:** `openapi-codegen`
 

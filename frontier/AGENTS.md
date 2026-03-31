@@ -49,11 +49,11 @@ If you were not given a worktree path and your task requires one, stop and ask y
 
 ## Issue tracker provider resolution
 
-When a ticket reference is provided, read `agent-config.json` to determine `issue_tracker.provider`. Use the matching tool exclusively:
+When a ticket reference is provided, read `agent-config.json` to determine `issue_tracker.provider`. Use the matching approach exclusively:
 
-- `"github"` → `github-issues_get`
-- `"gitea"` → `gitea-issues_get`
-- `"jira"` → `jira-issues_get`
+- `"github"` → `github-issues_get` tool
+- `"gitea"` → `tea issues view <number>` (via bash — `tea` CLI, assumed installed and authenticated)
+- `"jira"` → `jira-issues_get` tool
 
 Do not try other providers. Do not create, comment on, or transition any issue unless your role explicitly permits it.
 
@@ -62,3 +62,5 @@ Do not try other providers. Do not create, comment on, or transition any issue u
 ## Skill loading protocol
 
 Load skills before reading any files or forming an approach. The skills are the authoritative guide for how to implement, test, and structure work. Follow them — do not substitute your own judgment for what a skill defines.
+
+**If a skill tool call returns "not found", retry it once before reporting an error.** Skill discovery can fail on the first attempt due to indexing timing. A single retry is always sufficient — do not loop.
