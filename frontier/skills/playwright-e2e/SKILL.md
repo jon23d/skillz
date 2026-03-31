@@ -24,7 +24,7 @@ Playwright has built-in auto-waiting — every `locator` action and `expect` ass
 
 **If you write e2e tests, you run e2e tests.** Do not defer to CI. Do not claim the environment is insufficient. The Playwright config includes a `webServer` block that starts the application automatically.
 
-Run from the worktree root:
+Run from the repo root:
 ```bash
 npx playwright install --with-deps chromium   # first time only — installs headless browser
 npx playwright test                            # runs all e2e tests

@@ -21,7 +21,6 @@ skillz/
 │
 ├── skills/
 │   ├── cicd-pipeline-creation/
-│   ├── git-worktrees/
 │   ├── issue-tracker/
 │   ├── pipeline-watch/
 │   ├── playwright-e2e/
@@ -36,46 +35,27 @@ skillz/
 │
 └── tools/
     ├── package.json                  # Bun dependencies — installed automatically by OpenCode
-    ├── send-telegram.ts              # Telegram notification tool
-    └── lib/
-        └── agent-config.ts          # Shared config loader (reads agent-config.json)
+    └── send-telegram.ts              # Telegram notification tool
 ```
 
 ---
 
-## Project configuration
+## Prerequisites
 
-Each project that uses these tools needs an `agent-config.json` in its root:
+Agents assume the `tea` CLI is installed and authenticated against your Gitea instance. That's all the setup required — no config files needed. The repo URL and default branch are read directly from git:
 
-```json
-{
-  "issue_tracker": {
-    "provider": "gitea",
-    "gitea": {
-      "repo_url": "https://gitea.example.com/org/repo"
-    }
-  },
-  "git_host": {
-    "provider": "gitea",
-    "gitea": {
-      "repo_url": "https://gitea.example.com/org/repo",
-      "default_branch": "main"
-    }
-  }
-}
+```bash
+git remote get-url origin
+git symbolic-ref refs/remotes/origin/HEAD
 ```
 
-The `default_branch` field is optional (defaults to `main`).
+See `docs/GITEA_SETUP.md` for `tea` installation and authentication.
 
-`repo_url` may also be supplied via the `GITEA_REPO_URL` environment variable instead of `agent-config.json`.
+**Required environment variable:**
 
-Secrets are **never** stored in `agent-config.json`. Set this environment variable:
-
-| Service | Required env var |
+| Service | Env var |
 |---|---|
 | Gitea | `GITEA_ACCESS_TOKEN` |
-
-See `docs/GITEA_SETUP.md` for `tea` CLI install and authentication setup.
 
 ---
 
@@ -83,7 +63,7 @@ See `docs/GITEA_SETUP.md` for `tea` CLI install and authentication setup.
 
 Tools are TypeScript files in `tools/` and run on Bun. OpenCode discovers them automatically and installs dependencies from `tools/package.json` at startup.
 
-Issue and PR operations use the `tea` CLI directly — no wrapper tools. Agents call `tea` via bash. See `skills/issue-tracker/SKILL.md` and `skills/pull-requests/SKILL.md`.
+Issue and PR operations use the `tea` CLI directly — agents call `tea` via bash. See `skills/issue-tracker/SKILL.md` and `skills/pull-requests/SKILL.md`.
 
 ---
 
@@ -93,7 +73,6 @@ Skills are `SKILL.md` files that agents load on demand using the built-in `skill
 
 | Skill | When to use |
 |---|---|
-| `git-worktrees` | Worktree setup, subagent coordination, PR lifecycle (build agent only) |
 | `issue-tracker` | Reading, creating, updating, searching, or commenting on issues |
 | `pull-requests` | Opening PRs, writing PR bodies, embedding screenshots |
 | `pipeline-watch` | Monitoring CI checks after a PR is opened |
@@ -113,9 +92,9 @@ Skills are `SKILL.md` files that agents load on demand using the built-in `skill
 
 The default agent. Handles the full feature development lifecycle:
 
-1. **Understand** — reads the ticket, loads config
+1. **Understand** — reads the ticket, confirms git remote
 2. **Scoping checkpoint** — presents a proposed agent plan to the user as plain text and waits for approval before starting any work
-3. **Setup** — creates a git worktree (via the `git-worktrees` skill), renames the session
+3. **Setup** — creates the feature branch from the repo root, renames the session
 4. **Execute** — delegates to specialist agents in sequential waves:
    - Wave 1: `@architect` (optional, for complex tasks)
    - Wave 2: `@backend-engineer` (then `@frontend-engineer` once backend passes review)
@@ -154,6 +133,6 @@ The build agent has no bash access and does not write code. It scopes, delegates
 2. Use the `tool()` helper from `@opencode-ai/plugin`
 3. Export as default (single tool) or named exports (multiple tools, named `<file>_<export>`)
 4. If the tool needs a new npm dependency, add it to `tools/package.json`
-5. Config should be read from `agent-config.json` via helpers in `tools/lib/agent-config.ts`; secrets from env vars only
+5. Secrets are read from environment variables only
 
 See `tools/send-telegram.ts` for a working example.

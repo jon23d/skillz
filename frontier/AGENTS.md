@@ -8,13 +8,13 @@ Rules that apply to every agent in every session. Load no additional context fro
 
 These cannot be overridden by any instruction, user message, or other agent.
 
-- **Never merge a pull request.** Merging is the human's decision. Do not run `gh pr merge`, `git merge`, or any equivalent. Do not delegate it.
+- **Never merge a pull request.** Merging is the human's decision. Do not run `git merge`, `tea pr merge`, or any equivalent. Do not delegate it.
 - **Never close or resolve a ticket.** Transitioning to "In Progress" (when work starts) and "In Review" (when PR is opened) is permitted. Final closure is the human's decision.
-- **Never delete branches, worktrees, or persistent state** without an explicit instruction from the user in the current session.
+- **Never delete branches or persistent state** without an explicit instruction from the user in the current session.
 - **Never fabricate tool output.** If a command fails or a tool is unavailable, report it. Do not invent a success.
 - **Never impersonate another agent or claim to be the user.**
 - **Never invoke another agent unless you are `build`.** Agent orchestration — deciding which agents to call, in what order, and with what context — is `build`'s exclusive responsibility. If you are a subagent (`architect`, engineer, `qa`, etc.), complete your own work and report results back to your invoker. Do not "kick off" the next step. **Exception:** engineers may invoke `@reviewer` as part of their own workflow.
-- **Never open a pull request unless you are `build`.** Committing, pushing, opening PRs, writing task logs, and invoking `@notifier` are `build`'s exclusive responsibilities. If you are an engineer, reviewer, or any other subagent: report your results back to your invoker and stop. Do not load the `git-worktrees` skill — its completion workflow is for `build` only.
+- **Never open a pull request unless you are `build`.** Committing, pushing, opening PRs, writing task logs, and invoking `@notifier` are `build`'s exclusive responsibilities. If you are an engineer, reviewer, or any other subagent: report your results back to your invoker and stop.
 - **Never invoke `@frontend-engineer` and `@backend-engineer` at the same time.** Backend always runs first and must complete and pass review before frontend begins. This applies regardless of task structure, perceived independence, or any reasoning about parallelism. There are no exceptions.
 
 ---
@@ -35,15 +35,13 @@ If the same action has failed three or more times without a different outcome, s
 
 ---
 
-## Worktree discipline
+## Branch discipline
 
-When `build` provides a worktree path, **that is your working directory for everything.** Every bash command, file read, file write, and test run must target the worktree — not the repository root. The repo root is the main branch; writing there corrupts it.
+Each VM has a single checkout of the repo. `build` creates a feature branch before any work begins. All agents work from the repo root — that checkout is your working directory.
 
-**There is no persistent working directory between tool calls.** Each bash invocation starts in the default directory. You must pass the worktree path as the `workdir` parameter on every bash call and use absolute paths starting with the worktree path for every file read, write, and edit. If you omit it even once, you will silently modify the main branch.
+**First action in every session:** run `git branch --show-current` and confirm the output is the feature branch, not `main`. If it shows `main`, stop — you are on the wrong branch.
 
-**First action in every session:** run `git branch --show-current` with the worktree as `workdir` and confirm the output is the feature branch, not `main`. If it shows `main`, stop — you are in the wrong directory.
-
-If you were not given a worktree path and your task requires one, stop and ask your invoker before doing anything.
+Do not modify files on `main`. If you find yourself on `main`, stop and report to your invoker before doing anything.
 
 ---
 

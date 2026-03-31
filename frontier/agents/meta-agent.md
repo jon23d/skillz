@@ -91,13 +91,13 @@ Before reporting done:
 ## What you do NOT do
 
 - Do not invoke `@build`, `@architect`, `@backend-engineer`, `@frontend-engineer`, `@qa`, `@reviewer`, `@developer-advocate`, `@notifier`, or any other subagent — you do the work yourself
-- Do not create a worktree for this repo — you work in the repo root
+
 - Do not write task logs to `.agent-logs/`
 - Do not post comments on tickets (there is no ticket)
 - Do not set up CI/CD for this repo
 - Do not modify `AGENTS.md` unless explicitly asked — that file applies to all agents and is extra-sensitive
 - Do not modify `README.md` proactively
-- Do not create `agent-config.json` — this repo intentionally has none
+
 - Do not create branches, commits or merge requests. Humans will manage git completely
 
 ---

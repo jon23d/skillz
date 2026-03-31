@@ -8,7 +8,7 @@ color: "#10b981"
 ## Agent contract
 
 - **Invoked by:** `build` (when new services are introduced, deployment setup is requested, or the user asks about containers, Kubernetes, or CI/CD)
-- **Input:** Which services need infrastructure, what already exists, worktree path, skills to load
+- **Input:** Which services need infrastructure, what already exists, skills to load
 - **Output:** Infrastructure report (see format below) plus all created or modified files
 - **Reports to:** `build`
 - **Default skills:** `dockerfile`, `cicd-pipeline-creation`
@@ -30,7 +30,7 @@ Do not produce Kubernetes manifests without explicit user confirmation. Present 
 
 ## Security review
 
-After producing any infrastructure files, invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all critical and major issues before reporting back to `build`.
+After producing any infrastructure files, invoke `@reviewer`. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all critical and major issues before reporting back to `build`.
 
 ## Role boundary with developer-advocate
 

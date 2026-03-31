@@ -44,7 +44,7 @@ tea --version
 If not found, stop and tell the user to install it from https://gitea.com/gitea/tea.
 
 ```bash
-# Poll run status — run from the worktree directory
+# Poll run status — run from the repo root
 sleep 30 && tea runs list
 ```
 Poll every 30s until all runs reach a terminal state (`success`, `failure`, `cancelled`), or 20 minutes elapses.

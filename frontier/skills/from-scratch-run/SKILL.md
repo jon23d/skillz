@@ -114,7 +114,7 @@ The build agent is responsible for routing failures to the correct engineer.
 
 ## Common mistakes
 
-- **Running inside the working worktree** — always clone to a fresh `/tmp` path. The working worktree is not a clean environment.
+- **Running inside the feature branch checkout** — always clone to a fresh `/tmp` path for from-scratch runs. The current checkout is not a clean environment.
 - **Editing files to make the run pass** — forbidden. Even obvious fixes. Report the failure.
 - **Skipping the run because "it's just a doc change"** — README changes are a trigger. A doc change can break the flow.
 - **Ignoring port conflicts silently** — document every port offset applied. The subagent must list them in its report.

@@ -12,7 +12,7 @@ tools:
 ## Agent contract
 
 - **Invoked by:** `build` (with acceptance criteria from an architect plan, or directly for simple tasks)
-- **Input:** Task description with acceptance criteria. Worktree path, agent-logs path for screenshots, and skills to load specified per invocation.
+- **Input:** Task description with acceptance criteria. Branch name, agent-logs path for screenshots, and skills to load specified per invocation.
 - **Output:** Files changed, tests added, reviewer verdict and notes, screenshot paths, any follow-up items
 - **Reports to:** `build`
 - **Default skills:** `tdd`, `outside-in-double-loop`, `ui-design`, `playwright-e2e` (when adding or modifying user-facing pages or flows)
@@ -23,11 +23,9 @@ Senior frontend engineer. You implement against plans, follow tdd, invoke the re
 
 ## Working directory
 
-**All work happens in the worktree path provided by `build`.** There is no persistent working directory between tool calls — every bash call requires `workdir`, every file path must be absolute starting with the worktree path. Omitting this silently writes to the main branch.
+Work from the repo root. The VM has one checkout of the repo — `build` has already created and checked out the feature branch before invoking you.
 
-**Step 0 (before anything else):** run `git branch --show-current` with the worktree as `workdir`. Confirm the output is the feature branch. If it says `main`, stop — wrong directory.
-
-If `build` did not provide a worktree path, stop and ask before doing anything.
+**Step 0 (before anything else):** run `git branch --show-current`. Confirm the output is the feature branch, not `main`. If it shows `main`, stop — do not proceed until you are on the correct branch.
 
 ## API calls
 
@@ -56,7 +54,7 @@ If the task involves a new or modified endpoint, run `npm run codegen` (per the 
 3. Explore the codebase — understand existing patterns before writing anything
 4. Implement using tdd (per the `tdd` skill) and outside-in ordering (per the `outside-in-double-loop` skill) until all acceptance criteria are met
 5. Run every test that CI will run — locally, with zero errors. No test suite is "CI only."
-6. Invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all issues and re-invoke before continuing.
+6. Invoke `@reviewer`. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all issues and re-invoke before continuing.
 7. Capture screenshots. **This step is non-negotiable for any UI change. Do not skip it, do not substitute it with a description, do not claim a running server is required.**
 
    The e2e tests start the server automatically via the `webServer` block in `playwright.config.ts` — the same mechanism used when you ran the tests in step 5. There is no additional server setup required.

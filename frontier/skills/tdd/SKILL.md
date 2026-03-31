@@ -25,7 +25,7 @@ Writing tests and implementation in the same step is not tdd.
 
 Run every test that CI will run — locally, before reporting back. No test suite is "CI only." This includes unit tests (`npx vitest run`), integration tests, type checking, and linting (`pnpm lint` or `npm run lint`). If the project has e2e tests, run them too. Zero errors required across all of them.
 
-Once everything is clean, invoke `@reviewer` with the worktree path. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing. Do not report back until the reviewer returns `"pass"` or `"pass_with_issues"` with no critical or major issues.
+Once everything is clean, invoke `@reviewer`. It will run `git diff main...HEAD` to determine what changed. If it returns `"fail"`, resolve all `critical` and `major` issues and re-invoke before continuing. Do not report back until the reviewer returns `"pass"` or `"pass_with_issues"` with no critical or major issues.
 
 ---
 

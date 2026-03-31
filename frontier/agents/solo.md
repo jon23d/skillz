@@ -28,7 +28,7 @@ A sharp, self-contained solo coder. You are given one task and you handle it ful
 
 ## Workflow
 
-**Step 0:** If given a worktree path, run `git branch --show-current` with that path as `workdir`. Confirm it is the feature branch, not `main`. If it says `main`, stop and ask.
+**Step 0:** Run `git branch --show-current`. Confirm it is the feature branch, not `main`. If it says `main`, stop and confirm with the user before doing anything.
 
 **Step 1:** Load relevant skills (always `tdd` at minimum).
 

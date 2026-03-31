@@ -5,7 +5,7 @@ description: Use when opening, updating, or listing pull requests. Use when aske
 
 # Pull Requests
 
-All pull request operations go through the PR tools. Read `agent-config.json` to determine the provider before doing anything else.
+All pull request operations use the `tea` CLI.
 
 ## Before opening a PR
 
@@ -31,7 +31,7 @@ Use the `tea` CLI. Check availability first:
 ```bash
 tea --version
 ```
-If not found, stop and tell the user to install it from https://gitea.com/gitea/tea. Assume already authenticated. Run from the worktree directory.
+If not found, stop and tell the user to install it from https://gitea.com/gitea/tea. Assume already authenticated. Run from the repo root.
 
 `tea pulls create` takes `--description` with no file-reading flag. Write the PR body to a temp file and use command substitution to avoid multiline/escaping issues:
 ```bash
@@ -51,19 +51,11 @@ tea pulls list [--state open|closed]
 tea pulls edit <number> --title "..." --description "$(cat /tmp/pr-body.md)"
 ```
 
-The base branch defaults to `main`. Override by setting `default_branch` in `agent-config.json`:
-
-```json
-"git_host": {
-  "provider": "gitea",
-  "gitea": {
-    "repo_url": "https://gitea.example.com/owner/repo",
-    "default_branch": "develop"
-  }
-}
+Determine the base branch from git:
+```bash
+git symbolic-ref refs/remotes/origin/HEAD | sed 's|refs/remotes/origin/||'
 ```
-
-The `repo_url` is required for constructing screenshot image URLs — see the Screenshots section below.
+Falls back to `main` if unset. This is also used for constructing screenshot image URLs — the repo URL comes from `git remote get-url origin`.
 
 ## PR body template
 
@@ -139,7 +131,7 @@ git show HEAD:.agent-logs/YYYY-MM-DD-slug/filename.png > /dev/null
 # Repeat for each file. If this fails, the file is not committed — stop and fix it before proceeding.
 ```
 
-**Step 2 — Construct the URL** from `git_host.gitea.repo_url` in `agent-config.json`:
+**Step 2 — Construct the URL** using the repo URL from `git remote get-url origin`:
 ```
 {repo_url}/raw/branch/{BRANCH}/{path-from-repo-root}
 ```

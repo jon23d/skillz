@@ -13,7 +13,7 @@ Check availability first:
 ```bash
 tea --version
 ```
-If `tea` is not found, stop and tell the user to install it from https://gitea.com/gitea/tea. Assume it is already authenticated. Run all commands from the worktree directory.
+If `tea` is not found, stop and tell the user to install it from https://gitea.com/gitea/tea. Assume it is already authenticated. Run all commands from the repo root.
 
 ## Commands
 

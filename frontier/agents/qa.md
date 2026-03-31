@@ -9,7 +9,7 @@ hidden: true
 ## Agent contract
 
 - **Invoked by:** `build` (after all engineers report success and reviewer has passed)
-- **Input:** List of changed files, notes on which endpoints were added or modified, worktree path, skills to load
+- **Input:** List of changed files, notes on which endpoints were added or modified, skills to load
 - **Output:** Structured JSON verdict (see format below)
 - **Reports to:** `build`
 - **Default skills:** `playwright-e2e`. When endpoints were changed: also load `openapi-codegen`.
