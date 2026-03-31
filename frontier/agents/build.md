@@ -33,8 +33,7 @@ When the user describes a problem, names a ticket, or asks you to pick up work:
 2. Run `git remote get-url origin` to confirm the repo URL. If this fails (no git repo, no remote), stop and ask the user.
 3. If a ticket reference was given, read the full description:
    ```bash
-   tea issues ls --output json --fields index,title,body,state,assignees,labels \
-     | jq '.[] | select(.index == <number>)'
+   tea issue <number>
    ```
 4. **Check if the ticket is already assigned.** Inspect the `assignees` field from the tea output. If already assigned to anyone, **stop immediately** and tell the user: "Ticket {ref} is already assigned to {assignee(s)}. I won't proceed — please unassign it or confirm you want me to take it over." Do not continue to Phase 2. If unassigned, continue.
 5. **Rename the session now** — call `rename-session` (e.g. `#42 - Add user authentication` for a ticket, or `brief description` without one). This must happen before Phase 2.

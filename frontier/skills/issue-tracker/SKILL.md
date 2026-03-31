@@ -26,10 +26,9 @@ tea issues ls --assignee <username>
 tea issues ls --label <label>
 ```
 
-**Read a specific issue** (no `view` subcommand — use ls + jq):
+**Read a specific issue:**
 ```bash
-tea issues ls --output json --fields index,title,body,state,assignees,labels \
-  | jq '.[] | select(.index == <NUMBER>)'
+tea issue <NUMBER>
 ```
 
 **Create an issue:**
