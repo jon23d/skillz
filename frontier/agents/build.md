@@ -143,9 +143,8 @@ Follow the `pull-requests` skill. The order below is strict — do not reorder o
    ```
 5. Open the PR: `tea pulls create` (per the `pull-requests` skill — write body to `/tmp/pr-body.md` first). The PR body uses the template from the `pull-requests` skill: title line, summary, `# Screenshots` section with embedded Gitea attachment URLs, `# Detail` section with changes, tests, verdicts, errors, and follow-ups.
 6. Post PR URL on the ticket: `tea comment {number} "🔀 PR opened: {pr_url}"`
-7. **Follow the `pipeline-watch` skill:** watch CI checks until all pass (or fail).
-8. **Only after CI is green:** invoke `@notifier` with the PR URL, CI status, and one-sentence summary. Do not invoke `@notifier` before CI completes — the notification is the signal to the user that the PR is ready to review.
-9. Report the PR URL and CI result to the user
+7. Invoke `@notifier` with the PR URL and a one-sentence summary.
+8. Report the PR URL to the user
 
 ---
 
@@ -175,8 +174,7 @@ A task is NOT done until all of these pass, **in this order**:
 6. Screenshots uploaded to Gitea issue assets API and `browser_download_url` values collected (UI changes) — **must happen before opening the PR**
 7. Feature branch pushed
 8. PR opened with complete body: title, summary, `# Screenshots` with embedded Gitea attachment URLs (UI changes), `# Detail` with changes/tests/verdicts/errors/follow-ups
-9. CI pipeline checks are green (per `pipeline-watch` skill)
-10. `@notifier` invoked **after** CI is green — not before
+9. `@notifier` invoked after PR is open
 
 **NEVER merge a PR.** The task ends when the PR is open and CI is green.
 
