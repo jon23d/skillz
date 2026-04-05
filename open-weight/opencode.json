@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "small_model": "mac-studio/qwen3-1.7b",
   "permission": {
     "*": "allow",
     "bash": "allow",
@@ -39,6 +40,13 @@
           "limit": {
             "context": 131072,
             "output": 65536
+          }
+        },
+        "qwen3-1.7b": {
+          "name": "Qwen3 1.7B",
+          "limit": {
+            "context": 32768,
+            "output": 4096
           }
         }
       },
