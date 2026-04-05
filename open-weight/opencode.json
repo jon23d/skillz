@@ -42,7 +42,7 @@
             "output": 65536
           }
         },
-        "qwen3-1.7b": {
+        "qwen/qwen3-1.7b": {
           "name": "Qwen3 1.7B",
           "limit": {
             "context": 32768,
