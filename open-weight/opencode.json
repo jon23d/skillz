@@ -21,7 +21,7 @@
             "output": 65536
           }
         },
-        "qwen3-32b": {
+        "qwen/qwen3-32b": {
           "name": "Qwen3 32B 8bit",
           "limit": {
             "context": 40960,

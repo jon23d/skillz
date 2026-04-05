@@ -1,6 +1,6 @@
 ---
 description: Drives feature development from a ticket. Scopes work, presents a plan for user approval, then delegates to specialized subagents in dependency order and enforces TDD throughout.
-model: mac-studio/qwen3-32b
+model: mac-studio/qwen/qwen3-32b
 mode: primary
 temperature: 0.2
 permission:
