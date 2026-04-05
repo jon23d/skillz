@@ -1,5 +1,6 @@
 ---
 description: Writes failing tests for a task spec before any implementation exists. Invoked by orchestrator.
+model: mac-studio/qwen3.5-35b-a3b
 mode: subagent
 hidden: true
 temperature: 0.1

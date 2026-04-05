@@ -1,5 +1,6 @@
 ---
 description: Implements a single task to make its pre-written failing tests pass. Iterates until green. Invoked by orchestrator.
+model: mac-studio/qwen3.5-35b-a3b
 mode: subagent
 hidden: true
 temperature: 0.2

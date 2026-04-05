@@ -279,6 +279,6 @@ playwright-cli close
 
 ## Turning a recorded session into a formal test
 
-The actions you perform with playwright-cli generate Playwright TypeScript code automatically. Once you've verified a flow works interactively, collect that generated code and formalize it as a `.spec.ts` test file using the **playwright-e2e** skill, which covers locator best practices, assertions, test isolation, and running tests locally before pushing to GitHub.
+The actions you perform with playwright-cli generate Playwright TypeScript code automatically. Once you've verified a flow works interactively, collect that generated code and formalize it as a `.spec.ts` test file using the **playwright-e2e** skill, which covers locator best practices, assertions, test isolation, and running tests locally before pushing.
 
 See [playwright-e2e skill](../playwright-e2e/SKILL.md).

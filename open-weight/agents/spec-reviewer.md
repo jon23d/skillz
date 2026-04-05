@@ -1,5 +1,6 @@
 ---
 description: Reviews a single task spec and returns TESTABLE or a list of issues. Gate before test-writer runs. Invoked by orchestrator.
+model: mac-studio/qwen3-8b
 mode: subagent
 hidden: true
 temperature: 0.1

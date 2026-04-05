@@ -1,5 +1,6 @@
 ---
 description: Assembles all completed tasks into a coherent whole, resolves cross-cutting concerns, and runs the full test suite. Final step in the pipeline.
+model: mac-studio/qwen3.5-35b-a3b
 mode: subagent
 hidden: true
 temperature: 0.2
