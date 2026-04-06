@@ -21,6 +21,14 @@
             "output": 65536
           }
         },
+	"minimax/minimax-m2.5": {
+          "name": "minimax-m2.5-q6",
+          "limit": {
+            "context": 128000,
+            "output": 65536
+          }
+        },
+
         "qwen/qwen3-1.7b": {
           "name": "Qwen3 1.7B",
           "limit": {
