@@ -1,0 +1,44 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "small_model": "mac-studio/qwen/qwen3-1.7b",
+  "permission": {
+    "*": "allow",
+    "bash": "allow",
+    "edit": "allow",
+    "external_directory": "allow",
+    "doom_loop": "allow"
+  },
+  "disabled_providers": [],
+  "provider": {
+    "mac-studio": {
+      "name": "MacStudio",
+      "npm": "@ai-sdk/openai-compatible",
+      "models": {
+        "qwen3.5-35b-a3b": {
+          "name": "Qwen3.5 35B-A3B 8bit",
+          "limit": {
+            "context": 131072,
+            "output": 65536
+          }
+        },
+        "qwen3-8b": {
+          "name": "Qwen3 8B 8bit",
+          "limit": {
+            "context": 131072,
+            "output": 65536
+          }
+        },
+        "qwen/qwen3-1.7b": {
+          "name": "Qwen3 1.7B",
+          "limit": {
+            "context": 32768,
+            "output": 4096
+          }
+        }
+      },
+      "options": {
+        "baseURL": "http://192.168.50.50:1234/v1"
+      }
+    }
+  }
+}
