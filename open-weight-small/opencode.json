@@ -17,15 +17,27 @@
         "qwen3.5-35b-a3b": {
           "name": "Qwen3.5 35B-A3B 8bit",
           "limit": {
-            "context": 131072,
+            "context": 262144,
             "output": 65536
+          },
+          "options": {
+            "top_p": 0.8,
+            "top_k": 20,
+            "min_p": 0.0,
+            "presence_penalty": 1.5
           }
         },
         "qwen3-8b": {
           "name": "Qwen3 8B 8bit",
           "limit": {
-            "context": 131072,
+            "context": 262144,
             "output": 65536
+          },
+          "options": {
+            "top_p": 0.8,
+            "top_k": 20,
+            "min_p": 0.0,
+            "presence_penalty": 1.5
           }
         },
         "qwen/qwen3-1.7b": {
@@ -33,11 +45,17 @@
           "limit": {
             "context": 32768,
             "output": 4096
+          },
+          "options": {
+            "top_p": 0.8,
+            "top_k": 20,
+            "min_p": 0.0,
+            "presence_penalty": 1.5
           }
         }
       },
       "options": {
-        "baseURL": "http://192.168.50.50:1234/v1"
+        "baseURL": "http://192.168.50.146:1234/v1"
       }
     }
   }

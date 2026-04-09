@@ -257,8 +257,8 @@ FastAPI serves Swagger UI at `/docs` and ReDoc at `/redoc` by default. These are
 
 ```bash
 # Backend
-cd backend && pytest                           # all tests
-cd backend && pytest app/domains/{domain}/     # one domain
+cd backend && uv run pytest                           # all tests
+cd backend && uv run pytest app/domains/{domain}/     # one domain
 
 # Frontend (from frontend/ root)
 pnpm --filter @{project}/ui test -- --run      # UI library tests
@@ -268,31 +268,31 @@ pnpm test                                      # all frontend tests
 pnpm build                                     # all frontend builds
 
 # Full suite
-make test                                      # backend + frontend
-make build                                     # full build check
+just test                                      # backend + frontend
+just build                                     # full build check
 ```
 
 ### Alembic migrations
 
 ```bash
 # Create a migration after changing models
-cd backend && alembic revision --autogenerate -m "add invoice table"
+cd backend && uv run alembic revision --autogenerate -m "add invoice table"
 
 # Apply migrations
-cd backend && alembic upgrade head
+cd backend && uv run alembic upgrade head
 
 # Check current state
-cd backend && alembic current
+cd backend && uv run alembic current
 ```
 
-Migrations run against a real database. `docker compose up -d db` must be running. The `make dev` target starts the database automatically.
+Migrations run against a real database. `docker compose up -d db` must be running. The `just dev` target starts the database automatically.
 
 ### Adding a new domain
 
 1. Create `backend/app/domains/{domain}/` with models, schemas, routes, service, tests
 2. Register the router in `app/main.py` with appropriate prefix and gate
 3. Create an alembic migration: `alembic revision --autogenerate -m "add {domain} tables"`
-4. Run `make openapi && make codegen`
+4. Run `just openapi && just codegen`
 5. Create `frontend/packages/ui/src/components/{domain}/` with components, tests, stories
 6. Create `frontend/packages/ui/src/hooks/{domain}/` with query hooks
 7. Add routes in the appropriate app(s) that compose the new components

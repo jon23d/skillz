@@ -27,42 +27,57 @@ Follow these steps in exact order. Do not skip steps. Run the verification comma
 
 ## Step 1 — Root structure
 
-```makefile
-# Makefile
-.PHONY: dev test build openapi codegen lint clean migrate
+```just
+# justfile
 
+# Run the full development stack
 dev:
-	docker compose up -d db
-	@echo "Waiting for postgres..." && sleep 2
-	cd backend && alembic upgrade head
-	cd backend && uvicorn app.main:app --reload --port 8000 &
-	cd frontend && pnpm dev &
-	wait
+    docker compose up -d db
+    sleep 2
+    cd backend && uv run alembic upgrade head
+    cd backend && uv run uvicorn app.main:app --reload --port 8000 &
+    cd frontend && pnpm dev &
+    wait
 
+# Run all tests
 test:
-	cd backend && pytest
-	cd frontend && pnpm test -- --run
+    cd backend && uv run pytest
+    cd frontend && pnpm test -- --run
 
+# Build everything
 build:
-	cd backend && pytest
-	cd frontend && pnpm build
+    cd backend && uv run pytest
+    cd frontend && pnpm build
 
+# Generate OpenAPI spec from backend
 openapi:
-	cd backend && python scripts/generate_openapi.py
+    cd backend && uv run python scripts/generate_openapi.py
 
+# Regenerate frontend client from OpenAPI spec
 codegen: openapi
-	cp backend/openapi.json frontend/packages/ui/openapi.json
-	cd frontend/packages/ui && pnpm codegen
+    cp backend/openapi.json frontend/packages/ui/openapi.json
+    cd frontend/packages/ui && pnpm codegen
 
+# Lint both stacks
 lint:
-	cd backend && ruff check . && ruff format --check .
-	cd frontend && pnpm lint
+    cd backend && uv run ruff check . && uv run ruff format --check .
+    cd frontend && pnpm lint
 
-migrate:
-	cd backend && alembic revision --autogenerate -m "$(msg)"
+# Create a new migration: just migrate "description of change"
+migrate msg:
+    cd backend && uv run alembic revision --autogenerate -m "{{{{msg}}}}"
 
+# Apply all pending migrations
+db-upgrade:
+    cd backend && uv run alembic upgrade head
+
+# Run seed script
+seed:
+    cd backend && uv run python scripts/seed.py
+
+# Tear down docker volumes
 clean:
-	docker compose down -v
+    docker compose down -v
 ```
 
 ```yaml
@@ -81,6 +96,75 @@ services:
 
 volumes:
   pgdata:
+```
+
+```yaml
+# docker-compose.yml — already shown above, create it here
+```
+
+### README
+
+```markdown
+# ${PROJECT_TITLE}
+
+## Prerequisites
+
+Install these tools before starting:
+
+| Tool | Purpose | Install |
+|------|---------|---------|
+| [just](https://just.systems) | Command runner | `brew install just` |
+| [uv](https://docs.astral.sh/uv) | Python package manager | `brew install uv` |
+| [pnpm](https://pnpm.io) | Node package manager | `brew install pnpm` |
+| [Docker](https://www.docker.com) | Database | [docker.com/get-started](https://www.docker.com/get-started/) |
+
+> **Linux:** `just` — see [github.com/casey/just#packages](https://github.com/casey/just#packages); `uv` — `curl -LsSf https://astral.sh/uv/install.sh | sh`
+
+## Quick start
+
+\`\`\`bash
+# Install backend dependencies
+cd backend && uv sync && cd ..
+
+# Install frontend dependencies
+cd frontend && pnpm install && cd ..
+
+# Start everything (database, backend, frontend)
+just dev
+\`\`\`
+
+The backend runs at http://localhost:8000 — API docs at http://localhost:8000/docs
+
+Frontend apps:
+- Admin: http://localhost:3001
+- Portal: http://localhost:3002
+- Marketing: http://localhost:3003
+
+## Common commands
+
+\`\`\`bash
+just test                        # run all tests
+just build                       # full build check
+just lint                        # lint both stacks
+just migrate "add invoice table" # create a migration
+just db-upgrade                  # apply pending migrations
+just seed                        # run seed data script
+just codegen                     # regenerate frontend API client
+just clean                       # tear down docker volumes
+\`\`\`
+
+Run \`just --list\` to see all available commands.
+
+## Project structure
+
+\`\`\`
+backend/    FastAPI + PostgreSQL (Python, uv)
+frontend/
+  packages/ui/      Shared component library + API client
+  apps/admin/       Superadmin panel (port 3001)
+  apps/portal/      Customer portal (port 3002)
+  apps/marketing/   Marketing site (port 3003)
+\`\`\`
 ```
 
 ---
@@ -107,7 +191,7 @@ dependencies = [
     "passlib[bcrypt]>=1.7",
 ]
 
-[project.optional-dependencies]
+[dependency-groups]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.24",
@@ -982,7 +1066,7 @@ print(f"OpenAPI spec written to {output}")
 
 Run:
 ```bash
-cd backend && alembic init alembic
+cd backend && uv run alembic init alembic
 ```
 
 Then replace the contents of `alembic/env.py` with:
@@ -1043,7 +1127,7 @@ sqlalchemy.url = postgresql+asyncpg://postgres:postgres@localhost:5432/${PROJECT
 ### Verify backend
 
 ```bash
-cd backend && pip install -e ".[dev]" && pytest
+cd backend && uv sync && uv run pytest
 ```
 
 All tests must pass before proceeding.
@@ -1499,9 +1583,9 @@ Update `packages/ui/src/index.ts` to export the new components.
 Run the full suite from the project root:
 
 ```bash
-make test
-make build
-make openapi
+just test
+just build
+just openapi
 ```
 
 All three must pass. Report any failures — do not ignore them.
