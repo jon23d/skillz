@@ -2,3 +2,4 @@ test
 tools/node_modules
 .idea
 .DS_Store
+frontier/tools/node_modules
