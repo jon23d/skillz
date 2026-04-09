@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "small_model": "mac-studio/devstral-small-2505",
+  "small_model": "mac-studio/devstral-small-2-24b-instruct-2512",
   "permission": {
     "*": "allow",
     "bash": "allow",
@@ -14,10 +14,10 @@
       "name": "MacStudio",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
-        "devstral-small-2505": {
-          "name": "Devstral Small 2505 BF16",
+        "devstral-small-2-24b-instruct-2512": {
+          "name": "Devstral Small 2 24B Instruct 2512 BF16",
           "limit": {
-            "context": 131072,
+            "context": 393216,
             "output": 32768
           },
           "options": {

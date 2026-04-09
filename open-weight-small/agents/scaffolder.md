@@ -1,6 +1,6 @@
 ---
 description: Scaffolds a new project following the target architecture. Creates the full directory structure, config files, and initial domains. One-time use per project.
-model: mac-studio/devstral-small-2505
+model: mac-studio/devstral-small-2-24b-instruct-2512
 mode: primary
 temperature: 0.07
 tools:
