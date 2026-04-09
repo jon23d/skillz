@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "small_model": "mac-studio/qwen/qwen3-1.7b",
+  "small_model": "mac-studio/devstral-small-2505",
   "permission": {
     "*": "allow",
     "bash": "allow",
@@ -14,43 +14,14 @@
       "name": "MacStudio",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
-        "qwen3.5-35b-a3b": {
-          "name": "Qwen3.5 35B-A3B 8bit",
+        "devstral-small-2505": {
+          "name": "Devstral Small 2505 BF16",
           "limit": {
-            "context": 262144,
-            "output": 65536
+            "context": 131072,
+            "output": 32768
           },
           "options": {
-            "top_p": 0.8,
-            "top_k": 20,
-            "min_p": 0.0,
-            "presence_penalty": 1.5
-          }
-        },
-        "qwen3-8b": {
-          "name": "Qwen3 8B 8bit",
-          "limit": {
-            "context": 262144,
-            "output": 65536
-          },
-          "options": {
-            "top_p": 0.8,
-            "top_k": 20,
-            "min_p": 0.0,
-            "presence_penalty": 1.5
-          }
-        },
-        "qwen/qwen3-1.7b": {
-          "name": "Qwen3 1.7B",
-          "limit": {
-            "context": 32768,
-            "output": 4096
-          },
-          "options": {
-            "top_p": 0.8,
-            "top_k": 20,
-            "min_p": 0.0,
-            "presence_penalty": 1.5
+            "min_p": 0.01
           }
         }
       },
