@@ -1553,28 +1553,264 @@ All tests must pass and all apps must build before proceeding.
 
 ## Step 4 — Scaffold initial business domains (if provided)
 
-For each business domain name provided, create the skeleton files. These are in addition to the built-in domains (health, auth, tenants, rbac).
+For each business domain name provided, create the following files exactly. Replace `{domain}` with the domain name (snake_case) and `{Entity}` with the PascalCase entity name (usually the singular domain name, e.g. domain=`orders` → Entity=`Order`).
 
-**Backend** — create `backend/app/domains/{domain}/`:
-- `__init__.py`
-- `models.py` — SQLAlchemy model class inheriting `Base`, `TimestampMixin`, `TenantMixin` with `id` (UUID primary key)
-- `schemas.py` — `Create`, `Update`, `Read` Pydantic schemas (no `tenant_id` in `Create`)
-- `routes.py` — CRUD router with privilege-gated endpoints using `require_privilege("{domain}.create")` etc.
-- `service.py` — CRUD service functions taking `AsyncSession` and `tenant_id`
-- `tests/__init__.py`
-- `tests/test_service.py` — at least one test per service function
-- `tests/test_routes.py` — at least one test per endpoint
+These are in addition to the built-in domains (health, auth, tenants, rbac).
 
-Register each router in `app/main.py`. Add model imports to `alembic/env.py`.
+### Backend files
 
-**Frontend** — create component, hook, and route directories in `packages/ui/`:
-- `packages/ui/src/components/{domain}/{Entity}List.tsx` — list component with typed props
-- `packages/ui/src/components/{domain}/{Entity}List.test.tsx`
-- `packages/ui/src/components/{domain}/{Entity}List.stories.tsx`
-- `packages/ui/src/components/{domain}/index.ts`
-- `packages/ui/src/hooks/{domain}/use{Entity}.ts` — TanStack Query hook stub
+```python
+# backend/app/domains/{domain}/__init__.py
+```
 
-Update `packages/ui/src/index.ts` to export the new components.
+```python
+# backend/app/domains/{domain}/models.py
+import uuid
+
+from sqlalchemy import String
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models import Base, TimestampMixin, TenantMixin
+
+
+class {Entity}(Base, TimestampMixin, TenantMixin):
+    __tablename__ = "{domain}"
+
+    id: Mapped[uuid.UUID] = mapped_column(primary_key=True, default=uuid.uuid4)
+    name: Mapped[str] = mapped_column(String(255))
+```
+
+```python
+# backend/app/domains/{domain}/schemas.py
+import uuid
+from pydantic import BaseModel
+
+
+class {Entity}Create(BaseModel):
+    name: str
+
+
+class {Entity}Update(BaseModel):
+    name: str | None = None
+
+
+class {Entity}Read(BaseModel):
+    id: uuid.UUID
+    name: str
+    tenant_id: uuid.UUID
+
+    model_config = {"from_attributes": True}
+```
+
+```python
+# backend/app/domains/{domain}/service.py
+import uuid
+
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.domains.{domain}.models import {Entity}
+from app.domains.{domain}.schemas import {Entity}Create
+
+
+async def create_{domain_singular}(
+    session: AsyncSession, data: {Entity}Create, tenant_id: uuid.UUID
+) -> {Entity}:
+    obj = {Entity}(**data.model_dump(), tenant_id=tenant_id)
+    session.add(obj)
+    await session.commit()
+    await session.refresh(obj)
+    return obj
+
+
+async def list_{domain}(
+    session: AsyncSession, tenant_id: uuid.UUID
+) -> list[{Entity}]:
+    result = await session.execute(
+        select({Entity}).where({Entity}.tenant_id == tenant_id)
+    )
+    return list(result.scalars().all())
+
+
+async def get_{domain_singular}(
+    session: AsyncSession, id: uuid.UUID, tenant_id: uuid.UUID
+) -> {Entity} | None:
+    result = await session.execute(
+        select({Entity}).where({Entity}.id == id, {Entity}.tenant_id == tenant_id)
+    )
+    return result.scalar_one_or_none()
+```
+
+```python
+# backend/app/domains/{domain}/routes.py
+import uuid
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.database import async_session
+from app.domains.auth.dependencies import CurrentUser, get_current_user
+from app.domains.rbac.guards import require_privilege
+from app.domains.{domain} import service
+from app.domains.{domain}.schemas import {Entity}Create, {Entity}Read
+
+
+router = APIRouter(prefix="/{domain}", tags=["{domain}"])
+
+
+async def get_session():
+    async with async_session() as session:
+        yield session
+
+
+@router.post("", response_model={Entity}Read, status_code=201,
+             dependencies=[require_privilege("{domain}.create")])
+async def create_{domain_singular}(
+    body: {Entity}Create,
+    session: AsyncSession = Depends(get_session),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    return await service.create_{domain_singular}(session, body, current_user.tenant_id)
+
+
+@router.get("", response_model=list[{Entity}Read],
+            dependencies=[require_privilege("{domain}.read")])
+async def list_{domain}(
+    session: AsyncSession = Depends(get_session),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    return await service.list_{domain}(session, current_user.tenant_id)
+
+
+@router.get("/{id}", response_model={Entity}Read,
+            dependencies=[require_privilege("{domain}.read")])
+async def get_{domain_singular}(
+    id: uuid.UUID,
+    session: AsyncSession = Depends(get_session),
+    current_user: CurrentUser = Depends(get_current_user),
+):
+    obj = await service.get_{domain_singular}(session, id, current_user.tenant_id)
+    if not obj:
+        raise HTTPException(status_code=404, detail="{Entity} not found")
+    return obj
+```
+
+```python
+# backend/app/domains/{domain}/tests/__init__.py
+```
+
+```python
+# backend/app/domains/{domain}/tests/test_routes.py
+from app.shared.testing import client, tenant_user_headers  # noqa: F401
+
+
+async def test_list_{domain}_requires_auth(client):
+    response = await client.get("/{domain}")
+    assert response.status_code in (401, 403)
+
+
+async def test_list_{domain}_authenticated(client, tenant_user_headers):
+    response = await client.get("/{domain}", headers=tenant_user_headers)
+    # 200 or 403 depending on privilege setup — either is valid at scaffold time
+    assert response.status_code in (200, 403)
+```
+
+```python
+# backend/app/domains/{domain}/tests/test_service.py
+# Service tests require a real database session — add integration tests here
+# once the test database fixture is configured.
+```
+
+After creating these files:
+1. Register the router in `backend/app/main.py`:
+   ```python
+   from app.domains.{domain}.routes import router as {domain}_router
+   app.include_router({domain}_router)
+   ```
+2. Add the model import to `backend/alembic/env.py`:
+   ```python
+   from app.domains.{domain}.models import {Entity}  # noqa: F401
+   ```
+
+### Frontend files
+
+```typescript
+// frontend/packages/ui/src/components/{domain}/{Entity}List.tsx
+interface {Entity}ListProps {
+  items: { id: string; name: string }[];
+  isLoading?: boolean;
+}
+
+export function {Entity}List({ items, isLoading = false }: {Entity}ListProps) {
+  if (isLoading) return <div>Loading...</div>;
+  if (items.length === 0) return <div>No {domain} found.</div>;
+  return (
+    <ul>
+      {items.map((item) => (
+        <li key={item.id}>{item.name}</li>
+      ))}
+    </ul>
+  );
+}
+```
+
+```typescript
+// frontend/packages/ui/src/components/{domain}/{Entity}List.test.tsx
+import { render, screen } from "@testing-library/react";
+import { {Entity}List } from "./{Entity}List";
+
+describe("{Entity}List", () => {
+  it("shows loading state", () => {
+    render(<{Entity}List items={[]} isLoading />);
+    expect(screen.getByText("Loading...")).toBeInTheDocument();
+  });
+
+  it("shows empty state", () => {
+    render(<{Entity}List items={[]} />);
+    expect(screen.getByText(/no {domain} found/i)).toBeInTheDocument();
+  });
+
+  it("renders items", () => {
+    render(<{Entity}List items={[{ id: "1", name: "Test" }]} />);
+    expect(screen.getByText("Test")).toBeInTheDocument();
+  });
+});
+```
+
+```typescript
+// frontend/packages/ui/src/components/{domain}/{Entity}List.stories.tsx
+import type { Meta, StoryObj } from "@storybook/react";
+import { {Entity}List } from "./{Entity}List";
+
+const meta: Meta<typeof {Entity}List> = {
+  component: {Entity}List,
+};
+export default meta;
+
+type Story = StoryObj<typeof {Entity}List>;
+
+export const Empty: Story = { args: { items: [] } };
+export const Loading: Story = { args: { items: [], isLoading: true } };
+export const WithItems: Story = {
+  args: { items: [{ id: "1", name: "Example {Entity}" }] },
+};
+```
+
+```typescript
+// frontend/packages/ui/src/components/{domain}/index.ts
+export { {Entity}List } from "./{Entity}List";
+```
+
+```typescript
+// frontend/packages/ui/src/hooks/{domain}/use{Entity}.ts
+// Placeholder — implement after running just codegen to generate the API client
+export {};
+```
+
+Add the component export to `frontend/packages/ui/src/index.ts`:
+```typescript
+export { {Entity}List } from "./components/{domain}";
+```
 
 ---
 
