@@ -2,9 +2,24 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="$HOME/.config/opencode"
 
 # ---------------------------------------------------------------------------
+
+TARGET="${1:-}"
+
+if [ -z "$TARGET" ]; then
+  echo "Error: a target directory is required."
+  echo ""
+  echo "Usage: $(basename "$0") <target-dir>"
+  echo ""
+  echo "Examples:"
+  echo "  $(basename "$0") ~/.config/opencode"
+  echo "  $(basename "$0") ~/code/<project>/.opencode"
+  exit 1
+fi
+
+# Expand a leading ~ to $HOME
+TARGET="${TARGET/#\~/$HOME}"
 
 echo "Installing to $TARGET ..."
 

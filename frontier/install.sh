@@ -2,13 +2,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-TARGET="$HOME/.config/opencode"
 
 # --- Model flags -----------------------------------------------------------
 # --model sets all agents except reviewer and local-task.
 # Per-agent flags override --model for that specific agent.
 # --reviewer-model is an explicit opt-in (reviewer intentionally defaults to a fast model).
 # --local-task-model is never touched by --model.
+TARGET=""
 MODEL=""
 BUILD_MODEL=""
 ARCHITECT_MODEL=""
@@ -34,9 +34,30 @@ for arg in "$@"; do
     --reviewer-model=*)           REVIEWER_MODEL="${arg#*=}" ;;
     --ticket-writer-model=*)      TICKET_WRITER_MODEL="${arg#*=}" ;;
     --notifier-model=*)           NOTIFIER_MODEL="${arg#*=}" ;;
-    *) echo "Unknown argument: $arg"; exit 1 ;;
+    --*) echo "Unknown flag: $arg"; exit 1 ;;
+    *)
+      if [ -z "$TARGET" ]; then
+        TARGET="$arg"
+      else
+        echo "Unexpected argument: $arg"; exit 1
+      fi
+      ;;
   esac
 done
+
+if [ -z "$TARGET" ]; then
+  echo "Error: a target directory is required."
+  echo ""
+  echo "Usage: $(basename "$0") <target-dir> [--model=...] [--<agent>-model=...]"
+  echo ""
+  echo "Examples:"
+  echo "  $(basename "$0") ~/.config/opencode"
+  echo "  $(basename "$0") ~/code/<project>/.opencode"
+  exit 1
+fi
+
+# Expand a leading ~ to $HOME
+TARGET="${TARGET/#\~/$HOME}"
 
 # ---------------------------------------------------------------------------
 
