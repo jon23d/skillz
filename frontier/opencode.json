@@ -14,17 +14,10 @@
       "name": "MacStudio",
       "npm": "@ai-sdk/openai-compatible",
       "models": {
-        "minimax-m2.5": {
-          "name": "minimax-m2.5",
+	"minimax/minimax-m2.7": {
+          "name": "minimax-m2.7",
           "limit": {
-            "context": 128000,
-            "output": 65536
-          }
-        },
-	"minimax/minimax-m2.5": {
-          "name": "minimax-m2.5-q6",
-          "limit": {
-            "context": 128000,
+            "context": 196608,
             "output": 65536
           }
         },
